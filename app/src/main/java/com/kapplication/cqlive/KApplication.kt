@@ -1,5 +1,6 @@
 package com.kapplication.cqlive
 
+import com.kapplication.cqlive.behavior.MainBehavior
 import com.kapplication.cqlive.message.CommonMessage
 import com.starcor.xulapp.XulApplication
 import com.starcor.xulapp.message.XulMessageCenter
@@ -7,7 +8,7 @@ import com.starcor.xulapp.utils.XulLog
 
 class KApplication : XulApplication() {
 
-    private val XUL_FIRST_PAGE = "xul_layouts/pages/xul_epg_page.xml"
+    private val XUL_FIRST_PAGE = "xul_layouts/pages/xul_main_page.xml"
     private val XUL_GLOBAL_BINDINGS = "xul_layouts/xul_global_bindings.xml"
     private val XUL_GLOBAL_SELECTORS = "xul_layouts/xul_global_selectors.xml"
     private val XUL_GLOBAL_DIALOGS = "xul_layouts/pages/xul_global_dialogs.xml"
@@ -25,6 +26,19 @@ class KApplication : XulApplication() {
         xulLoadLayouts(XUL_GLOBAL_SELECTORS)
         xulLoadLayouts(XUL_GLOBAL_DIALOGS)
         super.onLoadXul()
+    }
+
+    override fun onRegisterXulBehaviors() {
+        registerComponent()
+        UiManager.initUiManager()
+    }
+
+    private fun registerComponent() {
+//        val appPkgName = packageName
+//        val behaviorPkgName = appPkgName + ".behavior"
+//        autoRegister(behaviorPkgName, XulUiBehavior::class.java)
+
+        MainBehavior.register()
     }
 
     private fun startCommonMessage() {
