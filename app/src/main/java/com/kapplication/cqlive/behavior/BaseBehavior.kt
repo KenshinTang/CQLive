@@ -32,8 +32,6 @@ abstract class BaseBehavior(xulPresenter: XulPresenter) : XulUiBehavior(xulPrese
         super.xulOnRenderIsReady()
     }
 
-    protected abstract fun appOnStartUp(success: Boolean)
-
     @ScriptMethod("refreshBindingByView")
     fun _script_refreshBindingByView(ctx: IScriptContext, args: IScriptArguments): Boolean? {
         if (args.size() != 2) {
