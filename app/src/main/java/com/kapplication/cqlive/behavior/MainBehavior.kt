@@ -1,6 +1,9 @@
 package com.kapplication.cqlive.behavior
 
+import android.app.Activity
 import com.kapplication.cqlive.message.CommonMessage
+import com.shuyu.gsyvideoplayer.listener.GSYSampleCallBack
+import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
 import com.starcor.xul.XulView
 import com.starcor.xulapp.XulPresenter
 import com.starcor.xulapp.behavior.XulBehaviorManager
@@ -27,22 +30,28 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         }
     }
 
-    override fun appOnStartUp(success: Boolean) {
-    }
+    private var mMediaPlayer: StandardGSYVideoPlayer? = null
 
     override fun xulOnRenderIsReady() {
+        initView()
+        requestPlayUrl()
         super.xulOnRenderIsReady()
     }
 
-    override fun xulOnResume() {
-        requestEpgData()
+    private fun initView() {
+        mMediaPlayer = xulGetRenderContext().findItemById("player").externalView as StandardGSYVideoPlayer
+        mMediaPlayer!!.setVideoAllCallBack(object: GSYSampleCallBack() {
+            override fun onAutoComplete(url: String?, vararg objects: Any?) {
+                (context as Activity).finish()
+                super.onAutoComplete(url, *objects)
+            }
+        })
+        mMediaPlayer!!.setBottomProgressBarDrawable(null)
     }
 
-    private fun requestEpgData() {
-    }
-
-    override fun xulOnBackPressed(): Boolean {
-        return true
+    private fun requestPlayUrl() {
+        mMediaPlayer!!.setUp("", true, "name")
+        mMediaPlayer!!.startPlayLogic()
     }
 
     @XulSubscriber(tag = CommonMessage.EVENT_HALF_SECOND)
