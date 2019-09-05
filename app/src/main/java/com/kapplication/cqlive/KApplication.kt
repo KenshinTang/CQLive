@@ -25,7 +25,6 @@ class KApplication : XulApplication() {
         xulLoadLayouts(XUL_GLOBAL_BINDINGS)
         xulLoadLayouts(XUL_GLOBAL_SELECTORS)
         xulLoadLayouts(XUL_GLOBAL_DIALOGS)
-        super.onLoadXul()
     }
 
     override fun onRegisterXulBehaviors() {
