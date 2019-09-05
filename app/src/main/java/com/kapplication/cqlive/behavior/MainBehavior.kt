@@ -1,6 +1,11 @@
 package com.kapplication.cqlive.behavior
 
+import android.view.View
+import android.view.ViewGroup
+import android.widget.FrameLayout
+import android.widget.RelativeLayout
 import com.kapplication.cqlive.message.CommonMessage
+import com.kapplication.cqlive.widget.NoUiGSYPlayer
 import com.kapplication.cqlive.widget.XulExt_GSYVideoPlayer
 import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
 import com.starcor.xul.IXulExternalView
@@ -33,9 +38,19 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
     private var mMediaPlayer: StandardGSYVideoPlayer? = null
 
     override fun xulOnRenderIsReady() {
-        initView()
+        XulLog.i("kenshin", "xulOnRenderIsReady")
         requestPlayUrl()
         super.xulOnRenderIsReady()
+    }
+
+    override fun initRenderContextView(renderContextView: View): View {
+        XulLog.i("kenshin", "initRenderContextView")
+        val viewRoot = FrameLayout(_presenter.xulGetContext())
+        val matchParent = ViewGroup.LayoutParams.MATCH_PARENT
+        mMediaPlayer = NoUiGSYPlayer(context)
+        viewRoot.addView(mMediaPlayer, matchParent, matchParent)
+        viewRoot.addView(renderContextView, matchParent, matchParent)
+        return viewRoot
     }
 
     private fun initView() {
@@ -43,7 +58,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
     }
 
     private fun requestPlayUrl() {
-        mMediaPlayer!!.setUp("", true, "name")
+        mMediaPlayer!!.setUp("http://117.59.125.132/__cl/cg:ingest01/__c/cctv3/__op/default/__f/index.m3u8", true, "name")
         mMediaPlayer!!.startPlayLogic()
     }
 

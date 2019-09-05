@@ -2,11 +2,61 @@
 <starcor.xul xmlns="http://www.starcor.cn/XUL" screen="1920x1080">
     <page id="MainPage">
         <layout>
-            <item id="player" type="custom">
-                <attr name="class">GSYVideoPlayer</attr>
-                <attr name="width">match_parent</attr>
-                <attr name="height">match_parent</attr>
+<!--            <item id="player" type="custom">-->
+<!--                <attr name="class">GSYVideoPlayer</attr>-->
+<!--                <attr name="width">match_parent</attr>-->
+<!--                <attr name="height">match_parent</attr>-->
+<!--            </item>-->
+            <item id="logo_image" type="image" desc="logo">
+                <focus mode="nofocus"/>
+                <attr name="x">70</attr>
+                <attr name="y">40</attr>
+                <attr name="img.0.width">80</attr>
+                <attr name="img.0.height">80</attr>
+                <attr name="img.0">file:///.assets/images/icon_logo.png</attr>
+            </item>
+
+            <item id="clock_label" type="label" desc="时间">
+                <focus mode="nofocus"/>
+                <attr name="x">1720</attr>
+                <attr name="y">40</attr>
+                <attr name="text">10:10:10</attr>
+                <style name="font-size">60</style>
+                <style name="font-color">FFFFFFFF</style>
+            </item>
+
+            <item class="poster_item, focus_border" id="poster_1" type="image">
+                <focus focused="true" />
+                <attr name="x">70</attr>
+                <attr name="y">160</attr>
+                <attr name="width">768</attr>
+                <attr name="height">552</attr>
+                <style name="font-size">50</style>
+                <attr name="text">海报1</attr>
+                <attr name="img.1">file:///.assets/images/icon_logo.png</attr>
+            </item>
+
+            <item class="poster_item, focus_border" id="poster_2" type="image">
+                <attr name="x">860</attr>
+                <attr name="y">160</attr>
+                <attr name="text">海报2</attr>
+                <attr name="img.1">file:///.assets/images/icon_logo.png</attr>
             </item>
         </layout>
+        <selector>
+            <select class="poster_item" state="focused">
+                <style name="scale">1.1</style>
+            </select>
+            <select class="poster_item">
+                <attr name="width">324</attr>
+                <attr name="height">262</attr>
+                <style name="padding">0,10,10,0</style>
+                <style name="font-align">0,1</style>
+                <style name="font-size">35</style>
+                <style name="font-color">ccffffff</style>
+                <attr name="img.3">file:///.assets/images/text_shadow.png</attr>
+                <!--<style name="border">4,ffff0000</style>-->
+            </select>
+        </selector>
     </page>
 </starcor.xul>
