@@ -3,12 +3,14 @@ package com.kapplication.cqlive.behavior
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import android.widget.RelativeLayout
 import com.kapplication.cqlive.message.CommonMessage
 import com.kapplication.cqlive.widget.NoUiGSYPlayer
 import com.kapplication.cqlive.widget.XulExt_GSYVideoPlayer
 import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
 import com.starcor.xul.IXulExternalView
+import com.starcor.xul.Prop.XulData
+import com.starcor.xul.Wrapper.XulMassiveAreaWrapper
+import com.starcor.xul.XulDataNode
 import com.starcor.xul.XulView
 import com.starcor.xulapp.XulPresenter
 import com.starcor.xulapp.behavior.XulBehaviorManager
@@ -35,31 +37,50 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         }
     }
 
-    private var mMediaPlayer: StandardGSYVideoPlayer? = null
+    private var mMediaPlayer: StandardGSYVideoPlayer = NoUiGSYPlayer(context)
+    private var mCategoryListWrapper: XulMassiveAreaWrapper? = null
 
     override fun xulOnRenderIsReady() {
-        XulLog.i("kenshin", "xulOnRenderIsReady")
+        XulLog.i("CQLive", "xulOnRenderIsReady")
+        initView()
         requestPlayUrl()
         super.xulOnRenderIsReady()
     }
 
     override fun initRenderContextView(renderContextView: View): View {
-        XulLog.i("kenshin", "initRenderContextView")
+        XulLog.i("CQLive", "initRenderContextView")
         val viewRoot = FrameLayout(_presenter.xulGetContext())
         val matchParent = ViewGroup.LayoutParams.MATCH_PARENT
-        mMediaPlayer = NoUiGSYPlayer(context)
         viewRoot.addView(mMediaPlayer, matchParent, matchParent)
         viewRoot.addView(renderContextView, matchParent, matchParent)
         return viewRoot
     }
 
+
     private fun initView() {
-        mMediaPlayer = xulGetRenderContext().findItemById("player").externalView as StandardGSYVideoPlayer
+        mCategoryListWrapper = XulMassiveAreaWrapper.fromXulView(xulGetRenderContext().findItemById("category"))
+
+
+        val testNode = XulDataNode.obtainDataNode("text")
+        testNode.appendChild("name", "全部频道")
+        testNode.appendChild("icon", "https://image.flaticon.com/icons/png/512/97/97895.png")
+        mCategoryListWrapper?.addItem(testNode)
+        mCategoryListWrapper?.addItem(testNode)
+        mCategoryListWrapper?.addItem(testNode)
+        mCategoryListWrapper?.addItem(testNode)
+//        mCategoryListWrapper?.addItem(testNode)
+//        mCategoryListWrapper?.addItem(testNode)
+//        mCategoryListWrapper?.addItem(testNode)
+//        mCategoryListWrapper?.addItem(testNode)
+//        mCategoryListWrapper?.addItem(testNode)
+//        mCategoryListWrapper?.addItem(testNode)
+//        mCategoryListWrapper?.addItem(testNode)
+        mCategoryListWrapper?.syncContentView()
     }
 
     private fun requestPlayUrl() {
-        mMediaPlayer!!.setUp("http://117.59.125.132/__cl/cg:ingest01/__c/cctv3/__op/default/__f/index.m3u8", true, "name")
-        mMediaPlayer!!.startPlayLogic()
+        mMediaPlayer.setUp("http://117.59.125.132/__cl/cg:ingest01/__c/cctv3/__op/default/__f/index.m3u8", true, "name")
+        mMediaPlayer.startPlayLogic()
     }
 
     override fun xulCreateExternalView(cls: String, x: Int, y: Int, width: Int, height: Int, view: XulView): IXulExternalView? {

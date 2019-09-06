@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<starcor.xul xmlns="http://www.starcor.cn/XUL" screen="1920x1080">
+<starcor.xul screen="1920x1080" xmlns="http://www.starcor.cn/XUL">
+    <binding id="background"></binding>
     <selector>
         <select class="match_parent_wh">
             <attr name="width">match_parent</attr>
@@ -8,25 +9,38 @@
         <select class="hide">
             <style name="display">none</style>
         </select>
-        <select class="focus_border" state="focused">
-            <attr name="img.0.padding">-24,-28</attr>
-            <attr name="img.0">file:///.assets/images/poster_shadow.9.png</attr>
-            <style name="border">4,d82cbdd7</style>
+        <select class="nofocus">
+            <focus mode="nofocus"/>
+        </select>
+        <select class="disable">
+            <attr name="enabled">false</attr>
+        </select>
+        <select class="marquee_animation" state="focused">
             <attr name="marquee">500,1000,3000,50%</attr>
         </select>
-        <select class="separator_line">
-            <focus mode="nofocus"/>
-            <attr name="width">match_parent</attr>
-            <attr name="height">2</attr>
-            <style name="background-image">file:///.assets/images/line.9.png</style>
+        <select class="poster-default-background">
+            <style name="background-color">FF696969</style>
+            <attr name="img.0">file:///.assets/images/default-logo.png</attr>
+            <attr name="img.0.mode">center</attr>
+            <attr name="img.0.width">103</attr>
+            <attr name="img.0.height">106</attr>
         </select>
-        <select class="focus_scale">
-            <action event="focus" type="script/javascript">
-                this.blinkClass("keep_topmost_focused");
-            </action>
-            <action event="blur" type="script/javascript">
-                this.blinkClass("keep_topmost");
-            </action>
+        <select class="focus-scale" state="focused">
+            <style name="scale">1.1</style>
+            <style name="z-index">3</style>
+        </select>
+        <select class="focus-image" state="focused">
+            <attr name="img.1">file:///.assets/images/default-focus-image.9.png</attr>
+            <attr name="img.1.padding">-18,-18,-18,-18</attr>
+            <attr name="img.1.visible">true</attr>
+        </select>
+        <select class="item_clickable">
+            <action event="click" type="usr_cmd">custom_click</action>
+        </select>
+        <select class="poster_default_bkg">
+            <attr name="img.1">nine_patch://res/drawable/poster_default_bkg.9.png</attr>
+            <attr name="img.1.align">0.5,0.5</attr>
+            <attr name="img.1.auto-hide">below</attr>
         </select>
         <select class="focus_scale" state="focused">
             <style name="z-index">10</style>
@@ -34,13 +48,22 @@
         </select>
         <select class="focus_border" state="focused">
             <attr name="img.0.padding">-24,-28</attr>
-            <attr name="img.0">file:///.assets/images/poster_shadow.9.png</attr>
-            <style name="border">4,d82cbdd7</style>
+            <attr name="img.0">file:///.assets/images/poster/poster_shadow.9.png</attr>
+            <style name="border">4,FFFFFFFF</style>
         </select>
         <select class="focus_border_bold" state="focused">
             <attr name="img.0.padding">-24,-28</attr>
-            <attr name="img.0">file:///.assets/images/poster_shadow.9.png</attr>
-            <style name="border">5,d82cbdd7</style>
+            <attr name="img.0">file:///.assets/images/poster/poster_shadow.9.png</attr>
+            <style name="border">5,FFFFFFFF</style>
+        </select>
+        <select class="marquee_animation" state="focused">
+            <attr name="marquee">500,1000,3000,50%</attr>
+        </select>
+        <select class="page_title">
+            <style name="font-color">7fffffff</style>
+            <style name="font-size">50</style>
+            <attr name="x">79</attr>
+            <attr name="y">69</attr>
         </select>
     </selector>
 </starcor.xul>

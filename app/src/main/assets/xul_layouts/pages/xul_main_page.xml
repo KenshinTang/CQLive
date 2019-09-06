@@ -1,62 +1,152 @@
 <?xml version="1.1" encoding="utf-8"?>
-<starcor.xul xmlns="http://www.starcor.cn/XUL" screen="1920x1080">
+<starcor.xul screen="1920x1080" xmlns="http://www.starcor.cn/XUL">
+    <script src="file:///.assets/plugin/player/player/media_player.js" type="script/javascript"/>
     <page id="MainPage">
+        <action event="appEvents:toggleUi" type="script/javascript">MediaPlayer_toggleUI</action>
+        <action event="load" type="usr_cmd"/>
         <layout>
-<!--            <item id="player" type="custom">-->
-<!--                <attr name="class">GSYVideoPlayer</attr>-->
-<!--                <attr name="width">match_parent</attr>-->
-<!--                <attr name="height">match_parent</attr>-->
-<!--            </item>-->
-            <item id="logo_image" type="image" desc="logo">
-                <focus mode="nofocus"/>
-                <attr name="x">70</attr>
-                <attr name="y">40</attr>
-                <attr name="img.0.width">80</attr>
-                <attr name="img.0.height">80</attr>
-                <attr name="img.0">file:///.assets/images/icon_logo.png</attr>
-            </item>
+            <area id="title-frame" desc="顶部标题栏">
+                <attr name="y">-180</attr>
+                <attr name="width">match_parent</attr>
+                <attr name="height">180</attr>
+                <area>
+                    <style name="z-index">99</style>
+                    <attr name="width">1920</attr>
+                    <attr name="height">209</attr>
+                    <style name="background-image">file:///.assets/images/img_top_bg.png</style>
+                    <attr name="width">match_parent</attr>
+                    <item type="label" id="channel_num">
+                        <style name="font-color">ffffffff</style>
+                        <style name="font-size">60</style>
+                        <attr name="x">93</attr>
+                        <attr name="y">42</attr>
+                        <attr name="text">025</attr>
+                    </item>
+                    <item type="label" id="channel_name">
+                        <attr name="width">800</attr>
+                        <attr name="marquee">500,1000,6000,40%</attr>
+                        <style name="font-color">fff0f0f0</style>
+                        <style name="font-size">60</style>
+                        <attr name="x">283</attr>
+                        <attr name="y">48</attr>
+                        <attr name="text">上海东方卫视</attr>
+                    </item>
+                    <item type="label" id="timeshift_logo">
+                        <attr name="x">1710</attr>
+                        <attr name="y">54</attr>
+                        <attr name="width">120</attr>
+                        <attr name="height">60</attr>
+                        <style name="border">0,b7ffffff,8,8</style>
+                        <style name="background-color">b7ffffff</style>
+                        <style name="font-color">ff000000</style>
+                        <style name="font-size">36</style>
+                        <style name="font-align">0.5,0.5</style>
+                        <style name="display">none</style>
+                        <attr name="text">时移</attr>
+                    </item>
+                </area>
+            </area>
 
-            <item id="clock_label" type="label" desc="时间">
-                <focus mode="nofocus"/>
-                <attr name="x">1720</attr>
-                <attr name="y">40</attr>
-                <attr name="text">10:10:10</attr>
-                <style name="font-size">60</style>
-                <style name="font-color">FFFFFFFF</style>
-            </item>
+            <area id="live_channel_list" desc="频道栏">
+                <attr name="x">0</attr>
+                <attr name="y">0</attr>
+                <attr name="width">1060</attr>
+                <attr name="height">match_parent</attr>
+                <area desc="频道分类">
+                    <style name="background-color">f2434343</style>
+                    <attr name="x">0</attr>
+                    <attr name="y">0</attr>
+                    <attr name="width">420</attr>
+                    <attr name="height">match_parent</attr>
+                    <area id="category-list" type="slider">
+                        <attr name="direction">vertical</attr>
+                        <attr name="x">0</attr>
+                        <attr name="y">190</attr>
+                        <attr name="width">match_parent</attr>
+                        <attr name="height">840</attr>
+    <!--                    <attr name="lock-focus">0.5</attr>-->
+                        <style name="clip-children">true</style>
+                        <area id="category" type="massive" class="playbill-list-massive">
+                            <template id="@item-template">
+                                <item class="playbill-item, playbill-category-item" type="image">
+                                    <attr name="text" binding="name"/>
+                                    <attr name="img.0" binding="icon"/>
+                                </item>
+                            </template>
+                        </area>
+                    </area>
+                </area>
+                <item type="image" desc="分割线">
+                    <attr name="width">1</attr>
+                    <attr name="height">match_parent</attr>
+                    <style name="background-color">19ffffff</style>
+                    <focus mode="nofocus"/>
+                </item>
+                <area desc="频道列表">
+                    <style name="background-color">e5313131</style>
+                    <attr name="x">420</attr>
+                    <attr name="y">0</attr>
+                    <attr name="width">640</attr>
+                    <attr name="height">match_parent</attr>
 
-            <item class="poster_item, focus_border" id="poster_1" type="image">
-                <focus focused="true" />
-                <attr name="x">70</attr>
-                <attr name="y">160</attr>
-                <attr name="width">768</attr>
-                <attr name="height">552</attr>
-                <style name="font-size">50</style>
-                <attr name="text">海报1</attr>
-                <attr name="img.1">file:///.assets/images/icon_logo.png</attr>
-            </item>
+                    <area id="channel-list" type="slider">
+                        <attr name="direction">vertical</attr>
+                        <attr name="x">0</attr>
+                        <attr name="y">190</attr>
+                        <attr name="width">match_parent</attr>
+                        <attr name="height">840</attr>
+                        <!--                    <attr name="lock-focus">0.5</attr>-->
+                        <style name="clip-children">true</style>
+                        <area id="category" type="massive" class="playbill-list-massive">
+                            <template id="@item-template">
+                                <item class="playbill-item, playbill-category-item" type="image">
+                                    <attr name="text" binding="name"/>
+                                    <attr name="img.0" binding="icon"/>
+                                </item>
+                            </template>
+                        </area>
+                    </area>
+                </area>
+            </area>
 
-            <item class="poster_item, focus_border" id="poster_2" type="image">
-                <attr name="x">860</attr>
-                <attr name="y">160</attr>
-                <attr name="text">海报2</attr>
-                <attr name="img.1">file:///.assets/images/icon_logo.png</attr>
-            </item>
         </layout>
         <selector>
-            <select class="poster_item" state="focused">
-                <style name="scale">1.1</style>
+            <select class="playbill-list-massive">
+                <focus mode="dynamic,nearby"/>
+                <attr name="direction">vertical</attr>
+                <attr name="arrangement">linear-fixed</attr>
+                <attr name="minimum-item">18</attr>
+                <attr name="cache-pages">0.6</attr>
             </select>
-            <select class="poster_item">
-                <attr name="width">324</attr>
-                <attr name="height">262</attr>
-                <style name="padding">0,10,10,0</style>
-                <style name="font-align">0,1</style>
-                <style name="font-size">35</style>
-                <style name="font-color">ccffffff</style>
-                <attr name="img.3">file:///.assets/images/text_shadow.png</attr>
-                <!--<style name="border">4,ffff0000</style>-->
+            <select class="playbill-item">
+                <focus mode="focusable" priority="1"/>
+            </select>
+            <select class="playbill-item" state="focused">
+                <attr name="marquee">500,1000,800,40%</attr>
+                <style name="background-color">ffffb400</style>
+            </select>
+            <select class="playbill-category-item">
+                <!--<style name="border">2,ffff0000</style>-->
+                <style name="font-size">36</style>
+                <attr name="width">420</attr>
+                <attr name="height">140</attr>
+                <style name="font-align">0,0.5</style>
+                <style name="font-color">FFFFFFFF</style>
+                <style name="padding">0,187,33,0</style>
+                <attr name="marquee">500,1000,3000,50%</attr>
+                <attr name="img.0.mode">center</attr>
+                <attr name="img.0.align">0,0.5</attr>
+                <attr name="img.0.padding">0,90,0,0</attr>
+                <attr name="img.0.width">72</attr>
+                <attr name="img.0.height">72</attr>
             </select>
         </selector>
     </page>
+    <selector>
+        <select class="player-ui-component">
+            <focus mode="dynamic"/>
+            <attr name="animation-moving">true</attr>
+            <attr name="enabled">false</attr>
+        </select>
+    </selector>
 </starcor.xul>
