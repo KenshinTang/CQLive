@@ -138,11 +138,14 @@
                         <style name="clip-children">true</style>
                         <area id="channel" type="massive" class="playbill-list-massive">
                             <template id="@item-template">
-                                <area>
-                                    <item type="label" desc="频道号">
+                                <area class="playbill-item">
+                                    <attr name="width">match_parent</attr>
+                                    <attr name="height">140</attr>
+                                    <item id="channel_id" type="label" desc="频道号">
                                         <attr name="x">60</attr>
-                                        <attr name="y">50</attr>
-                                        <style name="font-size">38</style>
+                                        <attr name="height">match_parent</attr>
+                                        <style name="font-align">0, 0.5</style>
+                                        <style name="font-size">40</style>
                                         <style name="font-color">FFFFFFFF</style>
                                         <attr name="text" binding="channel_id"/>
                                     </item>
@@ -153,25 +156,26 @@
                                         <attr name="img.0.height">60</attr>
                                         <attr name="img.0" binding="channel_icon"/>
                                     </item>
-                                    <item type="label" desc="频道名">
+                                    <item id="channel_name" type="label" desc="频道名">
                                         <attr name="x">260</attr>
-                                        <attr name="y">50</attr>
+                                        <attr name="height">match_parent</attr>
+                                        <style name="font-align">0, 0.5</style>
                                         <style name="font-size">40</style>
                                         <style name="font-color">FFFFFFFF</style>
                                         <attr name="text" binding="channel_name"/>
                                     </item>
                                     <item type="image" desc="加锁图标">
-                                        <attr name="x">500</attr>
-                                        <attr name="y">45</attr>
-                                        <attr name="img.0.width">35</attr>
-                                        <attr name="img.0.height">35</attr>
+                                        <attr name="x">530</attr>
+                                        <attr name="y">56</attr>
+                                        <attr name="img.0.width">28</attr>
+                                        <attr name="img.0.height">32</attr>
                                         <attr name="img.0">file:///.assets/images/icon_lock.png</attr>
                                     </item>
                                     <item type="image" desc="收藏图标">
-                                        <attr name="x">545</attr>
-                                        <attr name="y">45</attr>
-                                        <attr name="img.0.width">35</attr>
-                                        <attr name="img.0.height">35</attr>
+                                        <attr name="x">585</attr>
+                                        <attr name="y">56</attr>
+                                        <attr name="img.0.width">32</attr>
+                                        <attr name="img.0.height">32</attr>
                                         <attr name="img.0">file:///.assets/images/icon_star.png</attr>
                                     </item>
                                 </area>
