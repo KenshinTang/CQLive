@@ -4,6 +4,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import com.kapplication.cqlive.message.CommonMessage
+import com.kapplication.cqlive.utils.Utils
 import com.kapplication.cqlive.widget.NoUiGSYPlayer
 import com.kapplication.cqlive.widget.XulExt_GSYVideoPlayer
 import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
@@ -11,11 +12,14 @@ import com.starcor.xul.IXulExternalView
 import com.starcor.xul.Wrapper.XulMassiveAreaWrapper
 import com.starcor.xul.XulDataNode
 import com.starcor.xul.XulView
+import com.starcor.xulapp.XulApplication
 import com.starcor.xulapp.XulPresenter
 import com.starcor.xulapp.behavior.XulBehaviorManager
 import com.starcor.xulapp.behavior.XulUiBehavior
 import com.starcor.xulapp.message.XulSubscriber
 import com.starcor.xulapp.utils.XulLog
+import okhttp3.*
+import java.io.IOException
 
 class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
     companion object {
@@ -43,6 +47,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
     override fun xulOnRenderIsReady() {
         XulLog.i("CQLive", "xulOnRenderIsReady")
         initView()
+        requestChannel()
         requestPlayUrl()
         super.xulOnRenderIsReady()
     }
@@ -56,55 +61,74 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         return viewRoot
     }
 
-
     private fun initView() {
         mCategoryListWrapper = XulMassiveAreaWrapper.fromXulView(xulGetRenderContext().findItemById("category"))
         mChannelListWrapper = XulMassiveAreaWrapper.fromXulView(xulGetRenderContext().findItemById("channel"))
+    }
 
+    private fun requestChannel() {
+        val urlBuilder = HttpUrl.parse(Utils.HOST)!!.newBuilder()
+            .addQueryParameter("m", "Live")
+            .addQueryParameter("c", "Live")
+            .addQueryParameter("a", "getLiveListIncludeCategory")
 
-        val testCategoryNode = XulDataNode.obtainDataNode("text")
-        testCategoryNode.appendChild("name", "全部频道")
-        testCategoryNode.appendChild("icon", "https://image.flaticon.com/icons/png/512/97/97895.png")
-        mCategoryListWrapper?.addItem(testCategoryNode)
-        mCategoryListWrapper?.addItem(testCategoryNode)
-        mCategoryListWrapper?.addItem(testCategoryNode)
-        mCategoryListWrapper?.addItem(testCategoryNode)
-//        mCategoryListWrapper?.addItem(testNode)
-//        mCategoryListWrapper?.addItem(testNode)
-//        mCategoryListWrapper?.addItem(testNode)
-//        mCategoryListWrapper?.addItem(testNode)
-//        mCategoryListWrapper?.addItem(testNode)
-//        mCategoryListWrapper?.addItem(testNode)
-//        mCategoryListWrapper?.addItem(testNode)
-        mCategoryListWrapper?.syncContentView()
+        XulLog.i(NAME, "Request url: ${urlBuilder.build()}")
 
+        val request: Request = Request.Builder().cacheControl(cacheControl).url(urlBuilder.build()).build()
+        okHttpClient.newCall(request).enqueue(object : Callback {
+            override fun onResponse(call: Call?, response: Response?) {
+                response!!.body().use { responseBody ->
+                    if (!response.isSuccessful) {
+                        XulLog.e(NAME, "getLiveListIncludeCategory onResponse, but is not Successful")
+                        throw IOException("Unexpected code $response")
+                    }
 
-        val testChannelNode = XulDataNode.obtainDataNode("text")
-        testCategoryNode.appendChild("channel_name", "上海东方卫视")
-        testCategoryNode.appendChild("channel_id", "001")
-        testCategoryNode.appendChild("channel_icon", "https://image.flaticon.com/icons/png/512/97/97895.png")
-        mChannelListWrapper?.addItem(testCategoryNode)
-        mChannelListWrapper?.addItem(testCategoryNode)
-        mChannelListWrapper?.addItem(testCategoryNode)
-        mChannelListWrapper?.addItem(testCategoryNode)
-        mChannelListWrapper?.addItem(testCategoryNode)
-        mChannelListWrapper?.addItem(testCategoryNode)
-        mChannelListWrapper?.addItem(testCategoryNode)
-        mChannelListWrapper?.addItem(testCategoryNode)
-        mChannelListWrapper?.addItem(testCategoryNode)
-        mChannelListWrapper?.addItem(testCategoryNode)
-        mChannelListWrapper?.addItem(testCategoryNode)
-        mChannelListWrapper?.addItem(testCategoryNode)
-        mChannelListWrapper?.addItem(testCategoryNode)
-        mChannelListWrapper?.addItem(testCategoryNode)
-        mChannelListWrapper?.addItem(testCategoryNode)
-        mChannelListWrapper?.addItem(testCategoryNode)
-        mChannelListWrapper?.syncContentView()
+                    XulLog.i(NAME, "getLiveListIncludeCategory onResponse")
+
+                    val result : String = responseBody!!.string()
+                    XulLog.json("kenshin", result)
+
+                    val dataNode : XulDataNode = XulDataNode.buildFromJson(result)
+
+//                    if (handleError(dataNode)) {
+                    if (false) {
+                        XulApplication.getAppInstance().postToMainLooper {
+                            showEmptyTips()
+                        }
+                    } else {
+                        XulApplication.getAppInstance().postToMainLooper {
+//                            if (dataNode.getChildNode("data", "list").size() == 0) {
+//                                showEmptyTips()
+//                            } else {
+                                var categoryNode: XulDataNode? = dataNode.getChildNode("data")?.firstChild
+                                while (categoryNode != null) {
+                                    mCategoryListWrapper?.addItem(categoryNode)
+                                    categoryNode = categoryNode.next
+                                }
+
+                                mCategoryListWrapper?.syncContentView()
+//                            }
+                        }
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call?, e: IOException?) {
+                XulLog.e(NAME, "getAssetCategoryList onFailure")
+                XulApplication.getAppInstance().postToMainLooper {
+                    showEmptyTips()
+                }
+            }
+        })
     }
 
     private fun requestPlayUrl() {
         mMediaPlayer.setUp("http://117.59.125.132/__cl/cg:ingest01/__c/cctv3/__op/default/__f/index.m3u8", true, "name")
         mMediaPlayer.startPlayLogic()
+    }
+    
+    private fun showEmptyTips() {
+        
     }
 
     override fun xulCreateExternalView(cls: String, x: Int, y: Int, width: Int, height: Int, view: XulView): IXulExternalView? {

@@ -69,8 +69,8 @@
                         <area id="category" type="massive" class="playbill-list-massive">
                             <template id="@item-template">
                                 <item class="playbill-item, playbill-category-item" type="image">
-                                    <attr name="text" binding="name"/>
-                                    <attr name="img.0" binding="icon"/>
+                                    <attr name="text" binding="[=category_name]"/>
+                                    <attr name="img.0" binding="[=default_icon_img_url]"/>
                                 </item>
                             </template>
                         </area>
@@ -213,8 +213,8 @@
                 <attr name="img.0.mode">center</attr>
                 <attr name="img.0.align">0,0.5</attr>
                 <attr name="img.0.padding">0,90,0,0</attr>
-                <attr name="img.0.width">72</attr>
-                <attr name="img.0.height">72</attr>
+                <attr name="img.0.width">60</attr>
+                <attr name="img.0.height">60</attr>
             </select>
         </selector>
     </page>
