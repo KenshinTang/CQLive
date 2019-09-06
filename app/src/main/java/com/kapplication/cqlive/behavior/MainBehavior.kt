@@ -8,7 +8,6 @@ import com.kapplication.cqlive.widget.NoUiGSYPlayer
 import com.kapplication.cqlive.widget.XulExt_GSYVideoPlayer
 import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
 import com.starcor.xul.IXulExternalView
-import com.starcor.xul.Prop.XulData
 import com.starcor.xul.Wrapper.XulMassiveAreaWrapper
 import com.starcor.xul.XulDataNode
 import com.starcor.xul.XulView
@@ -39,6 +38,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
 
     private var mMediaPlayer: StandardGSYVideoPlayer = NoUiGSYPlayer(context)
     private var mCategoryListWrapper: XulMassiveAreaWrapper? = null
+    private var mChannelListWrapper: XulMassiveAreaWrapper? = null
 
     override fun xulOnRenderIsReady() {
         XulLog.i("CQLive", "xulOnRenderIsReady")
@@ -59,15 +59,16 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
 
     private fun initView() {
         mCategoryListWrapper = XulMassiveAreaWrapper.fromXulView(xulGetRenderContext().findItemById("category"))
+        mChannelListWrapper = XulMassiveAreaWrapper.fromXulView(xulGetRenderContext().findItemById("channel"))
 
 
-        val testNode = XulDataNode.obtainDataNode("text")
-        testNode.appendChild("name", "全部频道")
-        testNode.appendChild("icon", "https://image.flaticon.com/icons/png/512/97/97895.png")
-        mCategoryListWrapper?.addItem(testNode)
-        mCategoryListWrapper?.addItem(testNode)
-        mCategoryListWrapper?.addItem(testNode)
-        mCategoryListWrapper?.addItem(testNode)
+        val testCategoryNode = XulDataNode.obtainDataNode("text")
+        testCategoryNode.appendChild("name", "全部频道")
+        testCategoryNode.appendChild("icon", "https://image.flaticon.com/icons/png/512/97/97895.png")
+        mCategoryListWrapper?.addItem(testCategoryNode)
+        mCategoryListWrapper?.addItem(testCategoryNode)
+        mCategoryListWrapper?.addItem(testCategoryNode)
+        mCategoryListWrapper?.addItem(testCategoryNode)
 //        mCategoryListWrapper?.addItem(testNode)
 //        mCategoryListWrapper?.addItem(testNode)
 //        mCategoryListWrapper?.addItem(testNode)
@@ -76,6 +77,29 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
 //        mCategoryListWrapper?.addItem(testNode)
 //        mCategoryListWrapper?.addItem(testNode)
         mCategoryListWrapper?.syncContentView()
+
+
+        val testChannelNode = XulDataNode.obtainDataNode("text")
+        testCategoryNode.appendChild("channel_name", "上海东方卫视")
+        testCategoryNode.appendChild("channel_id", "001")
+        testCategoryNode.appendChild("channel_icon", "https://image.flaticon.com/icons/png/512/97/97895.png")
+        mChannelListWrapper?.addItem(testCategoryNode)
+        mChannelListWrapper?.addItem(testCategoryNode)
+        mChannelListWrapper?.addItem(testCategoryNode)
+        mChannelListWrapper?.addItem(testCategoryNode)
+        mChannelListWrapper?.addItem(testCategoryNode)
+        mChannelListWrapper?.addItem(testCategoryNode)
+        mChannelListWrapper?.addItem(testCategoryNode)
+        mChannelListWrapper?.addItem(testCategoryNode)
+        mChannelListWrapper?.addItem(testCategoryNode)
+        mChannelListWrapper?.addItem(testCategoryNode)
+        mChannelListWrapper?.addItem(testCategoryNode)
+        mChannelListWrapper?.addItem(testCategoryNode)
+        mChannelListWrapper?.addItem(testCategoryNode)
+        mChannelListWrapper?.addItem(testCategoryNode)
+        mChannelListWrapper?.addItem(testCategoryNode)
+        mChannelListWrapper?.addItem(testCategoryNode)
+        mChannelListWrapper?.syncContentView()
     }
 
     private fun requestPlayUrl() {

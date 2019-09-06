@@ -47,7 +47,7 @@
                 </area>
             </area>
 
-            <area id="live_channel_list" desc="频道栏">
+            <area id="category-list" desc="频道栏">
                 <attr name="x">0</attr>
                 <attr name="y">0</attr>
                 <attr name="width">1060</attr>
@@ -58,7 +58,7 @@
                     <attr name="y">0</attr>
                     <attr name="width">420</attr>
                     <attr name="height">match_parent</attr>
-                    <area id="category-list" type="slider">
+                    <area type="slider">
                         <attr name="direction">vertical</attr>
                         <attr name="x">0</attr>
                         <attr name="y">190</attr>
@@ -88,8 +88,47 @@
                     <attr name="y">0</attr>
                     <attr name="width">640</attr>
                     <attr name="height">match_parent</attr>
-
-                    <area id="channel-list" type="slider">
+                    <area desc="顶部提示">
+                        <focus mode="nofocus"/>
+                        <attr name="height">190</attr>
+                        <attr name="width">match_parent</attr>
+                        <item id="txt_category_name" type="label">
+                            <attr name="x">60</attr>
+                            <attr name="y">90</attr>
+                            <attr name="width">178</attr>
+                            <attr name="marquee">500,1000,800,40%</attr>
+                            <attr name="text">分类名称</attr>
+                            <style name="font-size">42</style>
+                            <style name="font-weight">1.1</style>
+                            <style name="font-color">ddffffff</style>
+                        </item>
+                        <item id="txt_tips_1" type="label">
+                            <attr name="height">match_parent</attr>
+                            <attr name="x">248</attr>
+                            <attr name="y">108</attr>
+                            <attr name="text">遥控器</attr>
+                            <style name="font-size">26</style>
+                            <style name="font-color">ffbbbbbb</style>
+                        </item>
+                        <item id="txt_tips_2" type="label">
+                            <focus mode="nofocus"/>
+                            <attr name="height">match_parent</attr>
+                            <attr name="x">326</attr>
+                            <attr name="y">108</attr>
+                            <attr name="text"> 菜单键 </attr>
+                            <style name="font-size">26</style>
+                            <style name="font-color">ffffffff</style>
+                        </item>
+                        <item id="txt_tips_3" type="label">
+                            <attr name="x">415</attr>
+                            <attr name="y">108</attr>
+                            <attr name="height">match_parent</attr>
+                            <attr name="text">为频道收藏或加锁</attr>
+                            <style name="font-size">26</style>
+                            <style name="font-color">ffbbbbbb</style>
+                        </item>
+                    </area>
+                    <area type="slider">
                         <attr name="direction">vertical</attr>
                         <attr name="x">0</attr>
                         <attr name="y">190</attr>
@@ -97,12 +136,45 @@
                         <attr name="height">840</attr>
                         <!--                    <attr name="lock-focus">0.5</attr>-->
                         <style name="clip-children">true</style>
-                        <area id="category" type="massive" class="playbill-list-massive">
+                        <area id="channel" type="massive" class="playbill-list-massive">
                             <template id="@item-template">
-                                <item class="playbill-item, playbill-category-item" type="image">
-                                    <attr name="text" binding="name"/>
-                                    <attr name="img.0" binding="icon"/>
-                                </item>
+                                <area>
+                                    <item type="label" desc="频道号">
+                                        <attr name="x">60</attr>
+                                        <attr name="y">50</attr>
+                                        <style name="font-size">38</style>
+                                        <style name="font-color">FFFFFFFF</style>
+                                        <attr name="text" binding="channel_id"/>
+                                    </item>
+                                    <item type="image" desc="频道图标">
+                                        <attr name="x">160</attr>
+                                        <attr name="y">45</attr>
+                                        <attr name="img.0.width">60</attr>
+                                        <attr name="img.0.height">60</attr>
+                                        <attr name="img.0" binding="channel_icon"/>
+                                    </item>
+                                    <item type="label" desc="频道名">
+                                        <attr name="x">260</attr>
+                                        <attr name="y">50</attr>
+                                        <style name="font-size">40</style>
+                                        <style name="font-color">FFFFFFFF</style>
+                                        <attr name="text" binding="channel_name"/>
+                                    </item>
+                                    <item type="image" desc="加锁图标">
+                                        <attr name="x">500</attr>
+                                        <attr name="y">45</attr>
+                                        <attr name="img.0.width">35</attr>
+                                        <attr name="img.0.height">35</attr>
+                                        <attr name="img.0">file:///.assets/images/icon_lock.png</attr>
+                                    </item>
+                                    <item type="image" desc="收藏图标">
+                                        <attr name="x">545</attr>
+                                        <attr name="y">45</attr>
+                                        <attr name="img.0.width">35</attr>
+                                        <attr name="img.0.height">35</attr>
+                                        <attr name="img.0">file:///.assets/images/icon_star.png</attr>
+                                    </item>
+                                </area>
                             </template>
                         </area>
                     </area>
