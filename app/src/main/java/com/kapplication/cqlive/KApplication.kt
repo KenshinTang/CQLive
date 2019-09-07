@@ -9,6 +9,7 @@ import tv.danmaku.ijk.media.exo2.Exo2PlayerManager
 import com.shuyu.gsyvideoplayer.player.PlayerFactory
 import androidx.core.content.ContextCompat.getSystemService
 import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+import com.kapplication.cqlive.widget.PlayerSeekBarRender
 import com.shuyu.gsyvideoplayer.player.SystemPlayerManager
 
 
@@ -46,6 +47,8 @@ class KApplication : XulApplication() {
 //        autoRegister(behaviorPkgName, XulUiBehavior::class.java)
 
         MainBehavior.register()
+
+        PlayerSeekBarRender.register()
     }
 
     private fun startCommonMessage() {

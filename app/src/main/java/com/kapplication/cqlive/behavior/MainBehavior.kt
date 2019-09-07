@@ -49,7 +49,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         XulLog.i("CQLive", "xulOnRenderIsReady")
         initView()
         requestChannel()
-        requestPlayUrl()
+        requestPlayUrl("")
         super.xulOnRenderIsReady()
     }
 
@@ -154,13 +154,18 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         }
     }
 
-    private fun requestPlayUrl() {
-        mMediaPlayer.setUp("http://117.59.125.132/__cl/cg:ingest01/__c/cctv3/__op/default/__f/index.m3u8", true, "name")
+    private fun requestPlayUrl(channelID: String?) {
+        mMediaPlayer.setUp("http://129.28.160.49/__cl/cg:ingest01/__c/cctv5/__op/default/__f/index.m3u8", true, "name")
         mMediaPlayer.startPlayLogic()
     }
     
     private fun showEmptyTips() {
         
+    }
+
+    override fun xulOnDestroy() {
+        mMediaPlayer.release()
+        super.xulOnDestroy()
     }
 
     override fun xulCreateExternalView(cls: String, x: Int, y: Int, width: Int, height: Int, view: XulView): IXulExternalView? {
@@ -185,6 +190,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         XulLog.i(NAME, "action = $action, type = $type, command = $command, userdata = $userdata")
         when (command) {
             "category_focused" -> switchCategory(userdata as String)
+            "channel_clicked" -> requestPlayUrl(userdata as String)
         }
         super.xulDoAction(view, action, type, command, userdata)
     }

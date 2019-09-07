@@ -3,4 +3,7 @@ https://www.yuque.com/books/share/d6e7f24d-7bf3-47bb-876a-c659a5f96af0
 
 test url:
 http://117.59.125.132/__cl/cg:ingest01/__c/cctv3/__op/default/__f/index.m3u8
+http://129.28.160.49/__cl/cg:ingest01/__c/cctv5/__op/default/__f/index.m3u8
+http://129.28.160.49/__cl/cg:ingest01/__c/cctv6/__op/default/__f/index.m3u8
+http://129.28.160.49/__cl/cg:ingest01/__c/cctv8/__op/default/__f/index.m3u8
 http://dev.yusihuo.com/zhiboapi.php?m=Live&c=Live&a=getLiveListIncludeCategory

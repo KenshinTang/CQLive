@@ -48,7 +48,7 @@
             </area>
 
             <area id="category-list" desc="频道栏">
-                <attr name="x">0</attr>
+                <attr name="x">-1060</attr>
                 <attr name="y">0</attr>
                 <attr name="width">1060</attr>
                 <attr name="height">match_parent</attr>
@@ -144,6 +144,7 @@
                                     <attr name="width">match_parent</attr>
                                     <attr name="height">140</attr>
                                     <data name="userdata" binding="[=live_id]"/>
+                                    <action event="click" type="usr_cmd">channel_clicked</action>
                                     <item id="channel_id" type="label" desc="频道号">
                                         <attr name="x">60</attr>
                                         <attr name="height">match_parent</attr>
@@ -188,6 +189,88 @@
                 </area>
             </area>
 
+            <area id="control-frame" desc="信息条+进度条">
+                <attr name="width">match_parent</attr>
+                <item id="player-state" type="image">
+                    <attr name="x">878</attr>
+                    <attr name="y">458</attr>
+                    <focus mode="nofocus" />
+                    <attr name="width">164</attr>
+                    <attr name="height">164</attr>
+                    <attr name="img.1">file:///.assets/images/state_paused.png</attr>
+                    <attr name="img.2">file:///.assets/images/state_forward.png</attr>
+                    <attr name="img.3">file:///.assets/images/state_rewind.png</attr>
+                    <attr name="img.1.visible">false</attr>
+                    <attr name="img.2.visible">false</attr>
+                    <attr name="img.3.visible">false</attr>
+                </item>
+
+                <area>
+                    <attr name="width">match_parent</attr>
+                    <attr name="height">365</attr>
+                    <attr name="y">715</attr>
+                    <style name="background-image">file:///.assets/images/img_bottom_bg.png</style>
+                    <area>
+                        <attr name="y">205</attr>
+                        <style name="clip-children">false</style>
+                        <style name="padding">0,92</style>
+                        <attr name="width">match_parent</attr>
+                        <item id="player-time-begin" type="label" class="player-time-label" desc="可时移时间">
+                        </item>
+                        <item id="player-pos" class="player-pos" type="seek_bar">
+                            <focus mode="nofocus"></focus>
+                        </item>
+                        <item id="player-time-end" type="label" class="player-time-label" desc="当前时间">
+                            <attr name="x">1625</attr>
+                        </item>
+                    </area>
+                    <item type="label">
+                        <attr name="x">119</attr>
+                        <attr name="y">186</attr>
+                        <style name="font-color">ffffffff</style>
+                        <style name="font-align">0.5,0.5</style>
+                        <style name="font-size">36</style>
+                        <attr name="width">112</attr>
+                        <attr name="height">66</attr>
+                        <style name="background-color">33000000</style>
+                        <style name="border">1,33ffffff,10,10</style>
+                        <style name="display">none</style>
+                    </item>
+                    <item type="label">
+                        <attr name="x">88</attr>
+                        <attr name="y">266</attr>
+                        <attr name="width">180</attr>
+                        <style name="font-align">0.5,0.5</style>
+                        <style name="font-color">ffffffff</style>
+                        <style name="font-size">30</style>
+<!--                        <style name="display">none</style>-->
+                    </item>
+                    <!--<item type="label" class="live_panel_divide"/>-->
+                    <!--<item type="image" class="play_tip"/>-->
+                    <item id="curr_program_tips" class="current_play_style" type="label" desc="正在播放">
+                        <attr name="x">92</attr>
+                        <attr name="text">正在直播</attr>
+                    </item>
+                    <item class="current_play_style" type="label" id="current_play_time">
+                        <attr name="x">92</attr>
+<!--                        <style name="display">none</style>-->
+                    </item>
+                    <item class="current_play_style,program-name-label" type="label" id="current_program_name">
+                        <attr name="x">261</attr>
+                    </item>
+                    <item class="next_play_style" type="label" desc="即将播放">
+                        <attr name="x">92</attr>
+                        <attr name="text">即将播放</attr>
+                    </item>
+                    <item class="next_play_style" type="label" id="next_play_time">
+                        <attr name="x">261</attr>
+                        <!--<style name="display">none</style>-->
+                    </item>
+                    <item class="next_play_style,program-name-label" type="label" id="next_program_name">
+                        <attr name="x">361</attr>
+                    </item>
+                </area>
+            </area>
         </layout>
         <selector>
             <select class="playbill-list-massive">
@@ -218,6 +301,68 @@
                 <attr name="img.0.padding">0,90,0,0</attr>
                 <attr name="img.0.width">60</attr>
                 <attr name="img.0.height">60</attr>
+            </select>
+
+            <select class="player-state-paused">
+                <attr name="img.1.visible">true</attr>
+            </select>
+            <select class="player-state-fast-forward">
+                <attr name="img.1.visible">false</attr>
+                <attr name="img.2.visible">true</attr>
+                <attr name="img.3.visible">false</attr>
+            </select>
+            <select class="player-state-rewind">
+                <attr name="img.1.visible">false</attr>
+                <attr name="img.2.visible">false</attr>
+                <attr name="img.3.visible">true</attr>
+            </select>
+
+            <select class="player-time-label">
+                <style name="font-color">fff0f0f0</style>
+                <style name="font-size">30</style>
+                <style name="font-align">0.5,0.5</style>
+                <attr name="width">115</attr>
+                <attr name="height">28</attr>
+                <attr name="text">00:00:00</attr>
+                <attr name="y">82</attr>
+            </select>
+            <select class="current_play_style">
+                <style name="font-color">ffffffff</style>
+                <style name="font-size">36</style>
+                <attr name="y">100</attr>
+            </select>
+            <select class="program-name-label">
+                <attr name="width">312</attr>
+                <style name="font-weight">1.1</style>
+            </select>
+            <select class="next_play_style">
+                <style name="font-color">b7ffffff</style>
+                <style name="font-size">28</style>
+                <attr name="y">158</attr>
+            </select>
+
+            <select class="player-pos">
+                <style name="margin">0,45</style>
+                <attr name="y">0</attr>
+                <attr name="max-layers">5</attr>
+                <attr name="width">1740</attr>
+                <attr name="height">100</attr>
+                <style name="padding">0,-10,-10,0</style>
+                <attr name="img.0">@color:4cffffff,4,4</attr><!--背景-->
+                <attr name="img.0.padding">60,0,0,30</attr>
+                <attr name="img.3">@color:ffffb400,4,4</attr><!--实际进度-->
+                <attr name="img.3.padding">60,0,0,30</attr>
+                <attr name="img.4">@color:ff24b3f9,11,11</attr><!--圆点-->
+                <attr name="img.4.mode">center</attr>
+                <attr name="img.4.width">22</attr>
+                <attr name="img.4.height">22</attr>
+                <attr name="img.4.padding">0,-4</attr>
+                <attr name="img.4.align">0,1</attr>
+                <attr name="img.4.visible">false</attr>
+                <style name="font-color">ff000000</style>
+                <style name="font-size">30</style>
+                <attr name="seek-mode">live</attr>
+                <attr name="tip.y">0</attr>
             </select>
         </selector>
     </page>
