@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat.getSystemService
 import android.icu.lang.UCharacter.GraphemeClusterBreak.T
 import com.kapplication.cqlive.widget.PlayerSeekBarRender
 import com.shuyu.gsyvideoplayer.player.SystemPlayerManager
+import com.starcor.xulapp.debug.XulDebugServer
 
 
 class KApplication : XulApplication() {
@@ -22,9 +23,8 @@ class KApplication : XulApplication() {
 
     override fun onCreate() {
         XulLog.i("CQLive", "KApplication onCreate.")
-
 //        PlayerFactory.setPlayManager(SystemPlayerManager::class.java)
-
+        XulDebugServer.startUp()
         super.onCreate()
         startCommonMessage()
     }

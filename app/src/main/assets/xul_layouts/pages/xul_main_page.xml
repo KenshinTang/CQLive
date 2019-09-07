@@ -6,6 +6,7 @@
         <action event="load" type="usr_cmd"/>
         <layout>
             <area id="title-frame" desc="顶部标题栏">
+                <style name="display">none</style>
                 <attr name="y">-180</attr>
                 <attr name="width">match_parent</attr>
                 <attr name="height">180</attr>
@@ -48,12 +49,15 @@
             </area>
 
             <area id="category-list" desc="频道栏">
-                <attr name="x">-1060</attr>
+<!--                <attr name="x">-1060</attr>-->
+                <attr name="x">0</attr>
                 <attr name="y">0</attr>
                 <attr name="width">1060</attr>
                 <attr name="height">match_parent</attr>
-                <area desc="频道分类">
+                <area desc="频道分类" type="radio">
                     <style name="background-color">f2434343</style>
+                    <attr name="checked-class">category_checked</attr>
+                    <focus mode="dynamic"/>
                     <attr name="x">0</attr>
                     <attr name="y">0</attr>
                     <attr name="width">420</attr>
@@ -68,11 +72,29 @@
                         <style name="clip-children">true</style>
                         <area id="category" type="massive" class="playbill-list-massive">
                             <template id="@item-template">
-                                <item class="playbill-item, playbill-category-item" type="image">
+                                <item filter="[0]" class="playbill-item, playbill-category-item" type="image">
+                                    <focus mode="focusable" focused="true"/>
                                     <data name="userdata" binding="[=category_id]"/>
                                     <attr name="text" binding="[=category_name]"/>
                                     <attr name="img.0" binding="[=default_icon_img_url]"/>
-                                    <action event="focus" type="usr_cmd">category_focused</action>
+                                    <action event="focus" type="script/javascript">
+                                        if(!this.hasClass("category_checked")){
+                                            this.fireEvent("click");
+                                        }
+                                    </action>
+                                    <action event="checked" type="usr_cmd">switchCategory</action>
+                                </item>
+                                <item class="playbill-item, playbill-category-item" type="image">
+                                    <focus mode="focusable" focused="true"/>
+                                    <data name="userdata" binding="[=category_id]"/>
+                                    <attr name="text" binding="[=category_name]"/>
+                                    <attr name="img.0" binding="[=default_icon_img_url]"/>
+                                    <action event="focus" type="script/javascript">
+                                        if(!this.hasClass("category_checked")){
+                                            this.fireEvent("click");
+                                        }
+                                    </action>
+                                    <action event="checked" type="usr_cmd">switchCategory</action>
                                 </item>
                             </template>
                         </area>
@@ -95,6 +117,7 @@
                         <attr name="height">190</attr>
                         <attr name="width">match_parent</attr>
                         <item id="txt_category_name" type="label">
+                            <focus mode="nofocus"/>
                             <attr name="x">60</attr>
                             <attr name="y">90</attr>
                             <attr name="width">178</attr>
@@ -105,6 +128,7 @@
                             <style name="font-color">ddffffff</style>
                         </item>
                         <item id="txt_tips_1" type="label">
+                            <focus mode="nofocus"/>
                             <attr name="height">match_parent</attr>
                             <attr name="x">248</attr>
                             <attr name="y">108</attr>
@@ -122,6 +146,7 @@
                             <style name="font-color">ffffffff</style>
                         </item>
                         <item id="txt_tips_3" type="label">
+                            <focus mode="nofocus"/>
                             <attr name="x">415</attr>
                             <attr name="y">108</attr>
                             <attr name="height">match_parent</attr>
@@ -131,6 +156,7 @@
                         </item>
                     </area>
                     <area type="slider">
+                        <focus mode="dynamic,priority,nearby"/>
                         <attr name="direction">vertical</attr>
                         <attr name="x">0</attr>
                         <attr name="y">190</attr>
@@ -190,6 +216,7 @@
             </area>
 
             <area id="control-frame" desc="信息条+进度条">
+                <style name="display">none</style>
                 <attr name="width">match_parent</attr>
                 <item id="player-state" type="image">
                     <attr name="x">878</attr>
@@ -208,7 +235,8 @@
                 <area>
                     <attr name="width">match_parent</attr>
                     <attr name="height">365</attr>
-                    <attr name="y">715</attr>
+<!--                    <attr name="y">715</attr>-->
+                    <attr name="y">1080</attr>
                     <style name="background-image">file:///.assets/images/img_bottom_bg.png</style>
                     <area>
                         <attr name="y">205</attr>
@@ -273,6 +301,9 @@
             </area>
         </layout>
         <selector>
+            <select class="category_checked">
+                <style name="background-color">33ffffff</style>
+            </select>
             <select class="playbill-list-massive">
                 <focus mode="dynamic,nearby"/>
                 <attr name="direction">vertical</attr>
