@@ -43,6 +43,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
     private var mMediaPlayer: StandardGSYVideoPlayer = NoUiGSYPlayer(context)
     private var mCategoryListWrapper: XulMassiveAreaWrapper? = null
     private var mChannelListWrapper: XulMassiveAreaWrapper? = null
+    private var mChannelNode: XulDataNode? = null
 
     override fun xulOnRenderIsReady() {
         XulLog.i("CQLive", "xulOnRenderIsReady")
@@ -86,28 +87,28 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
                     XulLog.i(NAME, "getLiveListIncludeCategory onResponse")
 
                     val result : String = responseBody!!.string()
-                    XulLog.json("kenshin", result)
+                    XulLog.json(NAME, result)
 
-                    val dataNode : XulDataNode = XulDataNode.buildFromJson(result)
+                    mChannelNode = XulDataNode.buildFromJson(result)
+                    val dataNode = mChannelNode
 
-//                    if (handleError(dataNode)) {
-                    if (false) {
+                    if (handleError(dataNode)) {
                         XulApplication.getAppInstance().postToMainLooper {
                             showEmptyTips()
                         }
                     } else {
                         XulApplication.getAppInstance().postToMainLooper {
-//                            if (dataNode.getChildNode("data", "list").size() == 0) {
-//                                showEmptyTips()
-//                            } else {
-                                var categoryNode: XulDataNode? = dataNode.getChildNode("data")?.firstChild
+                            if (dataNode?.getChildNode("data")?.size() == 0) {
+                                showEmptyTips()
+                            } else {
+                                var categoryNode: XulDataNode? = dataNode?.getChildNode("data")?.firstChild
                                 while (categoryNode != null) {
                                     mCategoryListWrapper?.addItem(categoryNode)
                                     categoryNode = categoryNode.next
                                 }
 
                                 mCategoryListWrapper?.syncContentView()
-//                            }
+                            }
                         }
                     }
                 }
@@ -120,6 +121,37 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
                 }
             }
         })
+    }
+
+    private fun switchCategory(channelID: String?) {
+        if (channelID.isNullOrEmpty()) {
+            return
+        }
+        mChannelListWrapper?.clear()
+
+        var categoryNode: XulDataNode? = mChannelNode?.getChildNode("data")?.firstChild
+        var channelList: XulDataNode? = null
+        while (categoryNode != null) {
+            val id: String? = categoryNode.getAttributeValue("category_id")
+            if (id == channelID) {
+                channelList = categoryNode.getChildNode("live_list")
+                break
+            }
+
+            categoryNode = categoryNode.next
+        }
+
+        if (channelList != null && channelList.size() > 0) {
+            var channelNode: XulDataNode? = channelList.firstChild
+            while (channelNode != null) {
+                mChannelListWrapper?.addItem(channelNode)
+                channelNode = channelNode.next
+            }
+
+            mChannelListWrapper?.syncContentView()
+        } else {
+            showEmptyTips()
+        }
     }
 
     private fun requestPlayUrl() {
@@ -152,8 +184,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
     override fun xulDoAction(view: XulView?, action: String?, type: String?, command: String?, userdata: Any?) {
         XulLog.i(NAME, "action = $action, type = $type, command = $command, userdata = $userdata")
         when (command) {
-            "open_vod_player" -> XulLog.d(NAME, "open vod player")
-            "open_live_player" -> XulLog.d(NAME, "open live player")
+            "category_focused" -> switchCategory(userdata as String)
         }
         super.xulDoAction(view, action, type, command, userdata)
     }

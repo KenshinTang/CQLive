@@ -5,6 +5,7 @@ import com.kapplication.cqlive.message.CommonMessage
 import com.starcor.xul.Script.IScriptArguments
 import com.starcor.xul.Script.IScriptContext
 import com.starcor.xul.ScriptWrappr.Annotation.ScriptMethod
+import com.starcor.xul.XulDataNode
 import com.starcor.xul.XulView
 import com.starcor.xulapp.XulApplication
 import com.starcor.xulapp.XulPresenter
@@ -30,6 +31,21 @@ abstract class BaseBehavior(xulPresenter: XulPresenter) : XulUiBehavior(xulPrese
 
     override fun xulOnRenderIsReady() {
         super.xulOnRenderIsReady()
+    }
+
+    protected fun handleError(dataNode: XulDataNode?) : Boolean {
+        if (dataNode == null || dataNode.size() == 0) {
+            return true
+        }
+        val code = dataNode.getAttributeValue("ret")
+        val reason = dataNode.getAttributeValue("reason")
+
+        XulLog.d(NAME, "Request result:, ret=$code, reason=$reason")
+
+        if ("0" != code) {
+            return true
+        }
+        return false
     }
 
     @ScriptMethod("refreshBindingByView")

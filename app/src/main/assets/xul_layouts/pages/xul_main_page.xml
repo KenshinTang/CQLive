@@ -69,8 +69,10 @@
                         <area id="category" type="massive" class="playbill-list-massive">
                             <template id="@item-template">
                                 <item class="playbill-item, playbill-category-item" type="image">
+                                    <data name="userdata" binding="[=category_id]"/>
                                     <attr name="text" binding="[=category_name]"/>
                                     <attr name="img.0" binding="[=default_icon_img_url]"/>
+                                    <action event="focus" type="usr_cmd">category_focused</action>
                                 </item>
                             </template>
                         </area>
@@ -141,20 +143,21 @@
                                 <area class="playbill-item">
                                     <attr name="width">match_parent</attr>
                                     <attr name="height">140</attr>
+                                    <data name="userdata" binding="[=live_id]"/>
                                     <item id="channel_id" type="label" desc="频道号">
                                         <attr name="x">60</attr>
                                         <attr name="height">match_parent</attr>
                                         <style name="font-align">0, 0.5</style>
                                         <style name="font-size">40</style>
                                         <style name="font-color">FFFFFFFF</style>
-                                        <attr name="text" binding="channel_id"/>
+                                        <attr name="text" binding="[=live_number]"/>
                                     </item>
                                     <item type="image" desc="频道图标">
                                         <attr name="x">160</attr>
                                         <attr name="y">45</attr>
                                         <attr name="img.0.width">60</attr>
                                         <attr name="img.0.height">60</attr>
-                                        <attr name="img.0" binding="channel_icon"/>
+                                        <attr name="img.0" binding="[=icon_img_url]"/>
                                     </item>
                                     <item id="channel_name" type="label" desc="频道名">
                                         <attr name="x">260</attr>
@@ -162,7 +165,7 @@
                                         <style name="font-align">0, 0.5</style>
                                         <style name="font-size">40</style>
                                         <style name="font-color">FFFFFFFF</style>
-                                        <attr name="text" binding="channel_name"/>
+                                        <attr name="text" binding="[=live_name]"/>
                                     </item>
                                     <item type="image" desc="加锁图标">
                                         <attr name="x">530</attr>
