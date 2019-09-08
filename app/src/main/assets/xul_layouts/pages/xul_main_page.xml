@@ -7,7 +7,7 @@
         <layout>
             <area id="title-frame" desc="顶部标题栏">
                 <style name="display">none</style>
-                <attr name="y">-180</attr>
+                <attr name="y">0</attr>
                 <attr name="width">match_parent</attr>
                 <attr name="height">180</attr>
                 <area>
@@ -49,7 +49,7 @@
             </area>
 
             <area id="category-list" desc="频道栏">
-<!--                <attr name="x">-1060</attr>-->
+                <style name="display">none</style>
                 <attr name="x">0</attr>
                 <attr name="y">0</attr>
                 <attr name="width">1060</attr>
@@ -264,8 +264,7 @@
                 <area>
                     <attr name="width">match_parent</attr>
                     <attr name="height">365</attr>
-<!--                    <attr name="y">715</attr>-->
-                    <attr name="y">1080</attr>
+                    <attr name="y">715</attr>
                     <style name="background-image">file:///.assets/images/img_bottom_bg.png</style>
                     <area>
                         <attr name="y">205</attr>
@@ -275,7 +274,7 @@
                         <item id="player-time-begin" type="label" class="player-time-label" desc="可时移时间">
                         </item>
                         <item id="player-pos" class="player-pos" type="seek_bar">
-                            <focus mode="nofocus"></focus>
+                            <focus mode="nofocus"/>
                         </item>
                         <item id="player-time-end" type="label" class="player-time-label" desc="当前时间">
                             <attr name="x">1625</attr>
@@ -425,11 +424,4 @@
             </select>
         </selector>
     </page>
-    <selector>
-        <select class="player-ui-component">
-            <focus mode="dynamic"/>
-            <attr name="animation-moving">true</attr>
-            <attr name="enabled">false</attr>
-        </select>
-    </selector>
 </starcor.xul>

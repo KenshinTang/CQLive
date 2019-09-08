@@ -12,6 +12,7 @@ import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
 import com.starcor.xul.IXulExternalView
 import com.starcor.xul.Wrapper.XulMassiveAreaWrapper
 import com.starcor.xul.Wrapper.XulSliderAreaWrapper
+import com.starcor.xul.XulArea
 import com.starcor.xul.XulDataNode
 import com.starcor.xul.XulView
 import com.starcor.xulapp.XulApplication
@@ -43,8 +44,13 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
     }
 
     private var mMediaPlayer: StandardGSYVideoPlayer = NoUiGSYPlayer(context)
-    private var mCategoryListWrapper: XulMassiveAreaWrapper? = null
-    private var mChannelListWrapper: XulMassiveAreaWrapper? = null
+
+    private lateinit var mCategoryListWrapper: XulMassiveAreaWrapper
+    private lateinit var mChannelListWrapper: XulMassiveAreaWrapper
+    private lateinit var mTitleArea: XulArea
+    private lateinit var mChannelArea: XulArea
+    private lateinit var mControlArea: XulArea
+
     private var mChannelNode: XulDataNode? = null
     private var mCurrentChannelID: String? = "429535885"
     private var mFirst: Boolean = true
@@ -53,7 +59,6 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         XulLog.i("CQLive", "xulOnRenderIsReady")
         initView()
         requestChannel()
-//        requestPlayUrl("")
         super.xulOnRenderIsReady()
     }
 
@@ -69,6 +74,10 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
     private fun initView() {
         mCategoryListWrapper = XulMassiveAreaWrapper.fromXulView(xulGetRenderContext().findItemById("category"))
         mChannelListWrapper = XulMassiveAreaWrapper.fromXulView(xulGetRenderContext().findItemById("channel"))
+
+        mTitleArea = xulGetRenderContext().findItemById("title-frame") as XulArea
+        mChannelArea = xulGetRenderContext().findItemById("category-list") as XulArea
+        mControlArea = xulGetRenderContext().findItemById("control-frame") as XulArea
     }
 
     private fun requestChannel() {
@@ -107,14 +116,14 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
                             } else {
                                 var categoryNode: XulDataNode? = dataNode?.getChildNode("data")?.firstChild
                                 while (categoryNode != null) {
-                                    mCategoryListWrapper?.addItem(categoryNode)
+                                    mCategoryListWrapper.addItem(categoryNode)
                                     categoryNode = categoryNode.next
                                 }
 
-                                mCategoryListWrapper?.syncContentView()
+                                mCategoryListWrapper.syncContentView()
 
-                                xulGetRenderContext().layout.requestFocus(mCategoryListWrapper?.getItemView(0))
-                                mCategoryListWrapper?.getItemView(0)?.resetRender()
+                                xulGetRenderContext().layout.requestFocus(mCategoryListWrapper.getItemView(0))
+                                mCategoryListWrapper.getItemView(0)?.resetRender()
                             }
                         }
                     }
@@ -134,9 +143,9 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         if (categoryID.isNullOrEmpty()) {
             return
         }
-        mChannelListWrapper?.clear()
-        mChannelListWrapper?.asView?.parent?.dynamicFocus = null
-        XulSliderAreaWrapper.fromXulView(mChannelListWrapper?.asView)?.scrollTo(0, false)
+        mChannelListWrapper.clear()
+        mChannelListWrapper.asView?.parent?.dynamicFocus = null
+        XulSliderAreaWrapper.fromXulView(mChannelListWrapper.asView)?.scrollTo(0, false)
 
         var categoryNode: XulDataNode? = mChannelNode?.getChildNode("data")?.firstChild
         var channelList: XulDataNode? = null
@@ -154,18 +163,18 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
             showEmptyTips(false)
             var channelNode: XulDataNode? = channelList.firstChild
             while (channelNode != null) {
-                mChannelListWrapper?.addItem(channelNode)
+                mChannelListWrapper.addItem(channelNode)
                 channelNode = channelNode.next
             }
 
-            mChannelListWrapper?.syncContentView()
+            mChannelListWrapper.syncContentView()
 
             var index = 0
-            mChannelListWrapper?.eachItem { idx, node ->
-                val v: XulView? = mChannelListWrapper?.getItemView(idx)
+            mChannelListWrapper.eachItem { idx, node ->
+                val v: XulView? = mChannelListWrapper.getItemView(idx)
                 if (node.getAttributeValue("live_id") == mCurrentChannelID) {
                     v?.addClass("category_checked")
-                    mChannelListWrapper?.asView?.parent?.dynamicFocus = v
+                    mChannelListWrapper.asView?.parent?.dynamicFocus = v
                     index = idx
                 } else {
                     v?.removeClass("category_checked")
@@ -174,7 +183,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
             }
 
             if (mFirst) {
-                xulGetRenderContext().layout.requestFocus(mChannelListWrapper?.getItemView(index))
+                xulGetRenderContext().layout.requestFocus(mChannelListWrapper.getItemView(index))
                 requestPlayUrl(mCurrentChannelID)
                 mFirst = false
             }
