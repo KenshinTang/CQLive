@@ -163,15 +163,16 @@
                         <attr name="y">190</attr>
                         <attr name="width">match_parent</attr>
                         <attr name="height">840</attr>
-                        <attr name="lock-focus">0.5</attr>
+                        <attr name="lock-focus">0.2008</attr>
                         <style name="clip-children">true</style>
                         <area id="channel" type="massive" class="playbill-list-massive">
+                            <action event="massiveUpdated" type="usr_cmd">syncCheckedChannel</action>
                             <template id="@item-template">
                                 <area class="playbill-item">
                                     <attr name="width">match_parent</attr>
                                     <attr name="height">140</attr>
                                     <data name="userdata" binding="[=live_id]"/>
-                                    <action event="click" type="usr_cmd">channel_clicked</action>
+                                    <action event="checked" type="usr_cmd">switchChannel</action>
                                     <item id="channel_id" type="label" desc="频道号">
                                         <attr name="x">60</attr>
                                         <attr name="height">match_parent</attr>
@@ -216,6 +217,30 @@
                             </template>
                         </area>
                     </area>
+                </area>
+                <area id="area_none_channel">
+                    <style name="display">none</style>
+                    <focus mode="nofocus"/>
+                    <item type="image">
+                        <focus mode="nofocus"/>
+                        <attr name="img.0">file:///.assets/images/img_no_channel.png</attr>
+                        <attr name="x">530</attr>
+                        <attr name="y">360</attr>
+                    </item>
+                    <item type="label">
+                        <attr name="y">610</attr>
+                        <attr name="x">620</attr>
+                        <style name="font-color">ffffffff</style>
+                        <style name="font-size">30</style>
+                        <attr name="text">抱歉，暂无频道</attr>
+                    </item>
+                    <item type="label">
+                        <attr name="x">485</attr>
+                        <attr name="y">665</attr>
+                        <style name="font-color">ffffffff</style>
+                        <style name="font-size">30</style>
+                        <attr name="text">此分类下暂无频道信息，请稍后再试</attr>
+                    </item>
                 </area>
             </area>
 

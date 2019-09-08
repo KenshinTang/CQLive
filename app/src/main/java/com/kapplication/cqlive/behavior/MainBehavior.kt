@@ -98,12 +98,12 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
 
                     if (handleError(dataNode)) {
                         XulApplication.getAppInstance().postToMainLooper {
-                            showEmptyTips()
+                            showEmptyTips(true)
                         }
                     } else {
                         XulApplication.getAppInstance().postToMainLooper {
                             if (dataNode?.getChildNode("data")?.size() == 0) {
-                                showEmptyTips()
+                                showEmptyTips(true)
                             } else {
                                 var categoryNode: XulDataNode? = dataNode?.getChildNode("data")?.firstChild
                                 while (categoryNode != null) {
@@ -124,7 +124,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
             override fun onFailure(call: Call?, e: IOException?) {
                 XulLog.e(NAME, "getAssetCategoryList onFailure")
                 XulApplication.getAppInstance().postToMainLooper {
-                    showEmptyTips()
+                    showEmptyTips(true)
                 }
             }
         })
@@ -151,6 +151,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         }
 
         if (channelList != null && channelList.size() > 0) {
+            showEmptyTips(false)
             var channelNode: XulDataNode? = channelList.firstChild
             while (channelNode != null) {
                 mChannelListWrapper?.addItem(channelNode)
@@ -159,29 +160,42 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
 
             mChannelListWrapper?.syncContentView()
 
-            if (mFirst) {
-                var index = 0
-                mChannelListWrapper?.eachItem { idx, node ->
-                    if (node.getAttributeValue("live_id") == mCurrentChannelID) {
-                        index = idx
-                    }
+            var index = 0
+            mChannelListWrapper?.eachItem { idx, node ->
+                val v: XulView? = mChannelListWrapper?.getItemView(idx)
+                if (node.getAttributeValue("live_id") == mCurrentChannelID) {
+                    v?.addClass("category_checked")
+                    mChannelListWrapper?.asView?.parent?.dynamicFocus = v
+                    index = idx
+                } else {
+                    v?.removeClass("category_checked")
                 }
+                v?.resetRender()
+            }
+
+            if (mFirst) {
                 xulGetRenderContext().layout.requestFocus(mChannelListWrapper?.getItemView(index))
-                mChannelListWrapper?.getItemView(index)?.resetRender()
+                requestPlayUrl(mCurrentChannelID)
                 mFirst = false
             }
         } else {
-            showEmptyTips()
+            showEmptyTips(true)
         }
     }
 
     private fun requestPlayUrl(channelID: String?) {
+        mCurrentChannelID = channelID
         mMediaPlayer.setUp("http://129.28.160.49/__cl/cg:ingest01/__c/cctv5/__op/default/__f/index.m3u8", true, "name")
         mMediaPlayer.startPlayLogic()
     }
+
+    private fun syncCheckedChannel() {
+    }
     
-    private fun showEmptyTips() {
-        
+    private fun showEmptyTips(show: Boolean) {
+        val emptyView: XulView = xulGetRenderContext().findItemById("area_none_channel")
+        emptyView.setStyle("display", if(show) "block" else "none")
+        emptyView.resetRender()
     }
 
     override fun xulOnDestroy() {
@@ -211,15 +225,13 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         XulLog.i(NAME, "action = $action, type = $type, command = $command, userdata = $userdata")
         when (command) {
             "switchCategory" -> switchCategory(userdata as String)
-            "channel_clicked" -> requestPlayUrl(userdata as String)
+            "switchChannel" -> requestPlayUrl(userdata as String)
+            "syncCheckedChannel" -> syncCheckedChannel()
         }
         super.xulDoAction(view, action, type, command, userdata)
     }
 
     override fun xulOnDispatchKeyEvent(event: KeyEvent?): Boolean {
-        XulLog.i("kenshin", "event = $event")
-        val view: XulView = xulGetFocus()
-        XulLog.e("kenshin", "view = $view")
         return super.xulOnDispatchKeyEvent(event)
     }
 }
