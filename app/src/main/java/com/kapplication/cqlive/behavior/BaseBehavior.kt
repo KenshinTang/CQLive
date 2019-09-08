@@ -1,6 +1,10 @@
 package com.kapplication.cqlive.behavior
 
+import android.app.Activity
 import android.content.Context
+import android.os.Build
+import android.view.View
+import android.view.WindowManager
 import com.kapplication.cqlive.message.CommonMessage
 import com.starcor.xul.Script.IScriptArguments
 import com.starcor.xul.Script.IScriptContext
@@ -30,6 +34,7 @@ abstract class BaseBehavior(xulPresenter: XulPresenter) : XulUiBehavior(xulPrese
     }
 
     override fun xulOnRenderIsReady() {
+        hideNavButtons()
         super.xulOnRenderIsReady()
     }
 
@@ -87,5 +92,22 @@ abstract class BaseBehavior(xulPresenter: XulPresenter) : XulUiBehavior(xulPrese
     @XulSubscriber(tag = CommonMessage.EVENT_SHOW_UPGRADE)
     private fun onShowUpgradeDialog(dummy: Any) {
         XulLog.d("UpgradeUtils", "onShowUpgradeDialog: " + this)
+    }
+
+    protected fun hideNavButtons(){
+        if (Build.VERSION.SDK_INT in 12..18) { // lower api
+            val v: View = (context as Activity).window.decorView
+            v.systemUiVisibility = View.GONE
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            //for new api versions.
+            val decorView: View = (context as Activity).window.decorView
+            val uiOptions: Int = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+                    View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                    View.SYSTEM_UI_FLAG_IMMERSIVE
+            decorView.systemUiVisibility = uiOptions
+            (context as Activity).window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
+        }
     }
 }

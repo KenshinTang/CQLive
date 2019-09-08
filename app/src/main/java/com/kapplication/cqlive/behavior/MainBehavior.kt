@@ -1,5 +1,6 @@
 package com.kapplication.cqlive.behavior
 
+import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -134,8 +135,8 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
             return
         }
         mChannelListWrapper?.clear()
-        mChannelListWrapper?.asView?.parent?.parent?.dynamicFocus = null
-        XulSliderAreaWrapper.fromXulView(mChannelListWrapper?.asView?.parent)?.scrollTo(0, false)
+        mChannelListWrapper?.asView?.parent?.dynamicFocus = null
+        XulSliderAreaWrapper.fromXulView(mChannelListWrapper?.asView)?.scrollTo(0, false)
 
         var categoryNode: XulDataNode? = mChannelNode?.getChildNode("data")?.firstChild
         var channelList: XulDataNode? = null
@@ -213,5 +214,12 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
             "channel_clicked" -> requestPlayUrl(userdata as String)
         }
         super.xulDoAction(view, action, type, command, userdata)
+    }
+
+    override fun xulOnDispatchKeyEvent(event: KeyEvent?): Boolean {
+        XulLog.i("kenshin", "event = $event")
+        val view: XulView = xulGetFocus()
+        XulLog.e("kenshin", "view = $view")
+        return super.xulOnDispatchKeyEvent(event)
     }
 }

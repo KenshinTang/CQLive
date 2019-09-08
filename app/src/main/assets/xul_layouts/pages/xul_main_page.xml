@@ -106,8 +106,9 @@
                     <style name="background-color">19ffffff</style>
                     <focus mode="nofocus"/>
                 </item>
-                <area desc="频道列表">
+                <area desc="频道列表" type="radio">
                     <style name="background-color">e5313131</style>
+                    <attr name="checked-class">category_checked</attr>
                     <attr name="x">420</attr>
                     <attr name="y">0</attr>
                     <attr name="width">640</attr>
@@ -156,13 +157,13 @@
                         </item>
                     </area>
                     <area type="slider">
-                        <focus mode="dynamic,priority,nearby"/>
+                        <focus mode="dynamic,nearby"/>
                         <attr name="direction">vertical</attr>
                         <attr name="x">0</attr>
                         <attr name="y">190</attr>
                         <attr name="width">match_parent</attr>
                         <attr name="height">840</attr>
-                        <!--                    <attr name="lock-focus">0.5</attr>-->
+                        <attr name="lock-focus">0.5</attr>
                         <style name="clip-children">true</style>
                         <area id="channel" type="massive" class="playbill-list-massive">
                             <template id="@item-template">
@@ -180,6 +181,7 @@
                                         <attr name="text" binding="[=live_number]"/>
                                     </item>
                                     <item type="image" desc="频道图标">
+                                        <focus mode="nofocus"/>
                                         <attr name="x">160</attr>
                                         <attr name="y">45</attr>
                                         <attr name="img.0.width">60</attr>
@@ -195,6 +197,7 @@
                                         <attr name="text" binding="[=live_name]"/>
                                     </item>
                                     <item type="image" desc="加锁图标">
+                                        <focus mode="nofocus"/>
                                         <attr name="x">530</attr>
                                         <attr name="y">56</attr>
                                         <attr name="img.0.width">28</attr>
@@ -202,6 +205,7 @@
                                         <attr name="img.0">file:///.assets/images/icon_lock.png</attr>
                                     </item>
                                     <item type="image" desc="收藏图标">
+                                        <focus mode="nofocus"/>
                                         <attr name="x">585</attr>
                                         <attr name="y">56</attr>
                                         <attr name="img.0.width">32</attr>
@@ -305,7 +309,6 @@
                 <style name="background-color">33ffffff</style>
             </select>
             <select class="playbill-list-massive">
-                <focus mode="dynamic,nearby"/>
                 <attr name="direction">vertical</attr>
                 <attr name="arrangement">linear-fixed</attr>
                 <attr name="minimum-item">18</attr>
