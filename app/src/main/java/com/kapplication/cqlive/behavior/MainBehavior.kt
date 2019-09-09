@@ -201,7 +201,9 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         val channelName = getChannelNameById(channelId)
         XulLog.i(NAME, "channelId = $channelId, channelNum = $channelNum, channelName = $channelName")
         xulGetRenderContext().findItemById("live_num")?.setAttr("text", channelNum)
+        xulGetRenderContext().findItemById("live_num")?.resetRender()
         xulGetRenderContext().findItemById("live_name")?.setAttr("text", channelName)
+        xulGetRenderContext().findItemById("live_name")?.resetRender()
 
         mMediaPlayer.setUp("http://129.28.160.49/__cl/cg:ingest01/__c/cctv5/__op/default/__f/index.m3u8", true, "name")
         mMediaPlayer.startPlayLogic()
@@ -303,7 +305,8 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
     }
 
     private fun showChannelList(show: Boolean) {
-        mChannelArea.setStyle("display", if(show) "block" else "none")
+//        mChannelArea.setStyle("display", if(show) "block" else "none")
+        mChannelArea.setAttr("x", if(show) "0" else "-1060")
         mChannelArea.resetRender()
         mIsChannelListShow = show
 
@@ -320,7 +323,8 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         mControlArea.resetRender()
         mIsControlFrameShow = show
 
-        mChannelArea.setStyle("display", "none")
+//        mChannelArea.setStyle("display", "none")
+        mChannelArea.setAttr("x", "-1060")
         mChannelArea.resetRender()
     }
 }

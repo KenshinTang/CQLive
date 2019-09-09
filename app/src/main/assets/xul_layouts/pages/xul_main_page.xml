@@ -47,8 +47,9 @@
             </area>
 
             <area id="category-list" desc="频道栏">
-                <style name="display">none</style>
-                <attr name="x">0</attr>
+<!--                <style name="display">none</style>-->
+<!--                <attr name="x">0</attr>-->
+                <attr name="x">-1060</attr>
                 <attr name="y">0</attr>
                 <attr name="width">1060</attr>
                 <attr name="height">match_parent</attr>
@@ -221,8 +222,8 @@
                     <item type="image">
                         <focus mode="nofocus"/>
                         <attr name="img.0">file:///.assets/images/img_no_channel.png</attr>
-                        <attr name="x">530</attr>
-                        <attr name="y">360</attr>
+                        <attr name="x">605</attr>
+                        <attr name="y">380</attr>
                     </item>
                     <item type="label">
                         <attr name="y">610</attr>
