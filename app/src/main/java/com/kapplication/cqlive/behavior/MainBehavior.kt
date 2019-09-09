@@ -199,6 +199,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         mCurrentChannelId = channelId
         val channelNum = getChannelNumById(channelId!!)
         val channelName = getChannelNameById(channelId)
+        XulLog.i(NAME, "channelId = $channelId, channelNum = $channelNum, channelName = $channelName")
         xulGetRenderContext().findItemById("live_num")?.setAttr("text", channelNum)
         xulGetRenderContext().findItemById("live_name")?.setAttr("text", channelName)
 
@@ -207,21 +208,47 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
     }
 
     private fun getChannelNumById(channelId: String): String {
-        val liveListNode =
+        var liveListNode =
             mChannelNode?.getChildNode("data")?.firstChild?.getChildNode("live_list")?.firstChild
-        return liveListNode?.getAttributeValue("live_number")?:""
+        while (liveListNode != null) {
+            val liveId = liveListNode.getAttributeValue("live_id")
+            if (liveId == channelId) {
+                return liveListNode.getAttributeValue("live_number")?:""
+            }
+            liveListNode = liveListNode.next
+        }
+        return ""
     }
 
     private fun getChannelNameById(channelId: String): String {
-        val liveListNode =
+        var liveListNode =
             mChannelNode?.getChildNode("data")?.firstChild?.getChildNode("live_list")?.firstChild
-        return liveListNode?.getAttributeValue("live_name")?:""
+        while (liveListNode != null) {
+            val liveId = liveListNode.getAttributeValue("live_id")
+            if (liveId == channelId) {
+                return liveListNode.getAttributeValue("live_name")?:""
+            }
+            liveListNode = liveListNode.next
+        }
+        return ""
     }
 
     private fun showEmptyTips(show: Boolean) {
         val emptyView: XulView = xulGetRenderContext().findItemById("area_none_channel")
         emptyView.setStyle("display", if(show) "block" else "none")
         emptyView.resetRender()
+    }
+
+    override fun xulOnBackPressed(): Boolean {
+        if (mIsChannelListShow) {
+            showChannelList(false)
+            return true
+        }
+        if (mIsControlFrameShow) {
+            showControlFrame(false)
+            return true
+        }
+        return super.xulOnBackPressed()
     }
 
     override fun xulOnDestroy() {
