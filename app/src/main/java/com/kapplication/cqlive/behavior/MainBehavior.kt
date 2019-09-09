@@ -22,6 +22,7 @@ import com.starcor.xulapp.behavior.XulUiBehavior
 import com.starcor.xulapp.message.XulSubscriber
 import com.starcor.xulapp.utils.XulLog
 import okhttp3.*
+import org.json.JSONObject
 import java.io.IOException
 
 class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
@@ -56,6 +57,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
 
     private var mChannelNode: XulDataNode? = null
     private var mCurrentChannelId: String? = "429535885"
+    private var mCurrentCategoryId: String? = ""
     private var mFirst: Boolean = true
 
     override fun xulOnRenderIsReady() {
@@ -146,6 +148,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         if (categoryId.isNullOrEmpty()) {
             return
         }
+
         mChannelListWrapper.clear()
         mChannelListWrapper.asView?.parent?.dynamicFocus = null
         XulSliderAreaWrapper.fromXulView(mChannelListWrapper.asView)?.scrollTo(0, false)
@@ -166,6 +169,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
             showEmptyTips(false)
             var channelNode: XulDataNode? = channelList.firstChild
             while (channelNode != null) {
+                channelNode.setAttribute("category_id", channelNode.parent.parent.getAttributeValue("category_id"))
                 mChannelListWrapper.addItem(channelNode)
                 channelNode = channelNode.next
             }
@@ -208,6 +212,37 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
 
         mMediaPlayer.setUp(channelUrl, true, "name")
         mMediaPlayer.startPlayLogic()
+    }
+
+    private fun requestPreviousPlayUrl() {
+        var categoryNode: XulDataNode? = mChannelNode?.getChildNode("data")?.firstChild
+        var liveListNode: XulDataNode? = null
+        while (categoryNode != null) {
+            if (mCurrentCategoryId == categoryNode.getAttributeValue("category_id")) {
+                liveListNode = categoryNode.getChildNode("live_list")?.firstChild
+                break
+            }
+            categoryNode = categoryNode.next
+        }
+
+        var previousLiveListNode: XulDataNode? = null
+        while (liveListNode != null) {
+            if (mCurrentChannelId == liveListNode.getAttributeValue("live_id")) {
+                previousLiveListNode = if (liveListNode == categoryNode?.getChildNode("live_list")?.firstChild) {
+                    categoryNode.getChildNode("live_list")?.lastChild
+                } else {
+                    liveListNode.prev
+                }
+                break
+            }
+            liveListNode = liveListNode.next
+        }
+
+        val previousChannelId: String? = previousLiveListNode?.getAttributeValue("live_id")
+        requestPlayUrl(previousChannelId)
+    }
+
+    private fun requestNextPlayUrl() {
     }
 
     private fun getChannelNumById(channelId: String): String {
@@ -295,9 +330,16 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
 
     override fun xulDoAction(view: XulView?, action: String?, type: String?, command: String?, userdata: Any?) {
         XulLog.i(NAME, "action = $action, type = $type, command = $command, userdata = $userdata")
-        when (command) {
-            "switchCategory" -> switchCategory(userdata as String)
-            "switchChannel" -> requestPlayUrl(userdata as String)
+        when (action) {
+            "switchCategory" -> {
+                val data = JSONObject(command)
+                switchCategory(data.optString("category_id"))
+            }
+            "switchChannel" -> {
+                val data = JSONObject(command)
+                mCurrentCategoryId = data.optString("category_id")
+                requestPlayUrl(data.optString("live_id"))
+            }
         }
         super.xulDoAction(view, action, type, command, userdata)
     }
@@ -307,29 +349,33 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         xulGetRenderContext().findItemById("operate-tip").setStyle("display", "none")
         xulGetRenderContext().findItemById("operate-tip").resetRender()
 
-        when (event?.keyCode) {
-            KeyEvent.KEYCODE_DPAD_CENTER -> {
-                if (!mIsChannelListShow && !mIsControlFrameShow) {
-                    showChannelList(true)
-                    return true
+        if (event?.action == KeyEvent.ACTION_UP) {
+            when (event.keyCode) {
+                KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_ENTER -> {
+                    if (!mIsChannelListShow && !mIsControlFrameShow) {
+                        showChannelList(true)
+                        return true
+                    }
                 }
-            }
-            KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_DPAD_RIGHT -> {
-                if (!mIsChannelListShow && !mIsControlFrameShow) {
-                    showControlFrame(true)
-                    return true
+                KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_DPAD_RIGHT -> {
+                    if (!mIsChannelListShow && !mIsControlFrameShow) {
+                        showControlFrame(true)
+                        return true
+                    }
                 }
-            }
-            KeyEvent.KEYCODE_DPAD_UP -> {
-                if (!mIsChannelListShow) {
-                    XulLog.i(NAME, "up pressed.")
-                    return true
+                KeyEvent.KEYCODE_DPAD_UP -> {
+                    if (!mIsChannelListShow) {
+                        XulLog.i(NAME, "up pressed.")
+                        requestPreviousPlayUrl()
+                        return true
+                    }
                 }
-            }
-            KeyEvent.KEYCODE_DPAD_DOWN -> {
-                if (!mIsChannelListShow) {
-                    XulLog.i(NAME, "down pressed.")
-                    return true
+                KeyEvent.KEYCODE_DPAD_DOWN -> {
+                    if (!mIsChannelListShow) {
+                        XulLog.i(NAME, "down pressed.")
+                        requestNextPlayUrl()
+                        return true
+                    }
                 }
             }
         }

@@ -73,7 +73,7 @@
                             <template id="@item-template">
                                 <item filter="[0]" class="playbill-item, playbill-category-item" type="image">
                                     <focus mode="focusable" focused="true"/>
-                                    <data name="userdata" binding="[=category_id]"/>
+                                    <data name="category_id" binding="[=category_id]"/>
                                     <attr name="text" binding="[=category_name]"/>
                                     <attr name="img.0" binding="[=default_icon_img_url]"/>
                                     <action event="focus" type="script/javascript">
@@ -81,11 +81,14 @@
                                             this.fireEvent("click");
                                         }
                                     </action>
-                                    <action event="checked" type="usr_cmd">switchCategory</action>
+                                    <action event="checked" type="script/javascript">
+                                        var category_id = this.getData("category_id");
+                                        this.dispatchEvent("switchCategory", "usr_cmd", JSON.stringify({"category_id":category_id}));
+                                    </action>
                                 </item>
                                 <item class="playbill-item, playbill-category-item" type="image">
                                     <focus mode="focusable" focused="true"/>
-                                    <data name="userdata" binding="[=category_id]"/>
+                                    <data name="category_id" binding="[=category_id]"/>
                                     <attr name="text" binding="[=category_name]"/>
                                     <attr name="img.0" binding="[=default_icon_img_url]"/>
                                     <action event="focus" type="script/javascript">
@@ -93,7 +96,10 @@
                                             this.fireEvent("click");
                                         }
                                     </action>
-                                    <action event="checked" type="usr_cmd">switchCategory</action>
+                                    <action event="checked" type="script/javascript">
+                                        var category_id = this.getData("category_id");
+                                        this.dispatchEvent("switchCategory", "usr_cmd", JSON.stringify({"category_id":category_id}));
+                                    </action>
                                 </item>
                             </template>
                         </area>
@@ -169,8 +175,13 @@
                                 <area class="playbill-item">
                                     <attr name="width">match_parent</attr>
                                     <attr name="height">140</attr>
-                                    <data name="userdata" binding="[=live_id]"/>
-                                    <action event="checked" type="usr_cmd">switchChannel</action>
+                                    <data name="live_id" binding="[=live_id]"/>
+                                    <data name="category_id" binding="[=category_id]"/>
+                                    <action event="checked" type="script/javascript">
+                                        var live_id = this.getData("live_id");
+                                        var category_id = this.getData("category_id");
+                                        this.dispatchEvent("switchChannel", "usr_cmd", JSON.stringify({"live_id":live_id, "category_id":category_id}));
+                                    </action>
                                     <item id="channel_id" type="label" desc="频道号">
                                         <attr name="x">60</attr>
                                         <attr name="height">match_parent</attr>
