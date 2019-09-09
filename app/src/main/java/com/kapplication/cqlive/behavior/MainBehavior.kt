@@ -282,8 +282,11 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         return null
     }
 
-    @XulSubscriber(tag = CommonMessage.EVENT_HALF_SECOND)
+    @XulSubscriber(tag = CommonMessage.EVENT_FIVE_SECOND)
     private fun onHalfSecondPassed(dummy: Any) {
+        XulLog.i(NAME, "5 seconds passed, dismiss operate tips.")
+        xulGetRenderContext().findItemById("operate-tip").setStyle("display", "none")
+        xulGetRenderContext().findItemById("operate-tip").resetRender()
     }
 
     @XulSubscriber(tag = CommonMessage.EVENT_HALF_HOUR)
@@ -300,6 +303,10 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
     }
 
     override fun xulOnDispatchKeyEvent(event: KeyEvent?): Boolean {
+        XulLog.i(NAME, "event = $event")
+        xulGetRenderContext().findItemById("operate-tip").setStyle("display", "none")
+        xulGetRenderContext().findItemById("operate-tip").resetRender()
+
         when (event?.keyCode) {
             KeyEvent.KEYCODE_DPAD_CENTER -> {
                 if (!mIsChannelListShow && !mIsControlFrameShow) {
@@ -310,6 +317,18 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
             KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_DPAD_RIGHT -> {
                 if (!mIsChannelListShow && !mIsControlFrameShow) {
                     showControlFrame(true)
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_DPAD_UP -> {
+                if (!mIsChannelListShow) {
+                    XulLog.i(NAME, "up pressed.")
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_DPAD_DOWN -> {
+                if (!mIsChannelListShow) {
+                    XulLog.i(NAME, "down pressed.")
                     return true
                 }
             }

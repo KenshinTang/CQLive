@@ -12,7 +12,7 @@ object CommonMessage {
     const val EVENT_ACTIVITY_STOPPED = CAT_ACTIVITY + 0x003
     const val EVENT_ACTIVITY_DESTROYED = CAT_ACTIVITY + 0x004
 
-    const val EVENT_HALF_SECOND = 0x1001
+    const val EVENT_FIVE_SECOND = 0x1001
     const val EVENT_HALF_HOUR = 0x1002
     const val EVENT_TEN_MINUTES = 0x1003
 
