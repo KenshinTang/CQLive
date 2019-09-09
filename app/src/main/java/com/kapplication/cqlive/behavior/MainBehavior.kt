@@ -199,13 +199,14 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         mCurrentChannelId = channelId
         val channelNum = getChannelNumById(channelId!!)
         val channelName = getChannelNameById(channelId)
-        XulLog.i(NAME, "channelId = $channelId, channelNum = $channelNum, channelName = $channelName")
+        val channelUrl = getChannelUrlById(channelId)
+        XulLog.i(NAME, "channelId = $channelId, channelNum = $channelNum, channelName = $channelName, playUrl = $channelUrl")
         xulGetRenderContext().findItemById("live_num")?.setAttr("text", channelNum)
         xulGetRenderContext().findItemById("live_num")?.resetRender()
         xulGetRenderContext().findItemById("live_name")?.setAttr("text", channelName)
         xulGetRenderContext().findItemById("live_name")?.resetRender()
 
-        mMediaPlayer.setUp("http://129.28.160.49/__cl/cg:ingest01/__c/cctv5/__op/default/__f/index.m3u8", true, "name")
+        mMediaPlayer.setUp(channelUrl, true, "name")
         mMediaPlayer.startPlayLogic()
     }
 
@@ -229,6 +230,19 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
             val liveId = liveListNode.getAttributeValue("live_id")
             if (liveId == channelId) {
                 return liveListNode.getAttributeValue("live_name")?:""
+            }
+            liveListNode = liveListNode.next
+        }
+        return ""
+    }
+
+    private fun getChannelUrlById(channelId: String): String {
+        var liveListNode =
+            mChannelNode?.getChildNode("data")?.firstChild?.getChildNode("live_list")?.firstChild
+        while (liveListNode != null) {
+            val liveId = liveListNode.getAttributeValue("live_id")
+            if (liveId == channelId) {
+                return liveListNode.getAttributeValue("play_url")?:""
             }
             liveListNode = liveListNode.next
         }
