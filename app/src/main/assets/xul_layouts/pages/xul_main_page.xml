@@ -16,21 +16,19 @@
                     <attr name="height">209</attr>
                     <style name="background-image">file:///.assets/images/img_top_bg.png</style>
                     <attr name="width">match_parent</attr>
-                    <item type="label" id="channel_num">
+                    <item type="label" id="live_num">
                         <style name="font-color">ffffffff</style>
                         <style name="font-size">60</style>
                         <attr name="x">93</attr>
                         <attr name="y">42</attr>
-                        <attr name="text">025</attr>
                     </item>
-                    <item type="label" id="channel_name">
+                    <item type="label" id="live_name">
                         <attr name="width">800</attr>
                         <attr name="marquee">500,1000,6000,40%</attr>
                         <style name="font-color">fff0f0f0</style>
                         <style name="font-size">60</style>
                         <attr name="x">283</attr>
                         <attr name="y">48</attr>
-                        <attr name="text">上海东方卫视</attr>
                     </item>
                     <item type="label" id="timeshift_logo">
                         <attr name="x">1710</attr>
@@ -166,7 +164,6 @@
                         <attr name="lock-focus">0.2008</attr>
                         <style name="clip-children">true</style>
                         <area id="channel" type="massive" class="playbill-list-massive">
-                            <action event="massiveUpdated" type="usr_cmd">syncCheckedChannel</action>
                             <template id="@item-template">
                                 <area class="playbill-item">
                                     <attr name="width">match_parent</attr>

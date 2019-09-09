@@ -51,8 +51,11 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
     private lateinit var mChannelArea: XulArea
     private lateinit var mControlArea: XulArea
 
+    private var mIsChannelListShow: Boolean = false
+    private var mIsControlFrameShow: Boolean = false
+
     private var mChannelNode: XulDataNode? = null
-    private var mCurrentChannelID: String? = "429535885"
+    private var mCurrentChannelId: String? = "429535885"
     private var mFirst: Boolean = true
 
     override fun xulOnRenderIsReady() {
@@ -139,8 +142,8 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         })
     }
 
-    private fun switchCategory(categoryID: String?) {
-        if (categoryID.isNullOrEmpty()) {
+    private fun switchCategory(categoryId: String?) {
+        if (categoryId.isNullOrEmpty()) {
             return
         }
         mChannelListWrapper.clear()
@@ -151,7 +154,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         var channelList: XulDataNode? = null
         while (categoryNode != null) {
             val id: String? = categoryNode.getAttributeValue("category_id")
-            if (id == categoryID) {
+            if (id == categoryId) {
                 channelList = categoryNode.getChildNode("live_list")
                 break
             }
@@ -172,7 +175,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
             var index = 0
             mChannelListWrapper.eachItem { idx, node ->
                 val v: XulView? = mChannelListWrapper.getItemView(idx)
-                if (node.getAttributeValue("live_id") == mCurrentChannelID) {
+                if (node.getAttributeValue("live_id") == mCurrentChannelId) {
                     v?.addClass("category_checked")
                     mChannelListWrapper.asView?.parent?.dynamicFocus = v
                     index = idx
@@ -184,7 +187,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
 
             if (mFirst) {
                 xulGetRenderContext().layout.requestFocus(mChannelListWrapper.getItemView(index))
-                requestPlayUrl(mCurrentChannelID)
+                requestPlayUrl(mCurrentChannelId)
                 mFirst = false
             }
         } else {
@@ -192,15 +195,29 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         }
     }
 
-    private fun requestPlayUrl(channelID: String?) {
-        mCurrentChannelID = channelID
+    private fun requestPlayUrl(channelId: String?) {
+        mCurrentChannelId = channelId
+        val channelNum = getChannelNumById(channelId!!)
+        val channelName = getChannelNameById(channelId)
+        xulGetRenderContext().findItemById("live_num")?.setAttr("text", channelNum)
+        xulGetRenderContext().findItemById("live_name")?.setAttr("text", channelName)
+
         mMediaPlayer.setUp("http://129.28.160.49/__cl/cg:ingest01/__c/cctv5/__op/default/__f/index.m3u8", true, "name")
         mMediaPlayer.startPlayLogic()
     }
 
-    private fun syncCheckedChannel() {
+    private fun getChannelNumById(channelId: String): String {
+        val liveListNode =
+            mChannelNode?.getChildNode("data")?.firstChild?.getChildNode("live_list")?.firstChild
+        return liveListNode?.getAttributeValue("live_number")?:""
     }
-    
+
+    private fun getChannelNameById(channelId: String): String {
+        val liveListNode =
+            mChannelNode?.getChildNode("data")?.firstChild?.getChildNode("live_list")?.firstChild
+        return liveListNode?.getAttributeValue("live_name")?:""
+    }
+
     private fun showEmptyTips(show: Boolean) {
         val emptyView: XulView = xulGetRenderContext().findItemById("area_none_channel")
         emptyView.setStyle("display", if(show) "block" else "none")
@@ -235,12 +252,48 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         when (command) {
             "switchCategory" -> switchCategory(userdata as String)
             "switchChannel" -> requestPlayUrl(userdata as String)
-            "syncCheckedChannel" -> syncCheckedChannel()
         }
         super.xulDoAction(view, action, type, command, userdata)
     }
 
     override fun xulOnDispatchKeyEvent(event: KeyEvent?): Boolean {
+        when (event?.keyCode) {
+            KeyEvent.KEYCODE_DPAD_CENTER -> {
+                if (!mIsChannelListShow && !mIsControlFrameShow) {
+                    showChannelList(true)
+                    return true
+                }
+            }
+            KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_DPAD_RIGHT -> {
+                if (!mIsChannelListShow && !mIsControlFrameShow) {
+                    showControlFrame(true)
+                    return true
+                }
+            }
+        }
+
         return super.xulOnDispatchKeyEvent(event)
+    }
+
+    private fun showChannelList(show: Boolean) {
+        mChannelArea.setStyle("display", if(show) "block" else "none")
+        mChannelArea.resetRender()
+        mIsChannelListShow = show
+
+        mTitleArea.setStyle("display", "none")
+        mTitleArea.resetRender()
+        mControlArea.setStyle("display", "none")
+        mControlArea.resetRender()
+    }
+
+    private fun showControlFrame(show: Boolean) {
+        mTitleArea.setStyle("display", if(show) "block" else "none")
+        mTitleArea.resetRender()
+        mControlArea.setStyle("display", if(show) "block" else "none")
+        mControlArea.resetRender()
+        mIsControlFrameShow = show
+
+        mChannelArea.setStyle("display", "none")
+        mChannelArea.resetRender()
     }
 }
