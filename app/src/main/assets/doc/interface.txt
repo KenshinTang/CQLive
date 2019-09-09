@@ -9,7 +9,7 @@ http://129.28.160.49/__cl/cg:ingest01/__c/cctv6/__op/default/__f/index.m3u8
 http://129.28.160.49/__cl/cg:ingest01/__c/cctv8/__op/default/__f/index.m3u8
 http://dev.yusihuo.com/zhiboapi.php?m=Live&c=Live&a=getLiveListIncludeCategory
 
-上下键切台
+上下键切台(切台焦点还有问题)
 切台优化
 播放条
 时移
