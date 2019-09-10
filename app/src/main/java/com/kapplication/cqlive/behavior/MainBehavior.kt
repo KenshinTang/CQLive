@@ -120,6 +120,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
                                 showEmptyTips(true)
                             } else {
                                 var categoryNode: XulDataNode? = dataNode?.getChildNode("data")?.firstChild
+                                mCurrentCategoryId = categoryNode?.getAttributeValue("category_id")
                                 while (categoryNode != null) {
                                     mCategoryListWrapper.addItem(categoryNode)
                                     categoryNode = categoryNode.next
