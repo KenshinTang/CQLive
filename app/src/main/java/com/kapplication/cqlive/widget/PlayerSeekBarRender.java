@@ -135,7 +135,8 @@ public class PlayerSeekBarRender extends XulImageRender {
     public void setSeekBarTips(String tips) {
         _seekTips = tips;
         if (_tipLength != tips.length()) {
-            Paint textPaint = getTextPaint();
+//            Paint textPaint = getTextPaint();
+            Paint textPaint = new Paint();
             _fontMetrics = textPaint.getFontMetrics();
             Rect rect = new Rect();
             textPaint.getTextBounds("00:00:00", 0, 8, rect);

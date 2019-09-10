@@ -9,6 +9,7 @@ import android.widget.FrameLayout
 import com.kapplication.cqlive.message.CommonMessage
 import com.kapplication.cqlive.utils.Utils
 import com.kapplication.cqlive.widget.NoUiGSYPlayer
+import com.kapplication.cqlive.widget.PlayerSeekBarRender
 import com.kapplication.cqlive.widget.XulExt_GSYVideoPlayer
 import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
 import com.starcor.xul.IXulExternalView
@@ -58,6 +59,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
     private lateinit var mControlArea: XulArea
     private lateinit var mMediaTimeStartView: XulView
     private lateinit var mMediaTimeEndView: XulView
+    private lateinit var mSeekBarRender: PlayerSeekBarRender
 
     private var mIsChannelListShow: Boolean = false
     private var mIsControlFrameShow: Boolean = false
@@ -115,6 +117,9 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
 
         mMediaTimeStartView = xulGetRenderContext().findItemById("player-time-begin")
         mMediaTimeEndView = xulGetRenderContext().findItemById("player-time-end")
+        mSeekBarRender = xulGetRenderContext().findItemById("player-pos").render as PlayerSeekBarRender
+        mSeekBarRender.setSeekBarTips("直播中")
+        mSeekBarRender.setSeekBarPos(100.0f)
     }
 
     private fun requestChannel() {
@@ -505,7 +510,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
 
     private fun showControlFrame(show: Boolean) {
         if (show) {
-            mHandler.sendEmptyMessageDelayed(CommonMessage.EVENT_AUTO_HIDE_UI, 8 * 1000)
+//            mHandler.sendEmptyMessageDelayed(CommonMessage.EVENT_AUTO_HIDE_UI, 8 * 1000)
         }
         mTitleArea.setStyle("display", if(show) "block" else "none")
         mTitleArea.resetRender()
