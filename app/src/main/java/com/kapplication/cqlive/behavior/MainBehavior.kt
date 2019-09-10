@@ -442,14 +442,14 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
                     }
                 }
                 KeyEvent.KEYCODE_DPAD_UP -> {
-                    if (!mIsChannelListShow) {
+                    if (!mIsChannelListShow && !mIsControlFrameShow) {
                         XulLog.i(NAME, "up pressed.")
                         requestPreviousPlayUrl()
                         return true
                     }
                 }
                 KeyEvent.KEYCODE_DPAD_DOWN -> {
-                    if (!mIsChannelListShow) {
+                    if (!mIsChannelListShow && !mIsControlFrameShow) {
                         XulLog.i(NAME, "down pressed.")
                         requestNextPlayUrl()
                         return true
