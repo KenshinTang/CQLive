@@ -15,6 +15,7 @@ object CommonMessage {
     const val EVENT_FIVE_SECOND = 0x1001
     const val EVENT_HALF_HOUR = 0x1002
     const val EVENT_TEN_MINUTES = 0x1003
+    const val EVENT_HALF_SECOND = 0x1004
 
     const val EVENT_SHOW_UPGRADE = 0x2001
 

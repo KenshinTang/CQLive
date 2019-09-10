@@ -53,6 +53,12 @@ class KApplication : XulApplication() {
 
     private fun startCommonMessage() {
         XulMessageCenter.buildMessage()
+            .setTag(CommonMessage.EVENT_HALF_SECOND)
+            .setInterval(500)
+            .setRepeat(Integer.MAX_VALUE)
+            .postSticky()
+
+        XulMessageCenter.buildMessage()
             .setTag(CommonMessage.EVENT_FIVE_SECOND)
             .setDelay(1000 * 5)
             .postSticky()

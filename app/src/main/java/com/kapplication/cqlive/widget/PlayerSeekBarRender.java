@@ -81,7 +81,7 @@ public class PlayerSeekBarRender extends XulImageRender {
             int xOffset;
             if ("playback".equals(seekMode) || "live".equals(seekMode)) {
                 if (seekTipBg == null) {
-                    seekTipBg = getImageFromAssetsFile("images/player/seek_tip_bg.png");
+                    seekTipBg = getImageFromAssetsFile("images/img_seek_tip_bg.png");
                 }
                 int bgXOffset = (int) (padding.left + (animRect.width() - padding.left - padding.right - progressWidth) * _seekBarPos - (seekBgWidth - progressWidth) / 2);
                 dc.drawBitmap(seekTipBg, animRect.left + bgXOffset + xBase + _screenX, animRect.top + yBase + _screenY, null);

@@ -27,6 +27,8 @@ import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
 import java.lang.ref.WeakReference
+import java.text.SimpleDateFormat
+import java.util.*
 
 class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
     companion object {
@@ -54,6 +56,8 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
     private lateinit var mTitleArea: XulArea
     private lateinit var mChannelArea: XulArea
     private lateinit var mControlArea: XulArea
+    private lateinit var mMediaTimeStartView: XulView
+    private lateinit var mMediaTimeEndView: XulView
 
     private var mIsChannelListShow: Boolean = false
     private var mIsControlFrameShow: Boolean = false
@@ -62,6 +66,10 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
     private var mCurrentChannelId: String? = "429535885"
     private var mCurrentCategoryId: String? = ""
     private var mFirst: Boolean = true
+
+    private val dateFormat = SimpleDateFormat("HH:mm:ss")
+    private val currentDate = Date()
+    private val threeHoursAgoDate = Date()
 
     private val mMainBehavior = WeakReference<MainBehavior>(this)
     private val mHandler = HideUIHandler(mMainBehavior)
@@ -80,7 +88,6 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
             }
         }
     }
-
 
     override fun xulOnRenderIsReady() {
         XulLog.i("CQLive", "xulOnRenderIsReady")
@@ -105,6 +112,9 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         mTitleArea = xulGetRenderContext().findItemById("title-frame") as XulArea
         mChannelArea = xulGetRenderContext().findItemById("category-list") as XulArea
         mControlArea = xulGetRenderContext().findItemById("control-frame") as XulArea
+
+        mMediaTimeStartView = xulGetRenderContext().findItemById("player-time-begin")
+        mMediaTimeEndView = xulGetRenderContext().findItemById("player-time-end")
     }
 
     private fun requestChannel() {
@@ -389,10 +399,27 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
     }
 
     @XulSubscriber(tag = CommonMessage.EVENT_FIVE_SECOND)
-    private fun onHalfSecondPassed(dummy: Any) {
+    private fun onFiveSecondPassed(dummy: Any) {
         XulLog.i(NAME, "5 seconds passed, dismiss operate tips.")
         xulGetRenderContext().findItemById("operate-tip").setStyle("display", "none")
         xulGetRenderContext().findItemById("operate-tip").resetRender()
+    }
+
+    @XulSubscriber(tag = CommonMessage.EVENT_HALF_SECOND)
+    private fun onHalfSecondPassed(dummy: Any) {
+        val currentTimeMillis = System.currentTimeMillis()
+        if (currentTimeMillis / 1000 != currentDate.time / 1000) {
+            currentDate.time = currentTimeMillis
+            dateFormat.timeZone = TimeZone.getTimeZone("Asia/Shanghai")
+            val curTimeStr = dateFormat.format(currentDate)
+            mMediaTimeEndView.setAttr("text", curTimeStr)
+            mMediaTimeEndView.resetRender()
+
+            threeHoursAgoDate.time = currentTimeMillis - 3 * 3600 * 1000
+            val threeHoursAgoTimeStr = dateFormat.format(threeHoursAgoDate)
+            mMediaTimeStartView.setAttr("text", threeHoursAgoTimeStr)
+            mMediaTimeStartView.resetRender()
+        }
     }
 
     @XulSubscriber(tag = CommonMessage.EVENT_HALF_HOUR)
