@@ -215,6 +215,9 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
     }
 
     private fun requestPlayUrl(channelId: String?) {
+        if (channelId == mCurrentChannelId && !mFirst) {
+            return
+        }
         mCurrentChannelId = channelId
         val channelNum = getChannelNumById(channelId!!)
         val channelName = getChannelNameById(channelId)
@@ -397,7 +400,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
             xulGetRenderContext().findItemById("operate-tip").resetRender()
         }
 
-        if (event?.action == KeyEvent.ACTION_UP) {
+        if (event?.action == KeyEvent.ACTION_DOWN) {
             when (event.keyCode) {
                 KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_ENTER -> {
                     if (!mIsChannelListShow && !mIsControlFrameShow) {
