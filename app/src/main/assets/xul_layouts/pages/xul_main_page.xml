@@ -180,7 +180,9 @@
                                     <action event="checked" type="script/javascript">
                                         var live_id = this.getData("live_id");
                                         var category_id = this.getData("category_id");
-                                        this.dispatchEvent("switchChannel", "usr_cmd", JSON.stringify({"live_id":live_id, "category_id":category_id}));
+                                        if (!this.hasClass("category_checked")){
+                                            this.dispatchEvent("switchChannel", "usr_cmd", JSON.stringify({"live_id":live_id, "category_id":category_id}));
+                                        }
                                     </action>
                                     <item id="channel_id" type="label" desc="频道号">
                                         <attr name="x">60</attr>
@@ -338,6 +340,7 @@
             </area>
 
             <area id="operate-tip" desc="操作提示">
+                <style name="display">block</style>
                 <item id="img_operate_tips" type="image">
                     <style name="background-image">file:///.assets/images/img_tips_bg.png</style>
                     <attr name="y">684</attr>

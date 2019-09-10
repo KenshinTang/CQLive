@@ -200,6 +200,20 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         }
     }
 
+    private fun syncFocus() {
+        mChannelListWrapper.eachItem { idx, node ->
+            val v: XulView? = mChannelListWrapper.getItemView(idx)
+            if (node.getAttributeValue("live_id") == mCurrentChannelId) {
+                v?.addClass("category_checked")
+                mChannelListWrapper.asView?.parent?.dynamicFocus = v
+                xulGetRenderContext().layout.requestFocus(v)
+            } else {
+                v?.removeClass("category_checked")
+            }
+            v?.resetRender()
+        }
+    }
+
     private fun requestPlayUrl(channelId: String?) {
         mCurrentChannelId = channelId
         val channelNum = getChannelNumById(channelId!!)
@@ -244,6 +258,31 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
     }
 
     private fun requestNextPlayUrl() {
+        var categoryNode: XulDataNode? = mChannelNode?.getChildNode("data")?.firstChild
+        var liveListNode: XulDataNode? = null
+        while (categoryNode != null) {
+            if (mCurrentCategoryId == categoryNode.getAttributeValue("category_id")) {
+                liveListNode = categoryNode.getChildNode("live_list")?.firstChild
+                break
+            }
+            categoryNode = categoryNode.next
+        }
+
+        var nextLiveListNode: XulDataNode? = null
+        while (liveListNode != null) {
+            if (mCurrentChannelId == liveListNode.getAttributeValue("live_id")) {
+                nextLiveListNode = if (liveListNode == categoryNode?.getChildNode("live_list")?.lastChild) {
+                    categoryNode.getChildNode("live_list")?.firstChild
+                } else {
+                    liveListNode.next
+                }
+                break
+            }
+            liveListNode = liveListNode.next
+        }
+
+        val nextChannelId: String? = nextLiveListNode?.getAttributeValue("live_id")
+        requestPlayUrl(nextChannelId)
     }
 
     private fun getChannelNumById(channelId: String): String {
@@ -300,6 +339,12 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
             showControlFrame(false)
             return true
         }
+        val tipView: XulView? = xulGetRenderContext().findItemById("operate-tip")
+        if (tipView?.getStyleString("display") == "block") {
+            tipView.setStyle("display", "none")
+            tipView.resetRender()
+            return true
+        }
         return super.xulOnBackPressed()
     }
 
@@ -347,8 +392,10 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
 
     override fun xulOnDispatchKeyEvent(event: KeyEvent?): Boolean {
         XulLog.i(NAME, "event = $event")
-        xulGetRenderContext().findItemById("operate-tip").setStyle("display", "none")
-        xulGetRenderContext().findItemById("operate-tip").resetRender()
+        if (event?.keyCode != KeyEvent.KEYCODE_BACK) {
+            xulGetRenderContext().findItemById("operate-tip").setStyle("display", "none")
+            xulGetRenderContext().findItemById("operate-tip").resetRender()
+        }
 
         if (event?.action == KeyEvent.ACTION_UP) {
             when (event.keyCode) {
@@ -385,7 +432,9 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
     }
 
     private fun showChannelList(show: Boolean) {
-//        mChannelArea.setStyle("display", if(show) "block" else "none")
+        if (show) {
+            syncFocus()
+        }
         mChannelArea.setAttr("x", if(show) "0" else "-1060")
         mChannelArea.resetRender()
         mIsChannelListShow = show
