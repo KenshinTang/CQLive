@@ -1,5 +1,7 @@
 package com.kapplication.cqlive.behavior
 
+import android.os.Handler
+import android.os.Message
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
@@ -24,6 +26,7 @@ import com.starcor.xulapp.utils.XulLog
 import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
+import java.lang.ref.WeakReference
 
 class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
     companion object {
@@ -59,6 +62,25 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
     private var mCurrentChannelId: String? = "429535885"
     private var mCurrentCategoryId: String? = ""
     private var mFirst: Boolean = true
+
+    private val mMainBehavior = WeakReference<MainBehavior>(this)
+    private val mHandler = HideUIHandler(mMainBehavior)
+
+    class HideUIHandler(private val mainBehavior: WeakReference<MainBehavior>): Handler() {
+        override fun handleMessage(msg: Message?) {
+            when (msg?.what) {
+                CommonMessage.EVENT_AUTO_HIDE_UI->{
+                    if (mainBehavior.get()!!.mIsChannelListShow) {
+                        mainBehavior.get()!!.showChannelList(false)
+                    }
+                    if (mainBehavior.get()!!.mIsControlFrameShow) {
+                        mainBehavior.get()!!.showControlFrame(false)
+                    }
+                }
+            }
+        }
+    }
+
 
     override fun xulOnRenderIsReady() {
         XulLog.i("CQLive", "xulOnRenderIsReady")
@@ -395,6 +417,11 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
 
     override fun xulOnDispatchKeyEvent(event: KeyEvent?): Boolean {
         XulLog.i(NAME, "event = $event")
+        if (mHandler.hasMessages(CommonMessage.EVENT_AUTO_HIDE_UI)) {
+            mHandler.removeMessages(CommonMessage.EVENT_AUTO_HIDE_UI)
+            mHandler.sendEmptyMessageDelayed(CommonMessage.EVENT_AUTO_HIDE_UI, 8 * 1000)
+        }
+
         if (event?.keyCode != KeyEvent.KEYCODE_BACK) {
             xulGetRenderContext().findItemById("operate-tip").setStyle("display", "none")
             xulGetRenderContext().findItemById("operate-tip").resetRender()
@@ -437,6 +464,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
     private fun showChannelList(show: Boolean) {
         if (show) {
             syncFocus()
+            mHandler.sendEmptyMessageDelayed(CommonMessage.EVENT_AUTO_HIDE_UI, 8 * 1000)
         }
         mChannelArea.setAttr("x", if(show) "0" else "-1060")
         mChannelArea.resetRender()
@@ -449,6 +477,9 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
     }
 
     private fun showControlFrame(show: Boolean) {
+        if (show) {
+            mHandler.sendEmptyMessageDelayed(CommonMessage.EVENT_AUTO_HIDE_UI, 8 * 1000)
+        }
         mTitleArea.setStyle("display", if(show) "block" else "none")
         mTitleArea.resetRender()
         mControlArea.setStyle("display", if(show) "block" else "none")
