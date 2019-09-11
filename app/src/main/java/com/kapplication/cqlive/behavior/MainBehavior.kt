@@ -11,7 +11,8 @@ import com.kapplication.cqlive.utils.Utils
 import com.kapplication.cqlive.widget.NoUiGSYPlayer
 import com.kapplication.cqlive.widget.PlayerSeekBarRender
 import com.kapplication.cqlive.widget.XulExt_GSYVideoPlayer
-import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
+import com.shuyu.gsyvideoplayer.GSYVideoManager
+import com.shuyu.gsyvideoplayer.listener.GSYMediaPlayerListener
 import com.starcor.xul.IXulExternalView
 import com.starcor.xul.Wrapper.XulMassiveAreaWrapper
 import com.starcor.xul.Wrapper.XulSliderAreaWrapper
@@ -51,7 +52,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         }
     }
 
-    private var mMediaPlayer: StandardGSYVideoPlayer = NoUiGSYPlayer(context)
+    private var mMediaPlayer: NoUiGSYPlayer = NoUiGSYPlayer(context)
 
     private lateinit var mCategoryListWrapper: XulMassiveAreaWrapper
     private lateinit var mChannelListWrapper: XulMassiveAreaWrapper
@@ -267,6 +268,56 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         xulGetRenderContext().findItemById("live_name")?.setAttr("text", channelName)
         xulGetRenderContext().findItemById("live_name")?.resetRender()
 
+        GSYVideoManager.instance().setListener(object: GSYMediaPlayerListener {
+            override fun onAutoCompletion() {
+                XulLog.e("kenshin", "onAutoCompletion")
+            }
+
+            override fun onPrepared() {
+                XulLog.e("kenshin", "onPrepared")
+            }
+
+            override fun onCompletion() {
+                XulLog.e("kenshin", "onCompletion")
+            }
+
+            override fun onVideoPause() {
+                XulLog.e("kenshin", "onVideoPause")
+            }
+
+            override fun onSeekComplete() {
+                XulLog.e("kenshin", "onSeekComplete ${mSeekBarRender.seekBarPos}")
+            }
+
+            override fun onInfo(what: Int, extra: Int) {
+                XulLog.e("kenshin", "onInfo $what $extra")
+            }
+
+            override fun onVideoSizeChanged() {
+                XulLog.e("kenshin", "onVideoSizeChanged")
+            }
+
+            override fun onBufferingUpdate(percent: Int) {
+                XulLog.e("kenshin", "onBufferingUpdate $percent")
+            }
+
+            override fun onBackFullscreen() {
+                XulLog.e("kenshin", "onBackFullscreen")
+            }
+
+            override fun onError(what: Int, extra: Int) {
+                XulLog.e("kenshin", "onError $what $extra")
+            }
+
+            override fun onVideoResume() {
+                XulLog.e("kenshin", "onVideoResume")
+            }
+
+            override fun onVideoResume(seek: Boolean) {
+                XulLog.e("kenshin", "onVideoResume $seek")
+            }
+
+        })
         mMediaPlayer.setUp(channelUrl, true, "name")
         mMediaPlayer.startPlayLogic()
     }
@@ -522,7 +573,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
                 KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_DPAD_RIGHT -> {
                     if (mIsControlFrameShow) {
                         showTimeshiftIndicator(0)
-//                        mMediaPlayer.seekTo(-10*1000)
+                        mMediaPlayer.seekTo(-10)
                         //doTimeshift()
                         return true
                     }
