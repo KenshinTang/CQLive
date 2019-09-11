@@ -23,7 +23,7 @@ class KApplication : XulApplication() {
 
     override fun onCreate() {
         XulLog.i("CQLive", "KApplication onCreate.")
-//        PlayerFactory.setPlayManager(SystemPlayerManager::class.java)
+        PlayerFactory.setPlayManager(Exo2PlayerManager::class.java)
         XulDebugServer.startUp()
         super.onCreate()
         startCommonMessage()
