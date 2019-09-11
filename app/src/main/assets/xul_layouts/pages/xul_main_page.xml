@@ -254,7 +254,7 @@
             </area>
 
             <area id="control-frame" desc="信息条+进度条">
-                <style name="display">none</style>
+                <attr name="y">1080</attr>
                 <attr name="width">match_parent</attr>
                 <item id="player-state" type="image" desc="屏幕中间的快进快退标识">
                     <attr name="x">878</attr>
@@ -289,50 +289,6 @@
                             <attr name="x">1625</attr>
                         </item>
                     </area>
-                    <item type="label" desc="进度条上面的时间/直播中">
-                        <attr name="x">119</attr>
-                        <attr name="y">186</attr>
-                        <style name="font-color">ffffffff</style>
-                        <style name="font-align">0.5,0.5</style>
-                        <style name="font-size">36</style>
-                        <attr name="width">112</attr>
-                        <attr name="height">66</attr>
-                        <style name="background-color">33000000</style>
-                        <style name="border">1,33ffffff,10,10</style>
-                        <style name="display">none</style>
-                    </item>
-                    <item type="label">
-                        <attr name="x">88</attr>
-                        <attr name="y">266</attr>
-                        <attr name="width">180</attr>
-                        <style name="font-align">0.5,0.5</style>
-                        <style name="font-color">ffffffff</style>
-                        <style name="font-size">30</style>
-<!--                        <style name="display">none</style>-->
-                    </item>
-                    <!--<item type="label" class="live_panel_divide"/>-->
-                    <!--<item type="image" class="play_tip"/>-->
-<!--                    <item id="curr_program_tips" class="current_play_style" type="label" desc="正在播放">-->
-<!--                        <attr name="x">92</attr>-->
-<!--                        <attr name="text">正在直播</attr>-->
-<!--                    </item>-->
-<!--                    <item class="current_play_style" type="label" id="current_play_time">-->
-<!--                        <attr name="x">92</attr>-->
-<!--                    </item>-->
-<!--                    <item class="current_play_style,program-name-label" type="label" id="current_program_name">-->
-<!--                        <attr name="x">261</attr>-->
-<!--                    </item>-->
-<!--                    <item class="next_play_style" type="label" desc="即将播放">-->
-<!--                        <attr name="x">92</attr>-->
-<!--                        <attr name="text">即将播放</attr>-->
-<!--                    </item>-->
-<!--                    <item class="next_play_style" type="label" id="next_play_time">-->
-<!--                        <attr name="x">261</attr>-->
-<!--                        &lt;!&ndash;<style name="display">none</style>&ndash;&gt;-->
-<!--                    </item>-->
-<!--                    <item class="next_play_style,program-name-label" type="label" id="next_program_name">-->
-<!--                        <attr name="x">361</attr>-->
-<!--                    </item>-->
                 </area>
             </area>
 
@@ -392,9 +348,6 @@
                 <attr name="img.0.height">60</attr>
             </select>
 
-            <select class="player-state-paused">
-                <attr name="img.1.visible">true</attr>
-            </select>
             <select class="player-state-fast-forward">
                 <attr name="img.1.visible">false</attr>
                 <attr name="img.2.visible">true</attr>
@@ -439,7 +392,7 @@
                 <style name="padding">0,-10,-10,0</style>
                 <attr name="img.0">@color:4cffffff,4,4</attr><!--背景-->
                 <attr name="img.0.padding">60,0,0,30</attr>
-                <attr name="img.3">@color:ffffb400,4,4</attr><!--实际进度-->
+                <attr name="img.3">@color:cfffffff,4,4</attr><!--实际进度-->
                 <attr name="img.3.padding">60,0,0,30</attr>
                 <attr name="img.4">@color:ff24b3f9,11,11</attr><!--圆点-->
                 <attr name="img.4.mode">center</attr>

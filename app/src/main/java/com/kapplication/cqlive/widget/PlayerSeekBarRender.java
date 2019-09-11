@@ -130,13 +130,16 @@ public class PlayerSeekBarRender extends XulImageRender {
         markDirtyView();
     }
 
+    public float getSeekBarPos() {
+        return _seekBarPos;
+    }
+
     private int _tipLength;
 
     public void setSeekBarTips(String tips) {
         _seekTips = tips;
         if (_tipLength != tips.length()) {
-//            Paint textPaint = getTextPaint();
-            Paint textPaint = new Paint();
+            Paint textPaint = getTextPaint();
             _fontMetrics = textPaint.getFontMetrics();
             Rect rect = new Rect();
             textPaint.getTextBounds("00:00:00", 0, 8, rect);

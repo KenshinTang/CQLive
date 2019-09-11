@@ -34,6 +34,7 @@ import java.util.*
 class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
     companion object {
         const val NAME = "MainBehavior"
+        const val THREE_HOURS_IN_SECONDS = 3600 * 3
 
         fun register() {
             XulBehaviorManager.registerBehavior(NAME,
@@ -71,6 +72,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
 
     private val dateFormat = SimpleDateFormat("HH:mm:ss")
     private val currentDate = Date()
+    private val timeshiftDate = Date()
     private val threeHoursAgoDate = Date()
 
     private val mMainBehavior = WeakReference<MainBehavior>(this)
@@ -119,7 +121,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         mMediaTimeEndView = xulGetRenderContext().findItemById("player-time-end")
         mSeekBarRender = xulGetRenderContext().findItemById("player-pos").render as PlayerSeekBarRender
         mSeekBarRender.setSeekBarTips("直播中")
-        mSeekBarRender.setSeekBarPos(100.0f)
+        mSeekBarRender.seekBarPos = 1.0f
     }
 
     private fun requestChannel() {
@@ -416,14 +418,15 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         if (currentTimeMillis / 1000 != currentDate.time / 1000) {
             currentDate.time = currentTimeMillis
             dateFormat.timeZone = TimeZone.getTimeZone("Asia/Shanghai")
-            val curTimeStr = dateFormat.format(currentDate)
-            mMediaTimeEndView.setAttr("text", curTimeStr)
+            mMediaTimeEndView.setAttr("text", dateFormat.format(currentDate))
             mMediaTimeEndView.resetRender()
 
-            threeHoursAgoDate.time = currentTimeMillis - 3 * 3600 * 1000
-            val threeHoursAgoTimeStr = dateFormat.format(threeHoursAgoDate)
-            mMediaTimeStartView.setAttr("text", threeHoursAgoTimeStr)
+            threeHoursAgoDate.time = currentTimeMillis - THREE_HOURS_IN_SECONDS * 1000
+            mMediaTimeStartView.setAttr("text", dateFormat.format(threeHoursAgoDate))
             mMediaTimeStartView.resetRender()
+
+            timeshiftDate.time = currentTimeMillis - ((1.0f - mSeekBarRender.seekBarPos) * THREE_HOURS_IN_SECONDS * 1000).toLong()
+            mSeekBarRender.setSeekBarTips(if (mSeekBarRender.seekBarPos == 1.0f) "直播中" else dateFormat.format(timeshiftDate))
         }
     }
 
@@ -447,6 +450,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         super.xulDoAction(view, action, type, command, userdata)
     }
 
+    private var direction = 0
     override fun xulOnDispatchKeyEvent(event: KeyEvent?): Boolean {
         XulLog.i(NAME, "event = $event")
         if (mHandler.hasMessages(CommonMessage.EVENT_AUTO_HIDE_UI)) {
@@ -472,6 +476,30 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
                         showControlFrame(true)
                         return true
                     }
+                    if (mIsControlFrameShow) {
+                        val step = when(event.repeatCount) {
+                            0 -> 10
+                            in 1..10 -> 30
+                            in 11..30 -> 60
+                            else -> 90
+                        }
+                        if (event.keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
+                            if (direction - step < -THREE_HOURS_IN_SECONDS) {
+                                direction = -THREE_HOURS_IN_SECONDS
+                            } else {
+                                direction -= step
+                            }
+                            showTimeshiftIndicator(-1)
+                        } else {
+                            if (direction + step > 0) {
+                                direction = 0
+                            } else {
+                                direction += step
+                            }
+                            showTimeshiftIndicator(1)
+                        }
+                        mSeekBarRender.seekBarPos = (THREE_HOURS_IN_SECONDS + direction) / THREE_HOURS_IN_SECONDS.toFloat()
+                    }
                 }
                 KeyEvent.KEYCODE_DPAD_UP -> {
                     if (!mIsChannelListShow && !mIsControlFrameShow) {
@@ -484,6 +512,18 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
                     if (!mIsChannelListShow && !mIsControlFrameShow) {
                         XulLog.i(NAME, "down pressed.")
                         requestNextPlayUrl()
+                        return true
+                    }
+                }
+            }
+        }
+        if (event?.action == KeyEvent.ACTION_UP) {
+            when (event.keyCode) {
+                KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_DPAD_RIGHT -> {
+                    if (mIsControlFrameShow) {
+                        showTimeshiftIndicator(0)
+//                        mMediaPlayer.seekTo(-10*1000)
+                        //doTimeshift()
                         return true
                     }
                 }
@@ -504,7 +544,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
 
         mTitleArea.setStyle("display", "none")
         mTitleArea.resetRender()
-        mControlArea.setStyle("display", "none")
+        mControlArea.setAttr("y", "1080")
         mControlArea.resetRender()
     }
 
@@ -514,12 +554,25 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         }
         mTitleArea.setStyle("display", if(show) "block" else "none")
         mTitleArea.resetRender()
-        mControlArea.setStyle("display", if(show) "block" else "none")
+        mControlArea.setAttr("y", if(show) "0" else "1080")
         mControlArea.resetRender()
         mIsControlFrameShow = show
 
-//        mChannelArea.setStyle("display", "none")
         mChannelArea.setAttr("x", "-1060")
         mChannelArea.resetRender()
+    }
+
+    private fun showTimeshiftIndicator(direction: Int) {
+        //<0 rewind, >0 fast forward
+        val playerState: XulView = xulGetRenderContext().findItemById("player-state")
+        when (direction) {
+            -1 -> playerState.setAttr("img.3.visible", "true")
+            1 -> playerState.setAttr("img.2.visible", "true")
+            0 -> {
+                playerState.setAttr("img.2.visible", "false")
+                playerState.setAttr("img.3.visible", "false")
+            }
+        }
+        playerState.resetRender()
     }
 }
