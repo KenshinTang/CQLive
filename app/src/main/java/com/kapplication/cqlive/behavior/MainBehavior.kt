@@ -6,14 +6,12 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import android.widget.Toast
 import com.kapplication.cqlive.message.CommonMessage
 import com.kapplication.cqlive.utils.Utils
 import com.kapplication.cqlive.widget.NoUiGSYPlayer
 import com.kapplication.cqlive.widget.PlayerSeekBarRender
 import com.kapplication.cqlive.widget.XulExt_GSYVideoPlayer
 import com.shuyu.gsyvideoplayer.GSYVideoManager
-import com.shuyu.gsyvideoplayer.listener.GSYMediaPlayerListener
 import com.starcor.xul.IXulExternalView
 import com.starcor.xul.Wrapper.XulMassiveAreaWrapper
 import com.starcor.xul.Wrapper.XulSliderAreaWrapper
@@ -68,16 +66,17 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
     private var mIsChannelListShow: Boolean = false
     private var mIsControlFrameShow: Boolean = false
 
-    private var mChannelNode: XulDataNode? = null
+    private var mDataNode: XulDataNode? = null   //全量数据
+    private var mCurrentChannelNode: XulDataNode? = null
     private var mCurrentChannelId: String? = "429535885"
     private var mCurrentCategoryId: String? = ""
-    private var mUrls: ArrayList<String> = ArrayList()
+    private var mUpDownSwitchUrls: ArrayList<String> = ArrayList()
+    private var mCurrentChannelIndex = 0  // current channel index in current channel list
     private var mFirst: Boolean = true
 
-    private val dateFormat = SimpleDateFormat("HH:mm:ss")
-    private val currentDate = Date()
-    private val timeshiftDate = Date()
-    private val threeHoursAgoDate = Date()
+    private var mCurrentVideoManager: GSYVideoManager? = GSYVideoManager.instance()
+    private var mUpVideoManager: GSYVideoManager? = null
+    private var mDownVideoManager: GSYVideoManager? = null
 
     private val mMainBehavior = WeakReference<MainBehavior>(this)
     private val mHandler = HideUIHandler(mMainBehavior)
@@ -150,8 +149,8 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
                     val result : String = responseBody!!.string()
                     XulLog.json(NAME, result)
 
-                    mChannelNode = XulDataNode.buildFromJson(result)
-                    val dataNode = mChannelNode
+                    mDataNode = XulDataNode.buildFromJson(result)
+                    val dataNode = mDataNode
 
                     if (handleError(dataNode)) {
                         XulApplication.getAppInstance().postToMainLooper {
@@ -193,12 +192,12 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
             return
         }
 
-        mUrls.clear()
+        mUpDownSwitchUrls.clear()
         mChannelListWrapper.clear()
         mChannelListWrapper.asView?.parent?.dynamicFocus = null
         XulSliderAreaWrapper.fromXulView(mChannelListWrapper.asView)?.scrollTo(0, false)
 
-        var categoryNode: XulDataNode? = mChannelNode?.getChildNode("data")?.firstChild
+        var categoryNode: XulDataNode? = mDataNode?.getChildNode("data")?.firstChild
         var channelList: XulDataNode? = null
         while (categoryNode != null) {
             val id: String? = categoryNode.getAttributeValue("category_id")
@@ -216,19 +215,18 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
             while (channelNode != null) {
                 channelNode.setAttribute("category_id", channelNode.parent.parent.getAttributeValue("category_id"))
                 mChannelListWrapper.addItem(channelNode)
-                mUrls.add(channelNode.getAttributeValue("play_url"))
+                mUpDownSwitchUrls.add(channelNode.getAttributeValue("play_url"))
                 channelNode = channelNode.next
             }
 
             mChannelListWrapper.syncContentView()
 
-            var index = 0
             mChannelListWrapper.eachItem { idx, node ->
                 val v: XulView? = mChannelListWrapper.getItemView(idx)
                 if (node.getAttributeValue("live_id") == mCurrentChannelId) {
                     v?.addClass("category_checked")
                     mChannelListWrapper.asView?.parent?.dynamicFocus = v
-                    index = idx
+                    mCurrentChannelIndex = idx
                 } else {
                     v?.removeClass("category_checked")
                 }
@@ -236,8 +234,9 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
             }
 
             if (mFirst) {
-                xulGetRenderContext().layout.requestFocus(mChannelListWrapper.getItemView(index))
-                requestPlayUrl(mCurrentChannelId)
+                xulGetRenderContext().layout.requestFocus(mChannelListWrapper.getItemView(mCurrentChannelIndex))
+                val url: String = requestPlayUrl(mCurrentChannelId)
+                startToPlay(url, 0)
                 mFirst = false
             }
         } else {
@@ -259,174 +258,82 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         }
     }
 
-    private var mTmpManager: GSYVideoManager? = null
-    private val gsyMediaPlayerListener = object : GSYMediaPlayerListener {
-        override fun onPrepared() {
-            XulLog.e("kenshin" , "onPrepared")
-            mTmpManager?.start()
+    private fun requestPlayUrl(channelId: String?): String {
+        if (channelId == mCurrentChannelId && !mFirst) {
+            return ""
+        }
+        mCurrentChannelId = channelId
+        updateTitleArea(channelId!!)
+        XulLog.d(NAME, mUpDownSwitchUrls)
+
+        return mCurrentChannelNode?.getAttributeValue("play_url")?:""
+    }
+
+    private fun startToPlay(playUrl: String, upOrDown: Int) {
+        //upOrDown -1 -> 按上键触发的播放
+        //upOrDown =0 -> 非上下键触发的播放, 比如频道列表选择
+        //upOrDown =1 -> 按下键触发的播放
+        var upIndex: Int = mCurrentChannelIndex - 1
+        if (upIndex < 0) upIndex = mUpDownSwitchUrls.size - 1
+        var downIndex: Int = mCurrentChannelIndex + 1
+        if (downIndex == mUpDownSwitchUrls.size) downIndex = 0
+
+        if (upOrDown == 0) {
+            mMediaPlayer.setUp(playUrl, false, "")
+            mMediaPlayer.startPlayLogic()
+
+            // pre load both up and down source
+            mUpVideoManager = GSYVideoManager.tmpInstance(null)
+            mUpVideoManager?.prepare(mUpDownSwitchUrls[upIndex], null, false, 1f, false, null)
+            mDownVideoManager = GSYVideoManager.tmpInstance(null)
+            mDownVideoManager?.prepare(mUpDownSwitchUrls[downIndex], null, false, 1f, false, null)
+            return
         }
 
-        override fun onAutoCompletion() {
-
+        GSYVideoManager.instance().stop()
+        GSYVideoManager.instance().releaseMediaPlayer()
+        when (upOrDown) {
+            -1 -> GSYVideoManager.changeManager(mUpVideoManager)
+            1 -> GSYVideoManager.changeManager(mDownVideoManager)
+            else -> return
         }
+        GSYVideoManager.instance().setDisplay(mMediaPlayer.getSurface())
+        GSYVideoManager.instance().start()
 
-        override fun onCompletion() {
-
-        }
-
-        override fun onBufferingUpdate(percent: Int) {
-
-        }
-
-        override fun onSeekComplete() {
-        }
-
-        override fun onError(what: Int, extra: Int) {
-        }
-
-        override fun onInfo(what: Int, extra: Int) {
-
-        }
-
-        override fun onVideoSizeChanged() {
-
-        }
-
-        override fun onBackFullscreen() {
-
-        }
-
-        override fun onVideoPause() {
-
-        }
-
-        override fun onVideoResume() {
-
-        }
-
-        override fun onVideoResume(seek: Boolean) {
-
+        if (upOrDown == -1) {
+            mCurrentChannelIndex = upIndex - 1
+            if (mCurrentChannelIndex < 0) mCurrentChannelIndex = mUpDownSwitchUrls.size - 1
+            val nextPlayUrl: String = mUpDownSwitchUrls[mCurrentChannelIndex]
+            mUpVideoManager = GSYVideoManager.tmpInstance(null)
+            mUpVideoManager?.prepare(nextPlayUrl, null, false, 1f, false, null)
+            mCurrentVideoManager = mUpVideoManager
+        } else if (upOrDown == 1) {
+            mCurrentChannelIndex = downIndex + 1
+            if (mCurrentChannelIndex == mUpDownSwitchUrls.size) mCurrentChannelIndex = 0
+            val nextPlayUrl: String = mUpDownSwitchUrls[mCurrentChannelIndex]
+            mDownVideoManager = GSYVideoManager.tmpInstance(null)
+            mDownVideoManager?.prepare(nextPlayUrl, null, false, 1f, false, null)
+            mCurrentVideoManager = mDownVideoManager
         }
     }
 
-    private fun requestPlayUrl(channelId: String?) {
-        if (channelId == mCurrentChannelId && !mFirst) {
-            return
+    private fun updateTitleArea(channelId: String) {
+        mCurrentChannelNode = mDataNode?.getChildNode("data")?.firstChild?.getChildNode("live_list")?.firstChild
+        while (mCurrentChannelNode != null) {
+            val liveId: String? = mCurrentChannelNode?.getAttributeValue("live_id")
+            if (liveId == channelId) {
+                break
+            }
+            mCurrentChannelNode = mCurrentChannelNode?.next
         }
-        mCurrentChannelId = channelId
-        val channelNum = getChannelNumById(channelId!!)
-        val channelName = getChannelNameById(channelId)
-        val channelUrl = getChannelUrlById(channelId)
-        XulLog.i(NAME, "channelId = $channelId, channelNum = $channelNum, channelName = $channelName, playUrl = $channelUrl")
+
+        val channelNum: String = mCurrentChannelNode?.getAttributeValue("live_number")?:""
+        val channelName: String = mCurrentChannelNode?.getAttributeValue("live_name")?:""
+        XulLog.i(NAME, "channelId = $channelId, channelNum = $channelNum, channelName = $channelName")
         xulGetRenderContext().findItemById("live_num")?.setAttr("text", channelNum)
         xulGetRenderContext().findItemById("live_num")?.resetRender()
         xulGetRenderContext().findItemById("live_name")?.setAttr("text", channelName)
         xulGetRenderContext().findItemById("live_name")?.resetRender()
-
-        XulLog.e("kenshin", mUrls)
-
-//        mMediaPlayer.setUp(channelUrl, false, "name")
-        mMediaPlayer.setUp("http://129.28.160.49/__cl/cg:ingest01/__c/cctv3/__op/default/__f/index.m3u8", false, "name")
-        mMediaPlayer.startPlayLogic()
-
-        var tempUrl = "http://129.28.160.49/__cl/cg:ingest01/__c/cctv5/__op/default/__f/index.m3u8"
-        mTmpManager = GSYVideoManager.tmpInstance(gsyMediaPlayerListener)
-        mTmpManager?.prepare(tempUrl, null, false, 1f, false, null)
-    }
-
-    private fun requestPreviousPlayUrl() {
-        var categoryNode: XulDataNode? = mChannelNode?.getChildNode("data")?.firstChild
-        var liveListNode: XulDataNode? = null
-        while (categoryNode != null) {
-            if (mCurrentCategoryId == categoryNode.getAttributeValue("category_id")) {
-                liveListNode = categoryNode.getChildNode("live_list")?.firstChild
-                break
-            }
-            categoryNode = categoryNode.next
-        }
-
-        var previousLiveListNode: XulDataNode? = null
-        while (liveListNode != null) {
-            if (mCurrentChannelId == liveListNode.getAttributeValue("live_id")) {
-                previousLiveListNode = if (liveListNode == categoryNode?.getChildNode("live_list")?.firstChild) {
-                    categoryNode.getChildNode("live_list")?.lastChild
-                } else {
-                    liveListNode.prev
-                }
-                break
-            }
-            liveListNode = liveListNode.next
-        }
-
-        val previousChannelId: String? = previousLiveListNode?.getAttributeValue("live_id")
-        requestPlayUrl(previousChannelId)
-    }
-
-    private fun requestNextPlayUrl() {
-        var categoryNode: XulDataNode? = mChannelNode?.getChildNode("data")?.firstChild
-        var liveListNode: XulDataNode? = null
-        while (categoryNode != null) {
-            if (mCurrentCategoryId == categoryNode.getAttributeValue("category_id")) {
-                liveListNode = categoryNode.getChildNode("live_list")?.firstChild
-                break
-            }
-            categoryNode = categoryNode.next
-        }
-
-        var nextLiveListNode: XulDataNode? = null
-        while (liveListNode != null) {
-            if (mCurrentChannelId == liveListNode.getAttributeValue("live_id")) {
-                nextLiveListNode = if (liveListNode == categoryNode?.getChildNode("live_list")?.lastChild) {
-                    categoryNode.getChildNode("live_list")?.firstChild
-                } else {
-                    liveListNode.next
-                }
-                break
-            }
-            liveListNode = liveListNode.next
-        }
-
-        val nextChannelId: String? = nextLiveListNode?.getAttributeValue("live_id")
-        requestPlayUrl(nextChannelId)
-    }
-
-    private fun getChannelNumById(channelId: String): String {
-        var liveListNode =
-            mChannelNode?.getChildNode("data")?.firstChild?.getChildNode("live_list")?.firstChild
-        while (liveListNode != null) {
-            val liveId = liveListNode.getAttributeValue("live_id")
-            if (liveId == channelId) {
-                return liveListNode.getAttributeValue("live_number")?:""
-            }
-            liveListNode = liveListNode.next
-        }
-        return ""
-    }
-
-    private fun getChannelNameById(channelId: String): String {
-        var liveListNode =
-            mChannelNode?.getChildNode("data")?.firstChild?.getChildNode("live_list")?.firstChild
-        while (liveListNode != null) {
-            val liveId = liveListNode.getAttributeValue("live_id")
-            if (liveId == channelId) {
-                return liveListNode.getAttributeValue("live_name")?:""
-            }
-            liveListNode = liveListNode.next
-        }
-        return ""
-    }
-
-    private fun getChannelUrlById(channelId: String): String {
-        var liveListNode =
-            mChannelNode?.getChildNode("data")?.firstChild?.getChildNode("live_list")?.firstChild
-        while (liveListNode != null) {
-            val liveId = liveListNode.getAttributeValue("live_id")
-            if (liveId == channelId) {
-                return liveListNode.getAttributeValue("play_url")?:""
-            }
-            liveListNode = liveListNode.next
-        }
-        return ""
     }
 
     private fun showEmptyTips(show: Boolean) {
@@ -450,6 +357,8 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
             tipView.resetRender()
             return true
         }
+
+        GSYVideoManager.instance().releaseMediaPlayer()
         return super.xulOnBackPressed()
     }
 
@@ -475,6 +384,10 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         xulGetRenderContext().findItemById("operate-tip").resetRender()
     }
 
+    private val dateFormat = SimpleDateFormat("HH:mm:ss")
+    private val currentDate = Date()
+    private val timeshiftDate = Date()
+    private val threeHoursAgoDate = Date()
     @XulSubscriber(tag = CommonMessage.EVENT_HALF_SECOND)
     private fun onHalfSecondPassed(dummy: Any) {
         val currentTimeMillis = System.currentTimeMillis()
@@ -507,7 +420,8 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
             "switchChannel" -> {
                 val data = JSONObject(command)
                 mCurrentCategoryId = data.optString("category_id")
-                requestPlayUrl(data.optString("live_id"))
+                val url: String = requestPlayUrl(data.optString("live_id"))
+                startToPlay(url, 0)
             }
         }
         super.xulDoAction(view, action, type, command, userdata)
@@ -579,19 +493,14 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
                 KeyEvent.KEYCODE_DPAD_UP -> {
                     if (!mIsChannelListShow && !mIsControlFrameShow) {
                         XulLog.i(NAME, "up pressed.")
-                        requestPreviousPlayUrl()
+                        startToPlay("", -1)
                         return true
                     }
                 }
                 KeyEvent.KEYCODE_DPAD_DOWN -> {
                     if (!mIsChannelListShow && !mIsControlFrameShow) {
-                        XulLog.i("kenshin", "down pressed.")
-//                        requestNextPlayUrl()
-                        GSYVideoManager.instance().releaseMediaPlayer()
-                        GSYVideoManager.changeManager(mTmpManager)
-                        mTmpManager?.setLastListener(gsyMediaPlayerListener)
-                        mTmpManager?.setListener(gsyMediaPlayerListener)
-                        mTmpManager?.setDisplay(mMediaPlayer.getSurface())
+                        XulLog.i(NAME, "down pressed.")
+                        startToPlay("", 1)
                         return true
                     }
                 }
