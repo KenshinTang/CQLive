@@ -11,13 +11,13 @@ import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
  * Created by guoshuyu on 2017/8/6.
  */
 
-class NoUiGSYPlayer : StandardGSYVideoPlayer {
+open class NoUiGSYPlayer : StandardGSYVideoPlayer {
 
-    constructor(context: Context, fullFlag: Boolean?) : super(context, fullFlag!!) {}
+    constructor(context: Context, fullFlag: Boolean?) : super(context, fullFlag!!)
 
-    constructor(context: Context) : super(context) {}
+    constructor(context: Context) : super(context)
 
-    constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {}
+    constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
 
     override fun getLayoutId(): Int {
         return R.layout.empty_control_video
