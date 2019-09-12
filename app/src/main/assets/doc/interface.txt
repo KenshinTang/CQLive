@@ -11,9 +11,10 @@ http://dev.yusihuo.com/zhiboapi.php?m=Live&c=Live&a=getLiveListIncludeCategory
 
 //上下键切台(切台焦点还有问题)
 //UI控制,自动隐藏
+//播放条
 
 切台优化
-播放条
+
 时移
 加锁/收藏
 
