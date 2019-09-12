@@ -6,6 +6,7 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.Toast
 import com.kapplication.cqlive.message.CommonMessage
 import com.kapplication.cqlive.utils.Utils
 import com.kapplication.cqlive.widget.NoUiGSYPlayer
@@ -31,6 +32,7 @@ import java.io.IOException
 import java.lang.ref.WeakReference
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 
 class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
     companion object {
@@ -69,6 +71,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
     private var mChannelNode: XulDataNode? = null
     private var mCurrentChannelId: String? = "429535885"
     private var mCurrentCategoryId: String? = ""
+    private var mUrls: ArrayList<String> = ArrayList()
     private var mFirst: Boolean = true
 
     private val dateFormat = SimpleDateFormat("HH:mm:ss")
@@ -190,6 +193,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
             return
         }
 
+        mUrls.clear()
         mChannelListWrapper.clear()
         mChannelListWrapper.asView?.parent?.dynamicFocus = null
         XulSliderAreaWrapper.fromXulView(mChannelListWrapper.asView)?.scrollTo(0, false)
@@ -212,6 +216,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
             while (channelNode != null) {
                 channelNode.setAttribute("category_id", channelNode.parent.parent.getAttributeValue("category_id"))
                 mChannelListWrapper.addItem(channelNode)
+                mUrls.add(channelNode.getAttributeValue("play_url"))
                 channelNode = channelNode.next
             }
 
@@ -254,6 +259,56 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         }
     }
 
+    private var mTmpManager: GSYVideoManager? = null
+    private val gsyMediaPlayerListener = object : GSYMediaPlayerListener {
+        override fun onPrepared() {
+            XulLog.e("kenshin" , "onPrepared")
+            mTmpManager?.start()
+        }
+
+        override fun onAutoCompletion() {
+
+        }
+
+        override fun onCompletion() {
+
+        }
+
+        override fun onBufferingUpdate(percent: Int) {
+
+        }
+
+        override fun onSeekComplete() {
+        }
+
+        override fun onError(what: Int, extra: Int) {
+        }
+
+        override fun onInfo(what: Int, extra: Int) {
+
+        }
+
+        override fun onVideoSizeChanged() {
+
+        }
+
+        override fun onBackFullscreen() {
+
+        }
+
+        override fun onVideoPause() {
+
+        }
+
+        override fun onVideoResume() {
+
+        }
+
+        override fun onVideoResume(seek: Boolean) {
+
+        }
+    }
+
     private fun requestPlayUrl(channelId: String?) {
         if (channelId == mCurrentChannelId && !mFirst) {
             return
@@ -268,8 +323,15 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         xulGetRenderContext().findItemById("live_name")?.setAttr("text", channelName)
         xulGetRenderContext().findItemById("live_name")?.resetRender()
 
-        mMediaPlayer.setUp(channelUrl, true, "name")
+        XulLog.e("kenshin", mUrls)
+
+//        mMediaPlayer.setUp(channelUrl, false, "name")
+        mMediaPlayer.setUp("http://129.28.160.49/__cl/cg:ingest01/__c/cctv3/__op/default/__f/index.m3u8", false, "name")
         mMediaPlayer.startPlayLogic()
+
+        var tempUrl = "http://129.28.160.49/__cl/cg:ingest01/__c/cctv5/__op/default/__f/index.m3u8"
+        mTmpManager = GSYVideoManager.tmpInstance(gsyMediaPlayerListener)
+        mTmpManager?.prepare(tempUrl, null, false, 1f, false, null)
     }
 
     private fun requestPreviousPlayUrl() {
@@ -523,8 +585,13 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
                 }
                 KeyEvent.KEYCODE_DPAD_DOWN -> {
                     if (!mIsChannelListShow && !mIsControlFrameShow) {
-                        XulLog.i(NAME, "down pressed.")
-                        requestNextPlayUrl()
+                        XulLog.i("kenshin", "down pressed.")
+//                        requestNextPlayUrl()
+                        GSYVideoManager.instance().releaseMediaPlayer()
+                        GSYVideoManager.changeManager(mTmpManager)
+                        mTmpManager?.setLastListener(gsyMediaPlayerListener)
+                        mTmpManager?.setListener(gsyMediaPlayerListener)
+                        mTmpManager?.setDisplay(mMediaPlayer.getSurface())
                         return true
                     }
                 }

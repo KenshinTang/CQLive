@@ -2,6 +2,7 @@ package com.kapplication.cqlive.widget
 
 import android.content.Context
 import android.util.AttributeSet
+import android.view.Surface
 import com.kapplication.cqlive.R
 
 import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
@@ -42,5 +43,9 @@ open class NoUiGSYPlayer : StandardGSYVideoPlayer {
 
     override fun seekTo(position: Long) {
         gsyVideoManager.seekTo(position)
+    }
+
+    public fun getSurface() : Surface {
+        return mSurface
     }
 }
