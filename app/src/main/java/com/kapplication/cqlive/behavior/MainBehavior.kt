@@ -272,18 +272,16 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         //upOrDown -1 -> 按上键触发的播放
         //upOrDown =0 -> 非上下键触发的播放, 比如频道列表选择
         //upOrDown =1 -> 按下键触发的播放
-        mCurrentChannelIndex += upOrDown
-        var upIndex: Int = mCurrentChannelIndex - 1
-        if (upIndex < 0) upIndex = mUpDownSwitchChannelNodes.size - 1
-        var downIndex: Int = mCurrentChannelIndex + 1
-        if (downIndex == mUpDownSwitchChannelNodes.size) downIndex = 0
-
         if (upOrDown == 0) {
             mMediaPlayer.setUp(playUrl, false, "")
             mMediaPlayer.startPlayLogic()
             updateTitleArea(mCurrentChannelId!!)
 
             // pre load both up and down source
+            var upIndex: Int = mCurrentChannelIndex - 1
+            if (upIndex < 0) upIndex = mUpDownSwitchChannelNodes.size - 1
+            var downIndex: Int = mCurrentChannelIndex + 1
+            if (downIndex == mUpDownSwitchChannelNodes.size) downIndex = 0
             mUpVideoManager = GSYVideoManager.tmpInstance(null)
             mUpVideoManager?.prepare(mUpDownSwitchChannelNodes[upIndex].getAttributeValue("play_url"), null, false, 1f, false, null)
             mDownVideoManager = GSYVideoManager.tmpInstance(null)
@@ -301,6 +299,9 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         GSYVideoManager.instance().setDisplay(mMediaPlayer.getSurface())
         GSYVideoManager.instance().start()
 
+        mCurrentChannelIndex += upOrDown
+        if (mCurrentChannelIndex < 0) mCurrentChannelIndex = mUpDownSwitchChannelNodes.size - 1
+        if (mCurrentChannelIndex == mUpDownSwitchChannelNodes.size) mCurrentChannelIndex = 0
         mCurrentChannelId = mUpDownSwitchChannelNodes[mCurrentChannelIndex].getAttributeValue("live_id")
         updateTitleArea(mCurrentChannelId!!)
 
@@ -424,7 +425,14 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
             "switchChannel" -> {
                 val data = JSONObject(command)
                 mCurrentCategoryId = data.optString("category_id")
-                val url: String = requestPlayUrl(data.optString("live_id"))
+                val liveId = data.optString("live_id")
+                val url: String = requestPlayUrl(liveId)
+                for (node: XulDataNode in mUpDownSwitchChannelNodes) {
+                    if (node.getAttributeValue("live_id") == liveId) {
+                        mCurrentChannelIndex = mUpDownSwitchChannelNodes.indexOf(node)
+                        break
+                    }
+                }
                 startToPlay(url, 0)
             }
         }
