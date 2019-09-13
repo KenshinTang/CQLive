@@ -85,12 +85,16 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         override fun handleMessage(msg: Message?) {
             when (msg?.what) {
                 CommonMessage.EVENT_AUTO_HIDE_UI->{
-                    if (mainBehavior.get()!!.mIsChannelListShow) {
-                        mainBehavior.get()!!.showChannelList(false)
+                    val instance: MainBehavior? = mainBehavior.get()
+                    if (instance != null) {
+                        if (instance.mIsChannelListShow) {
+                            instance.showChannelList(false)
+                        }
+                        if (instance.mIsControlFrameShow) {
+                            instance.showControlFrame(false)
+                        }
                     }
-                    if (mainBehavior.get()!!.mIsControlFrameShow) {
-                        mainBehavior.get()!!.showControlFrame(false)
-                    }
+
                 }
             }
         }
