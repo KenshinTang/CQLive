@@ -23,6 +23,8 @@ import com.starcor.xulapp.XulApplication
 import com.starcor.xulapp.XulPresenter
 import com.starcor.xulapp.behavior.XulBehaviorManager
 import com.starcor.xulapp.behavior.XulUiBehavior
+import com.starcor.xulapp.cache.XulCacheCenter
+import com.starcor.xulapp.cache.XulCacheDomain
 import com.starcor.xulapp.message.XulSubscriber
 import com.starcor.xulapp.utils.XulLog
 import okhttp3.*
@@ -68,6 +70,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
     private var mIsControlFrameShow: Boolean = false
 
     private var mDataNode: XulDataNode? = null   //全量数据
+    private var mCollectionNode: XulDataNode? = null
     private var mCurrentChannelNode: XulDataNode? = null
     private var mCurrentChannelId: String? = "429535885"
     private var mCurrentCategoryId: String? = ""
@@ -78,6 +81,8 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
     private var mCurrentVideoManager: GSYVideoManager? = GSYVideoManager.instance()
     private var mUpVideoManager: GSYVideoManager? = null
     private var mDownVideoManager: GSYVideoManager? = null
+
+    private var mLiveCollectionCache: XulCacheDomain? = null
 
     private val mMainBehavior = WeakReference<MainBehavior>(this)
     private val mHandler = HideUIHandler(mMainBehavior)
@@ -103,6 +108,10 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
 
     override fun xulOnRenderIsReady() {
         XulLog.i("CQLive", "xulOnRenderIsReady")
+        mLiveCollectionCache = XulCacheCenter.buildCacheDomain(1)
+            .setDomainFlags(XulCacheCenter.CACHE_FLAG_VERSION_LOCAL
+                        or XulCacheCenter.CACHE_FLAG_PERSISTENT
+                        or XulCacheCenter.CACHE_FLAG_PROPERTY).build()
         initView()
         requestChannel()
         super.xulOnRenderIsReady()
@@ -157,7 +166,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
                     XulLog.json(NAME, result)
 
                     mDataNode = XulDataNode.buildFromJson(result)
-                    val dataNode = mDataNode
+                    val dataNode: XulDataNode? = mDataNode
 
                     if (handleError(dataNode)) {
                         XulApplication.getAppInstance().postToMainLooper {
@@ -168,6 +177,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
                             if (dataNode?.getChildNode("data")?.size() == 0) {
                                 showEmptyTips(true)
                             } else {
+                                appendCollectionCategory()
                                 var categoryNode: XulDataNode? = dataNode?.getChildNode("data")?.firstChild
                                 mCurrentCategoryId = categoryNode?.getAttributeValue("category_id")
                                 while (categoryNode != null) {
@@ -230,14 +240,26 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
 
             mChannelListWrapper.eachItem { idx, node ->
                 val v: XulView? = mChannelListWrapper.getItemView(idx)
-                if (node.getAttributeValue("live_id") == mCurrentChannelId) {
+                val liveId: String = node.getAttributeValue("live_id")
+                if (liveId == mCurrentChannelId) {
                     v?.addClass("category_checked")
                     mChannelListWrapper.asView?.parent?.dynamicFocus = v
                     mCurrentChannelIndex = idx
                 } else {
                     v?.removeClass("category_checked")
                 }
+                v?.findItemById("collectState")?.setStyle("display", "none")
                 v?.resetRender()
+
+                var collect: XulDataNode? = mCollectionNode?.firstChild
+                while (collect != null) {
+                    if (collect.getAttributeValue("live_id") == liveId) {
+                        v?.findItemById("collectState")?.setStyle("display", "block")
+                        v?.resetRender()
+                        break
+                    }
+                    collect = collect.next
+                }
             }
 
             if (mFirst) {
@@ -327,6 +349,55 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
             mDownVideoManager?.prepare(nextPlayUrl, null, false, 1f, false, null)
             mCurrentVideoManager = mDownVideoManager
         }
+    }
+
+    private fun appendCollectionCategory() {
+        val collectCategory: XulDataNode = XulDataNode.obtainDataNode("collection")
+        collectCategory.setAttribute("category_id", "collection")
+        collectCategory.setAttribute("category_name", "收藏频道")
+        collectCategory.setAttribute("default_icon_img_url", "file:///.assets/images/img_collect.png")
+
+        val cache: Any? = mLiveCollectionCache?.getAsObject("collection")
+        if (cache != null) {
+            mCollectionNode = cache as XulDataNode
+        }
+        if (mCollectionNode != null) {
+            collectCategory.appendChild(mCollectionNode)
+        }
+
+        mDataNode?.getChildNode("data")?.appendChild(collectCategory)
+    }
+
+    private fun addToCollection(node: XulDataNode?) {
+        if (mCollectionNode == null) {
+            mCollectionNode = XulDataNode.obtainDataNode("collection")
+        }
+
+//        val liveNode: XulDataNode = XulDataNode.obtainDataNode("live")
+//        liveNode.setAttribute("live_id", "")
+//        liveNode.setAttribute("live_name", "")
+//        liveNode.setAttribute("live_number", "")
+//        liveNode.setAttribute("category_id", "")
+//        liveNode.setAttribute("icon_img_url", "")
+//        liveNode.setAttribute("play_url", "")
+        if (node != null) {
+            mCollectionNode?.appendChild(node)
+            mLiveCollectionCache?.put("collection", mCollectionNode)
+        }
+    }
+
+    private fun removeFromCollection(node: XulDataNode?) {
+        var liveNode: XulDataNode? = mCollectionNode?.firstChild
+        while (liveNode != null) {
+            if (liveNode.getAttributeValue("live_id") == node?.getAttributeValue("live_id")) {
+                mCollectionNode?.removeChild(liveNode)
+                break
+            }
+
+            liveNode = liveNode.next
+        }
+
+        mLiveCollectionCache?.put("collection", mCollectionNode)
     }
 
     private fun updateTitleArea(channelId: String) {
@@ -521,6 +592,26 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
                         XulLog.i(NAME, "down pressed.")
                         startToPlay("", 1)
                         return true
+                    }
+                }
+                KeyEvent.KEYCODE_MENU, KeyEvent.KEYCODE_1 -> {
+                    if (mIsChannelListShow) {
+                        val focusView: XulView? = xulGetFocus()
+                        val collectState: XulView? = focusView?.findItemById("collectState")
+                        when (collectState?.getStyleString("display") ?: "") {
+                            "block" -> {
+                                removeFromCollection(focusView?.bindingData?.get(0))
+                                collectState?.setStyle("display", "none")
+                                collectState?.resetRender()
+                            }
+                            "none" -> {
+                                addToCollection(focusView?.bindingData?.get(0))
+                                collectState?.setStyle("display", "block")
+                                collectState?.resetRender()
+                            }
+                            else -> return super.xulOnDispatchKeyEvent(event)
+                        }
+                        collectState?.resetRender()
                     }
                 }
             }

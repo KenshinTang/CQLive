@@ -15,6 +15,7 @@ http://dev.yusihuo.com/zhiboapi.php?m=Live&c=Live&a=getLiveListIncludeCategory
 //切台优化
 //上下键切台后的焦点问题
 
+退出确认框
 时移
 加锁/收藏
 加载圈

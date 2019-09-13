@@ -156,7 +156,7 @@
                             <attr name="x">415</attr>
                             <attr name="y">108</attr>
                             <attr name="height">match_parent</attr>
-                            <attr name="text">为频道收藏或加锁</attr>
+                            <attr name="text">收藏频道</attr>
                             <style name="font-size">26</style>
                             <style name="font-color">ffbbbbbb</style>
                         </item>
@@ -206,17 +206,18 @@
                                         <style name="font-color">FFFFFFFF</style>
                                         <attr name="text" binding="[=live_name]"/>
                                     </item>
-                                    <item type="image" desc="加锁图标">
+<!--                                    <item type="image" desc="加锁图标">-->
+<!--                                        <focus mode="nofocus"/>-->
+<!--                                        <attr name="x">530</attr>-->
+<!--                                        <attr name="y">56</attr>-->
+<!--                                        <attr name="img.0.width">28</attr>-->
+<!--                                        <attr name="img.0.height">32</attr>-->
+<!--                                        <attr name="img.0">file:///.assets/images/icon_lock.png</attr>-->
+<!--                                    </item>-->
+                                    <item id="collectState" type="image" desc="收藏图标">
                                         <focus mode="nofocus"/>
-                                        <attr name="x">530</attr>
-                                        <attr name="y">56</attr>
-                                        <attr name="img.0.width">28</attr>
-                                        <attr name="img.0.height">32</attr>
-                                        <attr name="img.0">file:///.assets/images/icon_lock.png</attr>
-                                    </item>
-                                    <item type="image" desc="收藏图标">
-                                        <focus mode="nofocus"/>
-                                        <attr name="x">585</attr>
+                                        <style name="display">none</style>
+                                        <attr name="x">555</attr>
                                         <attr name="y">56</attr>
                                         <attr name="img.0.width">32</attr>
                                         <attr name="img.0.height">32</attr>
