@@ -13,10 +13,10 @@ http://dev.yusihuo.com/zhiboapi.php?m=Live&c=Live&a=getLiveListIncludeCategory
 //UI控制,自动隐藏
 //播放条
 //切台优化
+//上下键切台后的焦点问题
 
-上下键切台后的焦点问题
 时移
 加锁/收藏
 加载圈
-异常弹窗
+错误处理,异常弹窗
 升级

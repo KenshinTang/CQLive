@@ -12,6 +12,7 @@ import com.kapplication.cqlive.widget.NoUiGSYPlayer
 import com.kapplication.cqlive.widget.PlayerSeekBarRender
 import com.kapplication.cqlive.widget.XulExt_GSYVideoPlayer
 import com.shuyu.gsyvideoplayer.GSYVideoManager
+import com.shuyu.gsyvideoplayer.utils.GSYVideoType
 import com.starcor.xul.IXulExternalView
 import com.starcor.xul.Wrapper.XulMassiveAreaWrapper
 import com.starcor.xul.Wrapper.XulSliderAreaWrapper
@@ -129,6 +130,8 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         mSeekBarRender = xulGetRenderContext().findItemById("player-pos").render as PlayerSeekBarRender
         mSeekBarRender.setSeekBarTips("直播中")
         mSeekBarRender.seekBarPos = 1.0f
+
+        GSYVideoType.setShowType(GSYVideoType.SCREEN_MATCH_FULL)
     }
 
     private fun requestChannel() {
