@@ -70,7 +70,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
     private var mCurrentChannelNode: XulDataNode? = null
     private var mCurrentChannelId: String? = "429535885"
     private var mCurrentCategoryId: String? = ""
-    private var mUpDownSwitchUrls: ArrayList<String> = ArrayList()
+    private var mUpDownSwitchChannelNodes: ArrayList<XulDataNode> = ArrayList()
     private var mCurrentChannelIndex = 0  // current channel index in current channel list
     private var mFirst: Boolean = true
 
@@ -192,7 +192,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
             return
         }
 
-        mUpDownSwitchUrls.clear()
+        mUpDownSwitchChannelNodes.clear()
         mChannelListWrapper.clear()
         mChannelListWrapper.asView?.parent?.dynamicFocus = null
         XulSliderAreaWrapper.fromXulView(mChannelListWrapper.asView)?.scrollTo(0, false)
@@ -215,7 +215,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
             while (channelNode != null) {
                 channelNode.setAttribute("category_id", channelNode.parent.parent.getAttributeValue("category_id"))
                 mChannelListWrapper.addItem(channelNode)
-                mUpDownSwitchUrls.add(channelNode.getAttributeValue("play_url"))
+                mUpDownSwitchChannelNodes.add(channelNode)
                 channelNode = channelNode.next
             }
 
@@ -264,7 +264,6 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         }
         mCurrentChannelId = channelId
         updateTitleArea(channelId!!)
-        XulLog.d(NAME, mUpDownSwitchUrls)
 
         return mCurrentChannelNode?.getAttributeValue("play_url")?:""
     }
@@ -273,20 +272,22 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         //upOrDown -1 -> 按上键触发的播放
         //upOrDown =0 -> 非上下键触发的播放, 比如频道列表选择
         //upOrDown =1 -> 按下键触发的播放
+        mCurrentChannelIndex += upOrDown
         var upIndex: Int = mCurrentChannelIndex - 1
-        if (upIndex < 0) upIndex = mUpDownSwitchUrls.size - 1
+        if (upIndex < 0) upIndex = mUpDownSwitchChannelNodes.size - 1
         var downIndex: Int = mCurrentChannelIndex + 1
-        if (downIndex == mUpDownSwitchUrls.size) downIndex = 0
+        if (downIndex == mUpDownSwitchChannelNodes.size) downIndex = 0
 
         if (upOrDown == 0) {
             mMediaPlayer.setUp(playUrl, false, "")
             mMediaPlayer.startPlayLogic()
+            updateTitleArea(mCurrentChannelId!!)
 
             // pre load both up and down source
             mUpVideoManager = GSYVideoManager.tmpInstance(null)
-            mUpVideoManager?.prepare(mUpDownSwitchUrls[upIndex], null, false, 1f, false, null)
+            mUpVideoManager?.prepare(mUpDownSwitchChannelNodes[upIndex].getAttributeValue("play_url"), null, false, 1f, false, null)
             mDownVideoManager = GSYVideoManager.tmpInstance(null)
-            mDownVideoManager?.prepare(mUpDownSwitchUrls[downIndex], null, false, 1f, false, null)
+            mDownVideoManager?.prepare(mUpDownSwitchChannelNodes[downIndex].getAttributeValue("play_url"), null, false, 1f, false, null)
             return
         }
 
@@ -300,17 +301,20 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         GSYVideoManager.instance().setDisplay(mMediaPlayer.getSurface())
         GSYVideoManager.instance().start()
 
+        mCurrentChannelId = mUpDownSwitchChannelNodes[mCurrentChannelIndex].getAttributeValue("live_id")
+        updateTitleArea(mCurrentChannelId!!)
+
         if (upOrDown == -1) {
-            mCurrentChannelIndex = upIndex - 1
-            if (mCurrentChannelIndex < 0) mCurrentChannelIndex = mUpDownSwitchUrls.size - 1
-            val nextPlayUrl: String = mUpDownSwitchUrls[mCurrentChannelIndex]
+            var preloadIndex = mCurrentChannelIndex - 1
+            if (preloadIndex < 0) preloadIndex = mUpDownSwitchChannelNodes.size - 1
+            val nextPlayUrl: String = mUpDownSwitchChannelNodes[preloadIndex].getAttributeValue("play_url")
             mUpVideoManager = GSYVideoManager.tmpInstance(null)
             mUpVideoManager?.prepare(nextPlayUrl, null, false, 1f, false, null)
             mCurrentVideoManager = mUpVideoManager
         } else if (upOrDown == 1) {
-            mCurrentChannelIndex = downIndex + 1
-            if (mCurrentChannelIndex == mUpDownSwitchUrls.size) mCurrentChannelIndex = 0
-            val nextPlayUrl: String = mUpDownSwitchUrls[mCurrentChannelIndex]
+            var preloadIndex = mCurrentChannelIndex + 1
+            if (preloadIndex == mUpDownSwitchChannelNodes.size) preloadIndex = 0
+            val nextPlayUrl: String = mUpDownSwitchChannelNodes[preloadIndex].getAttributeValue("play_url")
             mDownVideoManager = GSYVideoManager.tmpInstance(null)
             mDownVideoManager?.prepare(nextPlayUrl, null, false, 1f, false, null)
             mCurrentVideoManager = mDownVideoManager
@@ -527,7 +531,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
 
     private fun showControlFrame(show: Boolean) {
         if (show) {
-//            mHandler.sendEmptyMessageDelayed(CommonMessage.EVENT_AUTO_HIDE_UI, 8 * 1000)
+            mHandler.sendEmptyMessageDelayed(CommonMessage.EVENT_AUTO_HIDE_UI, 8 * 1000)
         }
         mTitleArea.setStyle("display", if(show) "block" else "none")
         mTitleArea.resetRender()
