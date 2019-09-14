@@ -20,6 +20,7 @@ object CommonMessage {
     const val EVENT_SHOW_UPGRADE = 0x2001
 
     const val EVENT_AUTO_HIDE_UI = 0x3001
+    const val EVENT_PRELOAD_PLAY_RES = 0x3002
 
     @Synchronized
     fun GENERAGE_UNIQUE_MSG_ID(): Int {

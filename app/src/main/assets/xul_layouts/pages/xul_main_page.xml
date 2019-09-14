@@ -173,6 +173,9 @@
                         <area id="channel" type="massive" class="playbill-list-massive">
                             <template id="@item-template">
                                 <area class="playbill-item">
+                                    <action event="focus" type="script/javascript">
+                                        this.dispatchEvent("preloadPlayRes", "usr_cmd", "");
+                                    </action>
                                     <attr name="width">match_parent</attr>
                                     <attr name="height">140</attr>
                                     <data name="live_id" binding="[=live_id]"/>

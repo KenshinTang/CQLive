@@ -77,8 +77,10 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
     private var mUpDownSwitchChannelNodes: ArrayList<XulDataNode> = ArrayList()
     private var mCurrentChannelIndex = 0  // current channel index in current channel list
     private var mFirst: Boolean = true
+    private var mPreloadSuccess: Boolean = false
 
     private var mCurrentVideoManager: GSYVideoManager? = GSYVideoManager.instance()
+    private var mNextVideoManager: GSYVideoManager? = null
     private var mUpVideoManager: GSYVideoManager? = null
     private var mDownVideoManager: GSYVideoManager? = null
 
@@ -89,9 +91,9 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
 
     class HideUIHandler(private val mainBehavior: WeakReference<MainBehavior>): Handler() {
         override fun handleMessage(msg: Message?) {
+            val instance: MainBehavior? = mainBehavior.get()
             when (msg?.what) {
-                CommonMessage.EVENT_AUTO_HIDE_UI->{
-                    val instance: MainBehavior? = mainBehavior.get()
+                CommonMessage.EVENT_AUTO_HIDE_UI -> {
                     if (instance != null) {
                         if (instance.mIsChannelListShow) {
                             instance.showChannelList(false)
@@ -100,7 +102,15 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
                             instance.showControlFrame(false)
                         }
                     }
-
+                }
+                CommonMessage.EVENT_PRELOAD_PLAY_RES -> {
+                    val view: XulView = msg.obj as XulView
+                    if (instance != null) {
+                        if (view == instance.xulGetFocus() && !view.hasClass("category_checked")) {
+                            val liveNode: XulDataNode? = view.bindingData?.get(0)
+                            instance.preloadPlayRes(liveNode)
+                        }
+                    }
                 }
             }
         }
@@ -302,8 +312,22 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         //upOrDown =0 -> 非上下键触发的播放, 比如频道列表选择
         //upOrDown =1 -> 按下键触发的播放
         if (upOrDown == 0) {
-            mMediaPlayer.setUp(playUrl, false, "")
-            mMediaPlayer.startPlayLogic()
+            if (mFirst || !mPreloadSuccess) {
+                XulLog.i("kenshin", "play!!!")
+                GSYVideoManager.instance().stop()
+                GSYVideoManager.instance().releaseMediaPlayer()
+                mMediaPlayer.setUp(playUrl, false, "")
+                mMediaPlayer.startPlayLogic()
+            } else {
+                XulLog.w("kenshin", "play preload!!!")
+                GSYVideoManager.instance().stop()
+                GSYVideoManager.instance().releaseMediaPlayer()
+                GSYVideoManager.changeManager(mNextVideoManager)
+                GSYVideoManager.instance().setDisplay(mMediaPlayer.getSurface())
+                GSYVideoManager.instance().start()
+                mPreloadSuccess = false
+            }
+
             updateTitleArea(mCurrentChannelId!!)
 
             // pre load both up and down source
@@ -349,6 +373,19 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
             mDownVideoManager?.prepare(nextPlayUrl, null, false, 1f, false, null)
             mCurrentVideoManager = mDownVideoManager
         }
+    }
+
+    private fun preloadPlayRes(channelNode: XulDataNode?) {
+        if (channelNode == null) return
+
+        val playUrl: String? = channelNode.getAttributeValue("play_url")
+        XulLog.i("kenshin", "preload url: $playUrl")
+
+
+        mNextVideoManager = GSYVideoManager.tmpInstance(null)
+        mNextVideoManager?.prepare(playUrl, null, false, 1f, false, null)
+        mCurrentVideoManager = mNextVideoManager
+        mPreloadSuccess = true
     }
 
     private fun appendCollectionCategory() {
@@ -517,6 +554,16 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
                     }
                 }
                 startToPlay(url, 0)
+            }
+            "preloadPlayRes" -> {
+                if (mIsChannelListShow) {
+                    val focusView: XulView? = xulGetFocus()
+                    val preloadMessage: Message = Message().apply {
+                        what = CommonMessage.EVENT_PRELOAD_PLAY_RES
+                        obj = focusView
+                    }
+                    mHandler.sendMessageDelayed(preloadMessage, 500)
+                }
             }
         }
         super.xulDoAction(view, action, type, command, userdata)
