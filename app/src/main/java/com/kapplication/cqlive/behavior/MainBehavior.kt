@@ -326,6 +326,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
                 GSYVideoManager.instance().setDisplay(mMediaPlayer.getSurface())
                 GSYVideoManager.instance().start()
                 mPreloadSuccess = false
+                return
             }
 
             updateTitleArea(mCurrentChannelId!!)
@@ -380,7 +381,6 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
 
         val playUrl: String? = channelNode.getAttributeValue("play_url")
         XulLog.i("kenshin", "preload url: $playUrl")
-
 
         mNextVideoManager = GSYVideoManager.tmpInstance(null)
         mNextVideoManager?.prepare(playUrl, null, false, 1f, false, null)
