@@ -12,6 +12,7 @@ import android.icu.lang.UCharacter.GraphemeClusterBreak.T
 import com.kapplication.cqlive.widget.PlayerSeekBarRender
 import com.shuyu.gsyvideoplayer.player.SystemPlayerManager
 import com.starcor.xulapp.debug.XulDebugServer
+import com.starcor.xulapp.utils.XulResPrefetchManager
 
 
 class KApplication : XulApplication() {
@@ -34,6 +35,24 @@ class KApplication : XulApplication() {
         xulLoadLayouts(XUL_GLOBAL_BINDINGS)
         xulLoadLayouts(XUL_GLOBAL_SELECTORS)
         xulLoadLayouts(XUL_GLOBAL_DIALOGS)
+
+        preloadImage()
+    }
+
+    private fun preloadImage() {
+        XulResPrefetchManager.prefetchImage("file:///.assets/images/icon_star.png", 32, 32, -1)
+        XulResPrefetchManager.prefetchImage("file:///.assets/images/player/images/img_tv.png", 250, 173, -1)
+
+//        XulResPrefetchManager.prefetchImage("http://dev.yusihuo.com//Data/ZhiBoManage/File/Live/Icon/2019/09/06/156777363447774.png", 60, 60, -1)
+//        XulResPrefetchManager.prefetchImage("http://dev.yusihuo.com//Data/ZhiBoManage/File/Live/Icon/2019/09/06/156777364337937.png", 60, 60, -1)
+//        XulResPrefetchManager.prefetchImage("http://dev.yusihuo.com//Data/ZhiBoManage/File/Live/Icon/2019/09/06/156777369564352.png", 60, 60, -1)
+//        XulResPrefetchManager.prefetchImage("http://dev.yusihuo.com//Data/ZhiBoManage/File/Live/Icon/2019/09/06/156777371698962.png", 60, 60, -1)
+//        XulResPrefetchManager.prefetchImage("http://dev.yusihuo.com//Data/ZhiBoManage/File/Live/Icon/2019/09/06/156777372592210.png", 60, 60, -1)
+//        XulResPrefetchManager.prefetchImage("http://dev.yusihuo.com//Data/ZhiBoManage/File/Live/Icon/2019/09/06/156777375889472.png", 60, 60, -1)
+//        XulResPrefetchManager.prefetchImage("http://dev.yusihuo.com//Data/ZhiBoManage/File/Live/Icon/2019/09/06/156777383948015.png", 60, 60, -1)
+//        XulResPrefetchManager.prefetchImage("http://dev.yusihuo.com//Data/ZhiBoManage/File/Live/Icon/2019/09/06/156777385949031.png", 60, 60, -1)
+//        XulResPrefetchManager.prefetchImage("http://dev.yusihuo.com//Data/ZhiBoManage/File/Live/Icon/2019/09/06/156777388254845.png", 60, 60, -1)
+//        XulResPrefetchManager.prefetchImage("http://dev.yusihuo.com//Data/ZhiBoManage/File/Live/Icon/2019/09/06/156777390822252.png", 60, 60, -1)
     }
 
     override fun onRegisterXulBehaviors() {
