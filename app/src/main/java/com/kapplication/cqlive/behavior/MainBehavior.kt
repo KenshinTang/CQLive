@@ -107,7 +107,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
     }
 
     override fun xulOnRenderIsReady() {
-        XulLog.i("CQLive", "xulOnRenderIsReady")
+        XulLog.i(NAME, "xulOnRenderIsReady")
         mLiveCollectionCache = XulCacheCenter.buildCacheDomain(1)
             .setDomainFlags(XulCacheCenter.CACHE_FLAG_VERSION_LOCAL
                         or XulCacheCenter.CACHE_FLAG_PERSISTENT
@@ -118,7 +118,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
     }
 
     override fun initRenderContextView(renderContextView: View): View {
-        XulLog.i("CQLive", "initRenderContextView")
+        XulLog.i(NAME, "initRenderContextView")
         val viewRoot = FrameLayout(_presenter.xulGetContext())
         val matchParent = ViewGroup.LayoutParams.MATCH_PARENT
         viewRoot.addView(mMediaPlayer, matchParent, matchParent)
@@ -230,7 +230,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
             showEmptyTips(false)
             var channelNode: XulDataNode? = channelList.firstChild
             while (channelNode != null) {
-                channelNode.setAttribute("category_id", channelNode.parent.parent.getAttributeValue("category_id"))
+                channelNode.setAttribute("category_id", categoryId)
                 mChannelListWrapper.addItem(channelNode)
                 mUpDownSwitchChannelNodes.add(channelNode)
                 channelNode = channelNode.next
@@ -248,14 +248,14 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
                 } else {
                     v?.removeClass("category_checked")
                 }
-                v?.findItemById("collectState")?.setStyle("display", "none")
-                v?.resetRender()
 
+                v?.findItemById("collectState")?.setAttr("img.0.visible", "false")
+                v?.findItemById("collectState")?.resetRender()
                 var collect: XulDataNode? = mCollectionNode?.firstChild
                 while (collect != null) {
                     if (collect.getAttributeValue("live_id") == liveId) {
-                        v?.findItemById("collectState")?.setStyle("display", "block")
-                        v?.resetRender()
+                        v?.findItemById("collectState")?.setAttr("img.0.visible", "true")
+                        v?.findItemById("collectState")?.resetRender()
                         break
                     }
                     collect = collect.next
@@ -357,33 +357,38 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         collectCategory.setAttribute("category_name", "收藏频道")
         collectCategory.setAttribute("default_icon_img_url", "file:///.assets/images/img_collect.png")
 
-        val cache: Any? = mLiveCollectionCache?.getAsObject("collection")
+        val cache: Any? = mLiveCollectionCache?.getAsObject("live_list")
         if (cache != null) {
             mCollectionNode = cache as XulDataNode
         }
-        if (mCollectionNode != null) {
-            collectCategory.appendChild(mCollectionNode)
+
+        if (mCollectionNode == null) {
+            mCollectionNode = XulDataNode.obtainDataNode("live_list")
         }
+
+        collectCategory.appendChild(mCollectionNode)
 
         mDataNode?.getChildNode("data")?.appendChild(collectCategory)
     }
 
     private fun addToCollection(node: XulDataNode?) {
-        if (mCollectionNode == null) {
-            mCollectionNode = XulDataNode.obtainDataNode("collection")
-        }
-
-//        val liveNode: XulDataNode = XulDataNode.obtainDataNode("live")
-//        liveNode.setAttribute("live_id", "")
-//        liveNode.setAttribute("live_name", "")
-//        liveNode.setAttribute("live_number", "")
-//        liveNode.setAttribute("category_id", "")
-//        liveNode.setAttribute("icon_img_url", "")
-//        liveNode.setAttribute("play_url", "")
         if (node != null) {
             mCollectionNode?.appendChild(node)
-            mLiveCollectionCache?.put("collection", mCollectionNode)
+            mLiveCollectionCache?.put("live_list", mCollectionNode)
         }
+    }
+
+    private fun addToCollection(liveId: String?, liveName: String?, liveNumber: String?, liveIcon: String?, playUrl: String?, categoryId: String?) {
+        val liveNode: XulDataNode = XulDataNode.obtainDataNode("live")
+        liveNode.setAttribute("live_id", liveId)
+        liveNode.setAttribute("live_name", liveName)
+        liveNode.setAttribute("live_number", liveNumber)
+        liveNode.setAttribute("category_id", categoryId)
+        liveNode.setAttribute("icon_img_url", liveIcon)
+        liveNode.setAttribute("play_url", playUrl)
+
+        mCollectionNode?.appendChild(liveNode)
+        mLiveCollectionCache?.put("live_list", mCollectionNode)
     }
 
     private fun removeFromCollection(node: XulDataNode?) {
@@ -397,7 +402,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
             liveNode = liveNode.next
         }
 
-        mLiveCollectionCache?.put("collection", mCollectionNode)
+        mLiveCollectionCache?.put("live_list", mCollectionNode)
     }
 
     private fun updateTitleArea(channelId: String) {
@@ -598,20 +603,23 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
                     if (mIsChannelListShow) {
                         val focusView: XulView? = xulGetFocus()
                         val collectState: XulView? = focusView?.findItemById("collectState")
-                        when (collectState?.getStyleString("display") ?: "") {
-                            "block" -> {
-                                removeFromCollection(focusView?.bindingData?.get(0))
-                                collectState?.setStyle("display", "none")
-                                collectState?.resetRender()
+                        when (collectState?.getAttrString("img.0.visible")) {
+                            "true" -> {
+                                removeFromCollection(focusView.bindingData?.get(0))
+                                collectState.setAttr("img.0.visible", "false")
+                                collectState.resetRender()
                             }
-                            "none" -> {
-                                addToCollection(focusView?.bindingData?.get(0))
-                                collectState?.setStyle("display", "block")
-                                collectState?.resetRender()
+                            "false" -> {
+                                val bingDataNode: XulDataNode? = focusView.bindingData?.get(0)
+                                addToCollection(bingDataNode?.getAttributeValue("live_id"), bingDataNode?.getAttributeValue("live_name"),
+                                    bingDataNode?.getAttributeValue("live_number"), bingDataNode?.getAttributeValue("icon_img_url"),
+                                    bingDataNode?.getAttributeValue("play_url"), bingDataNode?.getAttributeValue("category_id"))
+                                collectState.setAttr("img.0.visible", "true")
+                                collectState.resetRender()
                             }
                             else -> return super.xulOnDispatchKeyEvent(event)
                         }
-                        collectState?.resetRender()
+                        collectState.resetRender()
                     }
                 }
             }

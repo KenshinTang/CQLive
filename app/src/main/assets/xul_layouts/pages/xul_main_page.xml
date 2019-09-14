@@ -216,12 +216,12 @@
 <!--                                    </item>-->
                                     <item id="collectState" type="image" desc="收藏图标">
                                         <focus mode="nofocus"/>
-                                        <style name="display">none</style>
                                         <attr name="x">555</attr>
                                         <attr name="y">56</attr>
                                         <attr name="img.0.width">32</attr>
                                         <attr name="img.0.height">32</attr>
                                         <attr name="img.0">file:///.assets/images/icon_star.png</attr>
+                                        <attr name="img.0.visible">false</attr>
                                     </item>
                                 </area>
                             </template>
