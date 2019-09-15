@@ -198,13 +198,14 @@
                                     <item type="image" desc="频道图标">
                                         <focus mode="nofocus"/>
                                         <attr name="x">160</attr>
-                                        <attr name="y">45</attr>
-                                        <attr name="img.0.width">60</attr>
-                                        <attr name="img.0.height">60</attr>
+                                        <attr name="y">15</attr>
+                                        <attr name="img.0.width">120</attr>
+                                        <attr name="img.0.height">120</attr>
+                                        <attr name="img.0.mode">center</attr>
                                         <attr name="img.0" binding="[=icon_img_url]"/>
                                     </item>
                                     <item id="channel_name" type="label" desc="频道名">
-                                        <attr name="x">260</attr>
+                                        <attr name="x">300</attr>
                                         <attr name="height">match_parent</attr>
                                         <style name="font-align">0, 0.5</style>
                                         <style name="font-size">40</style>
