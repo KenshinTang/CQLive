@@ -214,7 +214,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         })
     }
 
-    private fun switchCategory(categoryId: String?) {
+    private fun switchCategory(categoryId: String?, categoryName: String?) {
         if (categoryId.isNullOrEmpty()) {
             return
         }
@@ -223,6 +223,9 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         mChannelListWrapper.clear()
         mChannelListWrapper.asView?.parent?.dynamicFocus = null
         XulSliderAreaWrapper.fromXulView(mChannelListWrapper.asView)?.scrollTo(0, false)
+
+        xulGetRenderContext().findItemById("category_name_label").setAttr("text", categoryName)
+        xulGetRenderContext().findItemById("category_name_label").resetRender()
 
         var categoryNode: XulDataNode? = mDataNode?.getChildNode("data")?.firstChild
         var channelList: XulDataNode? = null
@@ -540,7 +543,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         when (action) {
             "switchCategory" -> {
                 val data = JSONObject(command)
-                switchCategory(data.optString("category_id"))
+                switchCategory(data.optString("category_id"), data.optString("category_name"))
             }
             "switchChannel" -> {
                 val data = JSONObject(command)

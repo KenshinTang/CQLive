@@ -83,7 +83,8 @@
                                     </action>
                                     <action event="checked" type="script/javascript">
                                         var category_id = this.getData("category_id");
-                                        this.dispatchEvent("switchCategory", "usr_cmd", JSON.stringify({"category_id":category_id}));
+                                        var category_name = this.text;
+                                        this.dispatchEvent("switchCategory", "usr_cmd", JSON.stringify({"category_id":category_id, "category_name":category_name}));
                                     </action>
                                 </item>
                                 <item class="playbill-item, playbill-category-item" type="image">
@@ -98,7 +99,8 @@
                                     </action>
                                     <action event="checked" type="script/javascript">
                                         var category_id = this.getData("category_id");
-                                        this.dispatchEvent("switchCategory", "usr_cmd", JSON.stringify({"category_id":category_id}));
+                                        var category_name = this.text;
+                                        this.dispatchEvent("switchCategory", "usr_cmd", JSON.stringify({"category_id":category_id, "category_name":category_name}));
                                     </action>
                                 </item>
                             </template>
@@ -122,7 +124,7 @@
                         <focus mode="nofocus"/>
                         <attr name="height">190</attr>
                         <attr name="width">match_parent</attr>
-                        <item id="txt_category_name" type="label">
+                        <item id="category_name_label" type="label">
                             <focus mode="nofocus"/>
                             <attr name="x">60</attr>
                             <attr name="y">90</attr>
