@@ -81,6 +81,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
 
     private var mCurrentVideoManager: GSYVideoManager? = GSYVideoManager.instance()
     private var mNextVideoManager: GSYVideoManager? = null
+    private var mNextVideoManager2: GSYVideoManager? = null
     private var mUpVideoManager: GSYVideoManager? = null
     private var mDownVideoManager: GSYVideoManager? = null
 
@@ -326,7 +327,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
                 XulLog.w("kenshin", "play preload!!!")
                 GSYVideoManager.instance().stop()
                 GSYVideoManager.instance().releaseMediaPlayer()
-                GSYVideoManager.changeManager(mNextVideoManager)
+                GSYVideoManager.changeManager(mCurrentVideoManager)
                 GSYVideoManager.instance().setDisplay(mMediaPlayer.getSurface())
                 GSYVideoManager.instance().start()
                 mPreloadSuccess = false
@@ -386,10 +387,21 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         val playUrl: String? = channelNode.getAttributeValue("play_url")
         XulLog.i("kenshin", "preload url: $playUrl")
 
-        mNextVideoManager = GSYVideoManager.tmpInstance(null)
-        mNextVideoManager?.prepare(playUrl, null, false, 1f, false, null)
-        mCurrentVideoManager = mNextVideoManager
-        mPreloadSuccess = true
+        if (mNextVideoManager != null && mNextVideoManager!!.isPlaying) {
+            mNextVideoManager2?.stop()
+            mNextVideoManager2?.releaseMediaPlayer()
+            mNextVideoManager2 = GSYVideoManager.tmpInstance(null)
+            mNextVideoManager2?.prepare(playUrl, null, false, 1f, false, null)
+            mCurrentVideoManager = mNextVideoManager2
+            mPreloadSuccess = true
+        } else if (mNextVideoManager == null || (mNextVideoManager2 != null && mNextVideoManager2!!.isPlaying)) {
+            mNextVideoManager?.stop()
+            mNextVideoManager?.releaseMediaPlayer()
+            mNextVideoManager = GSYVideoManager.tmpInstance(null)
+            mNextVideoManager?.prepare(playUrl, null, false, 1f, false, null)
+            mCurrentVideoManager = mNextVideoManager
+            mPreloadSuccess = true
+        }
     }
 
     private fun appendCollectionCategory() {
@@ -566,7 +578,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
                         what = CommonMessage.EVENT_PRELOAD_PLAY_RES
                         obj = focusView
                     }
-                    mHandler.sendMessageDelayed(preloadMessage, 200)
+                    mHandler.sendMessageDelayed(preloadMessage, 50)
                 }
             }
         }
