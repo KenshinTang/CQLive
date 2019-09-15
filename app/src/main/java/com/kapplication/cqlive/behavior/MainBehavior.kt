@@ -317,6 +317,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         if (upOrDown == 0) {
             if (mFirst || !mPreloadSuccess) {
                 XulLog.i("kenshin", "play!!!")
+                mMediaPlayer.isReleaseWhenLossAudio = true
                 GSYVideoManager.instance().stop()
                 GSYVideoManager.instance().releaseMediaPlayer()
                 mMediaPlayer.setUp(playUrl, false, "")
@@ -565,7 +566,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
                         what = CommonMessage.EVENT_PRELOAD_PLAY_RES
                         obj = focusView
                     }
-                    mHandler.sendMessageDelayed(preloadMessage, 500)
+                    mHandler.sendMessageDelayed(preloadMessage, 200)
                 }
             }
         }
