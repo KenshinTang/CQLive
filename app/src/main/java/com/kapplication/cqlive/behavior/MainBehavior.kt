@@ -75,6 +75,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
     private var mCurrentChannelId: String? = "429535885"
     private var mCurrentCategoryId: String? = ""
     private var mUpDownSwitchChannelNodes: ArrayList<XulDataNode> = ArrayList()
+    private var mUpDownTmpSwitchChannelNodes: ArrayList<XulDataNode> = ArrayList()
     private var mCurrentChannelIndex = 0  // current channel index in current channel list
     private var mFirst: Boolean = true
     private var mPreloadSuccess: Boolean = false
@@ -220,7 +221,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
             return
         }
 
-        mUpDownSwitchChannelNodes.clear()
+        mUpDownTmpSwitchChannelNodes.clear()
         mChannelListWrapper.clear()
         mChannelListWrapper.asView?.parent?.dynamicFocus = null
         XulSliderAreaWrapper.fromXulView(mChannelListWrapper.asView)?.scrollTo(0, false)
@@ -246,7 +247,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
             while (channelNode != null) {
                 channelNode.setAttribute("category_id", categoryId)
                 mChannelListWrapper.addItem(channelNode)
-                mUpDownSwitchChannelNodes.add(channelNode)
+                mUpDownTmpSwitchChannelNodes.add(channelNode)
                 channelNode = channelNode.next
             }
 
@@ -278,6 +279,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
 
             if (mFirst) {
                 xulGetRenderContext().layout.requestFocus(mChannelListWrapper.getItemView(mCurrentChannelIndex))
+                mUpDownSwitchChannelNodes.addAll(mUpDownTmpSwitchChannelNodes)
                 val url: String = requestPlayUrl(mCurrentChannelId)
                 startToPlay(url, 0)
                 mFirst = false
@@ -571,6 +573,8 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
                 mCurrentCategoryId = data.optString("category_id")
                 val liveId = data.optString("live_id")
                 val url: String = requestPlayUrl(liveId)
+                mUpDownSwitchChannelNodes.clear()
+                mUpDownSwitchChannelNodes.addAll(mUpDownTmpSwitchChannelNodes)
                 for (node: XulDataNode in mUpDownSwitchChannelNodes) {
                     if (node.getAttributeValue("live_id") == liveId) {
                         mCurrentChannelIndex = mUpDownSwitchChannelNodes.indexOf(node)
