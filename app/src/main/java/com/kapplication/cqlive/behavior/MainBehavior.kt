@@ -341,6 +341,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
             if (upIndex < 0) upIndex = mUpDownSwitchChannelNodes.size - 1
             var downIndex: Int = mCurrentChannelIndex + 1
             if (downIndex == mUpDownSwitchChannelNodes.size) downIndex = 0
+            XulLog.i("kenshin1", "CurrentIndex = $mCurrentChannelIndex, upIndex = $upIndex, downIndex = $downIndex")
             mUpVideoManager = GSYVideoManager.tmpInstance(null)
             mUpVideoManager?.prepare(mUpDownSwitchChannelNodes[upIndex].getAttributeValue("play_url"), null, false, 1f, false, null)
             mDownVideoManager = GSYVideoManager.tmpInstance(null)
@@ -351,8 +352,16 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         GSYVideoManager.instance().stop()
         GSYVideoManager.instance().releaseMediaPlayer()
         when (upOrDown) {
-            -1 -> GSYVideoManager.changeManager(mUpVideoManager)
-            1 -> GSYVideoManager.changeManager(mDownVideoManager)
+            -1 -> {
+                GSYVideoManager.changeManager(mUpVideoManager)
+                mDownVideoManager?.stop()
+                mDownVideoManager?.releaseMediaPlayer()
+            }
+            1 -> {
+                GSYVideoManager.changeManager(mDownVideoManager)
+                mUpVideoManager?.stop()
+                mUpVideoManager?.releaseMediaPlayer()
+            }
             else -> return
         }
         GSYVideoManager.instance().setDisplay(mMediaPlayer.getSurface())
@@ -364,21 +373,20 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         mCurrentChannelId = mUpDownSwitchChannelNodes[mCurrentChannelIndex].getAttributeValue("live_id")
         updateTitleArea(mCurrentChannelId!!)
 
-        if (upOrDown == -1) {
-            var preloadIndex = mCurrentChannelIndex - 1
-            if (preloadIndex < 0) preloadIndex = mUpDownSwitchChannelNodes.size - 1
-            val nextPlayUrl: String = mUpDownSwitchChannelNodes[preloadIndex].getAttributeValue("play_url")
-            mUpVideoManager = GSYVideoManager.tmpInstance(null)
-            mUpVideoManager?.prepare(nextPlayUrl, null, false, 1f, false, null)
-            mCurrentVideoManager = mUpVideoManager
-        } else if (upOrDown == 1) {
-            var preloadIndex = mCurrentChannelIndex + 1
-            if (preloadIndex == mUpDownSwitchChannelNodes.size) preloadIndex = 0
-            val nextPlayUrl: String = mUpDownSwitchChannelNodes[preloadIndex].getAttributeValue("play_url")
-            mDownVideoManager = GSYVideoManager.tmpInstance(null)
-            mDownVideoManager?.prepare(nextPlayUrl, null, false, 1f, false, null)
-            mCurrentVideoManager = mDownVideoManager
-        }
+        var upIndex: Int = mCurrentChannelIndex - 1
+        if (upIndex < 0) upIndex = mUpDownSwitchChannelNodes.size - 1
+        var downIndex: Int = mCurrentChannelIndex + 1
+        if (downIndex == mUpDownSwitchChannelNodes.size) downIndex = 0
+
+        XulLog.e("kenshin1", "CurrentIndex = $mCurrentChannelIndex, upIndex = $upIndex, downIndex = $downIndex")
+        val nextUpPlayUrl: String = mUpDownSwitchChannelNodes[upIndex].getAttributeValue("play_url")
+        mUpVideoManager = GSYVideoManager.tmpInstance(null)
+        mUpVideoManager?.prepare(nextUpPlayUrl, null, false, 1f, false, null)
+
+        val nextDownPlayUrl: String = mUpDownSwitchChannelNodes[downIndex].getAttributeValue("play_url")
+        mDownVideoManager = GSYVideoManager.tmpInstance(null)
+        mDownVideoManager?.prepare(nextDownPlayUrl, null, false, 1f, false, null)
+        mCurrentVideoManager = if (upOrDown == -1) mUpVideoManager else mDownVideoManager
     }
 
     private fun preloadPlayRes(channelNode: XulDataNode?) {
