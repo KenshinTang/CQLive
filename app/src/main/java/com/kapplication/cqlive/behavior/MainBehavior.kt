@@ -397,7 +397,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         val playUrl: String? = channelNode.getAttributeValue("play_url")
         XulLog.i("kenshin", "preload url: $playUrl")
 
-        if (mNextVideoManager != null && mNextVideoManager!!.isPlaying) {
+        if (mNextVideoManager2 == null || (mNextVideoManager != null && mNextVideoManager!!.isPlaying)) {
             mNextVideoManager2?.stop()
             mNextVideoManager2?.releaseMediaPlayer()
             mNextVideoManager2 = GSYVideoManager.tmpInstance(null)
