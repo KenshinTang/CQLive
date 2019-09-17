@@ -317,6 +317,8 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         //upOrDown -1 -> 按上键触发的播放
         //upOrDown =0 -> 非上下键触发的播放, 比如频道列表选择
         //upOrDown =1 -> 按下键触发的播放
+        mSeekBarRender.seekBarPos = 1.0
+        direction = 0
         if (upOrDown == 0) {
             if (mFirst || !mPreloadSuccess) {
                 XulLog.i("kenshin", "play!!!")
@@ -657,7 +659,13 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
                         showTimeshiftIndicator(0)
                         val seekBarPos: Double = mSeekBarRender.seekBarPos
                         val duration: Int = mMediaPlayer.duration
-                        val seekPos: Long = (seekBarPos * duration).toLong()
+                        var seekPos: Long = (seekBarPos * duration).toLong()
+                        if (seekPos < 0) {
+                            seekPos = 3000
+                        }
+                        if (seekPos >= duration) {
+                            seekPos = duration - 3000.toLong()
+                        }
                         XulLog.i(NAME, "seekBarPos = $seekBarPos, duration = $duration. seekBarPos * duration = $seekPos")
                         mMediaPlayer.seekTo(seekPos)
                         return true
