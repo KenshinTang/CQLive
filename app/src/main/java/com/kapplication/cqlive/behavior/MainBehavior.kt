@@ -64,6 +64,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
     private lateinit var mControlArea: XulArea
     private lateinit var mMediaTimeStartView: XulView
     private lateinit var mMediaTimeEndView: XulView
+    private lateinit var mTimeshiftLogoView: XulView
     private lateinit var mSeekBarRender: PlayerSeekBarRender
 
     private var mIsChannelListShow: Boolean = false
@@ -146,6 +147,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         mChannelArea = xulGetRenderContext().findItemById("category-list") as XulArea
         mControlArea = xulGetRenderContext().findItemById("control-frame") as XulArea
 
+        mTimeshiftLogoView = xulGetRenderContext().findItemById("timeshift_logo")
         mMediaTimeStartView = xulGetRenderContext().findItemById("player-time-begin")
         mMediaTimeEndView = xulGetRenderContext().findItemById("player-time-end")
         mSeekBarRender = xulGetRenderContext().findItemById("player-pos").render as PlayerSeekBarRender
@@ -303,6 +305,13 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         }
     }
 
+    private fun resetUI() {
+        mSeekBarRender.seekBarPos = 1.0
+        direction = 0
+        mTimeshiftLogoView.setStyle("display", "none")
+        mTimeshiftLogoView.resetRender()
+    }
+
     private fun requestPlayUrl(channelId: String?): String {
         if (channelId == mCurrentChannelId && !mFirst) {
             return ""
@@ -317,8 +326,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         //upOrDown -1 -> 按上键触发的播放
         //upOrDown =0 -> 非上下键触发的播放, 比如频道列表选择
         //upOrDown =1 -> 按下键触发的播放
-        mSeekBarRender.seekBarPos = 1.0
-        direction = 0
+        resetUI()
         if (upOrDown == 0) {
             if (mFirst || !mPreloadSuccess) {
                 XulLog.i("kenshin", "play!!!")
@@ -663,9 +671,12 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
                         if (seekPos < 0) {
                             seekPos = 3000
                         }
+                        mTimeshiftLogoView.setStyle("display", "block")
                         if (seekPos >= duration) {
                             seekPos = duration - 3000.toLong()
+                            mTimeshiftLogoView.setStyle("display", "none")
                         }
+                        mTimeshiftLogoView.resetRender()
                         XulLog.i(NAME, "seekBarPos = $seekBarPos, duration = $duration. seekBarPos * duration = $seekPos")
                         mMediaPlayer.seekTo(seekPos)
                         return true
