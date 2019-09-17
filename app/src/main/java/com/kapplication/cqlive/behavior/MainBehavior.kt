@@ -150,7 +150,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         mMediaTimeEndView = xulGetRenderContext().findItemById("player-time-end")
         mSeekBarRender = xulGetRenderContext().findItemById("player-pos").render as PlayerSeekBarRender
         mSeekBarRender.setSeekBarTips("直播中")
-        mSeekBarRender.seekBarPos = 1.0f
+        mSeekBarRender.seekBarPos = 1.0
 
         GSYVideoType.setShowType(GSYVideoType.SCREEN_MATCH_FULL)
     }
@@ -553,7 +553,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
             mMediaTimeStartView.resetRender()
 
             timeshiftDate.time = currentTimeMillis - ((1.0f - mSeekBarRender.seekBarPos) * THREE_HOURS_IN_SECONDS * 1000).toLong()
-            mSeekBarRender.setSeekBarTips(if (mSeekBarRender.seekBarPos == 1.0f) "直播中" else dateFormat.format(timeshiftDate))
+            mSeekBarRender.setSeekBarTips(if (mSeekBarRender.seekBarPos == 1.0) "直播中" else dateFormat.format(timeshiftDate))
         }
     }
 
@@ -645,7 +645,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
                             }
                             showTimeshiftIndicator(1)
                         }
-                        mSeekBarRender.seekBarPos = (THREE_HOURS_IN_SECONDS + direction) / THREE_HOURS_IN_SECONDS.toFloat()
+                        mSeekBarRender.seekBarPos = (THREE_HOURS_IN_SECONDS + direction) / THREE_HOURS_IN_SECONDS.toDouble()
                     }
                 }
             }
@@ -655,8 +655,11 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
                 KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_DPAD_RIGHT -> {
                     if (mIsControlFrameShow) {
                         showTimeshiftIndicator(0)
-                        mMediaPlayer.seekTo(-10)
-                        //doTimeshift()
+                        val seekBarPos: Double = mSeekBarRender.seekBarPos
+                        val duration: Int = mMediaPlayer.duration
+                        val seekPos: Long = (seekBarPos * duration).toLong()
+                        XulLog.i(NAME, "seekBarPos = $seekBarPos, duration = $duration. seekBarPos * duration = $seekPos")
+                        mMediaPlayer.seekTo(seekPos)
                         return true
                     }
                 }

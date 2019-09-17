@@ -6,9 +6,9 @@
             android:debuggable="true"
             android:allowBackup="true"
             android:name=".KApplication"
-            android:icon="@mipmap/ic_launcher"
+            android:icon="@mipmap/icon_logo"
             android:label="@string/app_name"
-            android:roundIcon="@mipmap/ic_launcher_round"
+            android:roundIcon="@mipmap/icon_logo"
             android:largeHeap="true"
             android:supportsRtl="true">
         <activity

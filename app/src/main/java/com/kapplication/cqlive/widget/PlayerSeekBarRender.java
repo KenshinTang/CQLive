@@ -52,7 +52,7 @@ public class PlayerSeekBarRender extends XulImageRender {
         });
     }
 
-    float _seekBarPos = 0.0f;
+    double _seekBarPos = 0.0f;
 
     String _seekTips;
 
@@ -99,7 +99,7 @@ public class PlayerSeekBarRender extends XulImageRender {
     protected void drawImage(XulDC dc, Paint paint, DrawableInfo imgInfo, XulDrawable bmp, XulDrawer drawer, int xBase, int yBase) {
         int idx = imgInfo.getIdx();
         if (idx == 4) {
-            imgInfo.setAlignX(_seekBarPos);
+            imgInfo.setAlignX((float)_seekBarPos);
         } else if (idx == 3) {
             RectF dstRc = getAnimRect();
             float scalarY = _scalarY;
@@ -114,7 +114,7 @@ public class PlayerSeekBarRender extends XulImageRender {
             dstRc.right -= paddingRight;
             dstRc.bottom -= paddingBottom;
             XulUtils.offsetRect(dstRc, xBase, yBase);
-            dstRc.right = dstRc.right * _seekBarPos + dstRc.left * (1.0f - _seekBarPos);
+            dstRc.right = (float) (dstRc.right * _seekBarPos + dstRc.left * (1.0f - _seekBarPos));
 
             dc.save();
             dc.clipRect(dstRc);
@@ -125,12 +125,12 @@ public class PlayerSeekBarRender extends XulImageRender {
         super.drawImage(dc, paint, imgInfo, bmp, drawer, xBase, yBase);
     }
 
-    public void setSeekBarPos(float percent) {
+    public void setSeekBarPos(double percent) {
         _seekBarPos = Math.max(0, Math.min(percent, 1.0f));
         markDirtyView();
     }
 
-    public float getSeekBarPos() {
+    public double getSeekBarPos() {
         return _seekBarPos;
     }
 
