@@ -86,7 +86,8 @@ class KApplication : XulApplication() {
             .setTag(CommonMessage.EVENT_TEN_MINUTES)
             .setInterval(1000 * 60 * 10)
             .setRepeat(Integer.MAX_VALUE)
-            .setDelay(1000 * 60 * 1)
+//            .setDelay(1000 * 60 * 1)
+            .setDelay(1000 * 6 * 1)
             .postSticky()
 
         XulMessageCenter.buildMessage()

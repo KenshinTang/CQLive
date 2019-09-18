@@ -329,14 +329,14 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         resetUI()
         if (upOrDown == 0) {
             if (mFirst || !mPreloadSuccess) {
-                XulLog.i("kenshin", "play!!!")
+                XulLog.i(NAME, "play!!!")
                 mMediaPlayer.isReleaseWhenLossAudio = true
                 GSYVideoManager.instance().stop()
                 GSYVideoManager.instance().releaseMediaPlayer()
                 mMediaPlayer.setUp(playUrl, false, "")
                 mMediaPlayer.startPlayLogic()
             } else {
-                XulLog.w("kenshin", "play preload!!!")
+                XulLog.w(NAME, "play preload!!!")
                 GSYVideoManager.instance().stop()
                 GSYVideoManager.instance().releaseMediaPlayer()
                 GSYVideoManager.changeManager(mCurrentVideoManager)
@@ -405,7 +405,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         if (channelNode == null) return
 
         val playUrl: String? = channelNode.getAttributeValue("play_url")
-        XulLog.i("kenshin", "preload url: $playUrl")
+        XulLog.i(NAME, "preload url: $playUrl")
 
         if (mNextVideoManager != null && mNextVideoManager!!.isPlaying) {
             mNextVideoManager2?.stop()

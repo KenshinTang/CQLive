@@ -2,10 +2,13 @@ package com.kapplication.cqlive.behavior
 
 import android.app.Activity
 import android.content.Context
+import android.content.DialogInterface
 import android.os.Build
 import android.view.View
 import android.view.WindowManager
 import com.kapplication.cqlive.message.CommonMessage
+import com.kapplication.cqlive.upgrade.UpgradeDialog
+import com.kapplication.cqlive.upgrade.UpgradeUtils
 import com.starcor.xul.Script.IScriptArguments
 import com.starcor.xul.Script.IScriptContext
 import com.starcor.xul.ScriptWrappr.Annotation.ScriptMethod
@@ -34,7 +37,7 @@ abstract class BaseBehavior(xulPresenter: XulPresenter) : XulUiBehavior(xulPrese
     }
 
     override fun xulOnRenderIsReady() {
-        hideNavButtons()
+//        hideNavButtons()
         super.xulOnRenderIsReady()
     }
 
@@ -86,15 +89,35 @@ abstract class BaseBehavior(xulPresenter: XulPresenter) : XulUiBehavior(xulPrese
     @XulSubscriber(tag = CommonMessage.EVENT_TEN_MINUTES)
     private fun on10MinutesPassed(dummy: Any) {
         XulLog.d("UpgradeUtils", "check upgrade.")
-//        UpgradeUtils.instance.startCheckUpgrade(okHttpClient)
+        UpgradeUtils.instance.startCheckUpgrade(okHttpClient)
     }
 
     @XulSubscriber(tag = CommonMessage.EVENT_SHOW_UPGRADE)
     private fun onShowUpgradeDialog(dummy: Any) {
-        XulLog.d("UpgradeUtils", "onShowUpgradeDialog: " + this)
+        XulLog.d("UpgradeUtils", "onShowUpgradeDialog: $this")
+        val xulRenderContext = xulGetRenderContext()
+        if (xulRenderContext == null
+            || xulRenderContext.isDestroyed
+            || xulRenderContext.isSuspended) {
+            XulLog.w("UpgradeUtils", "$this :xulRenderContext is invalid.")
+            return
+        }
+
+        val mUpgradeDialog = UpgradeDialog(_presenter.xulGetContext(), "page_upgrade_dialog")
+        mUpgradeDialog.setOkBtnClickListener(DialogInterface.OnClickListener { _, _ -> UpgradeUtils.instance.doUpgrade() })
+        // 对话框显示的时候停止检测升级
+        mUpgradeDialog.setOnShowListener { UpgradeUtils.instance.stopCheckUpgrade() }
+        // 对话框取消了重新开始检测.
+        mUpgradeDialog.setOnDismissListener { UpgradeUtils.instance.restartCheckUpgrade() }
+
+        if (mUpgradeDialog.isShowing) {
+            XulLog.w("UpgradeUtils", "Upgrade dialog is already showing. just refresh the data!")
+            return
+        }
+        mUpgradeDialog.show()
     }
 
-    protected fun hideNavButtons(){
+    private fun hideNavButtons(){
         if (Build.VERSION.SDK_INT in 12..18) { // lower api
             val v: View = (context as Activity).window.decorView
             v.systemUiVisibility = View.GONE

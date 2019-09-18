@@ -14,19 +14,14 @@ http://dev.yusihuo.com/zhiboapi.php?m=Live&c=Live&a=getLiveListIncludeCategory
 //播放条
 //切台优化
 //上下键切台后的焦点问题
+//时移
+//收藏
+//升级
 
 退出确认框
-时移
-加锁/收藏
+加锁
 加载圈
 错误处理,异常弹窗
-升级
+回看
+节目单
 
-10:54	Your anti-virus program might be impacting your build performance. Android Studio checked the following directories:
-			E:\Src\outSource\CQLive
-			C:\Users\Kenshin\.gradle
-			E:\Android\AndroidSDK
-			C:\Users\Kenshin\.AndroidStudio3.5\system
-			Don't show again
-			Don't show again for this project
-			Details
