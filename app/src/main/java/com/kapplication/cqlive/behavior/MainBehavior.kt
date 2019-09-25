@@ -508,6 +508,13 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
             showChannelList(false)
             return true
         }
+        val seekBarPos: Double = mSeekBarRender.seekBarPos
+        if (seekBarPos < 1.0) {
+            mMediaPlayer.seekTo(mMediaPlayer.duration.toLong())
+            showControlFrame(true)
+            resetUI()
+            return true
+        }
         if (mIsControlFrameShow) {
             showControlFrame(false)
             return true
