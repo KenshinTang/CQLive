@@ -4,8 +4,10 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.Surface
 import com.kapplication.cqlive.R
+import com.kapplication.cqlive.behavior.MainBehavior
 
 import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
+import com.starcor.xulapp.utils.XulLog
 
 /**
  * 无任何控制ui的播放
@@ -47,5 +49,67 @@ open class NoUiGSYPlayer : StandardGSYVideoPlayer {
 
     public fun getSurface() : Surface {
         return mSurface
+    }
+
+
+    private val TAG: String = "TAG"
+    override fun onAutoCompletion() {
+        XulLog.i(MainBehavior.NAME, "$TAG onAutoCompletion")
+        super.onAutoCompletion()
+    }
+
+    override fun onPrepared() {
+        XulLog.i(MainBehavior.NAME, "$TAG onPrepared")
+        super.onPrepared()
+    }
+
+    override fun onCompletion() {
+        XulLog.i(MainBehavior.NAME, "$TAG onCompletion")
+        super.onCompletion()
+    }
+
+    override fun onVideoPause() {
+        XulLog.i(MainBehavior.NAME, "$TAG onVideoPause")
+        super.onVideoPause()
+    }
+
+    override fun onSeekComplete() {
+        XulLog.i(MainBehavior.NAME, "$TAG onSeekComplete")
+        super.onSeekComplete()
+    }
+
+    override fun onInfo(what: Int, extra: Int) {
+        XulLog.i(MainBehavior.NAME, "$TAG onInfo(what:$what, extra:$extra)")
+        super.onInfo(what, extra)
+    }
+
+    override fun onVideoSizeChanged() {
+        XulLog.i(MainBehavior.NAME, "$TAG onVideoSizeChanged")
+        super.onVideoSizeChanged()
+    }
+
+    override fun onBufferingUpdate(percent: Int) {
+        XulLog.i(MainBehavior.NAME, "$TAG onBufferingUpdate(percent:$percent)")
+        super.onBufferingUpdate(percent)
+    }
+
+    override fun onBackFullscreen() {
+        XulLog.i(MainBehavior.NAME, "$TAG onBackFullscreen")
+        super.onBackFullscreen()
+    }
+
+    override fun onError(what: Int, extra: Int) {
+        XulLog.i(MainBehavior.NAME, "$TAG onError(what:$what, extra:$extra)")
+        super.onError(what, extra)
+    }
+
+    override fun onVideoResume() {
+        XulLog.i(MainBehavior.NAME, "$TAG onVideoResume")
+        super.onVideoResume()
+    }
+
+    override fun onVideoResume(seek: Boolean) {
+        XulLog.i(MainBehavior.NAME, "$TAG onVideoResume(seek:$seek)")
+        super.onVideoResume(seek)
     }
 }

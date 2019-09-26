@@ -629,12 +629,6 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
 
         if (event?.action == KeyEvent.ACTION_DOWN) {
             when (event.keyCode) {
-                KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_ENTER -> {
-                    if (!mIsChannelListShow && !mIsControlFrameShow) {
-                        showChannelList(true)
-                        return true
-                    }
-                }
                 KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_DPAD_RIGHT -> {
                     if (!mIsChannelListShow && !mIsControlFrameShow) {
                         showControlFrame(true)
@@ -669,6 +663,40 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         }
         if (event?.action == KeyEvent.ACTION_UP) {
             when (event.keyCode) {
+                KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_ENTER -> {
+                    if (!mIsChannelListShow && !mIsControlFrameShow) {
+                        showControlFrame(true)
+                        return true
+                    }
+                }
+                KeyEvent.KEYCODE_MENU, KeyEvent.KEYCODE_1 -> {
+                    if (!mIsChannelListShow && !mIsControlFrameShow) {
+                        showChannelList(true)
+                        return true
+                    }
+                    if (mIsChannelListShow) {
+                        val focusView: XulView? = xulGetFocus()
+                        val collectState: XulView? = focusView?.findItemById("collectState")
+                        when (collectState?.getAttrString("img.0.visible")) {
+                            "true" -> {
+                                removeFromCollection(focusView.bindingData?.get(0))
+                                collectState.setAttr("img.0.visible", "false")
+                                collectState.resetRender()
+                            }
+                            "false" -> {
+                                val bingDataNode: XulDataNode? = focusView.bindingData?.get(0)
+                                addToCollection(bingDataNode?.getAttributeValue("live_id"), bingDataNode?.getAttributeValue("live_name"),
+                                    bingDataNode?.getAttributeValue("live_number"), bingDataNode?.getAttributeValue("icon_img_url"),
+                                    bingDataNode?.getAttributeValue("play_url"), bingDataNode?.getAttributeValue("category_id"))
+                                collectState.setAttr("img.0.visible", "true")
+                                collectState.resetRender()
+                            }
+                            else -> return super.xulOnDispatchKeyEvent(event)
+                        }
+                        collectState.resetRender()
+                        return true
+                    }
+                }
                 KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_DPAD_RIGHT -> {
                     if (mIsControlFrameShow) {
                         showTimeshiftIndicator(0)
@@ -701,29 +729,6 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
                         XulLog.i(NAME, "down pressed.")
                         startToPlay("", 1)
                         return true
-                    }
-                }
-                KeyEvent.KEYCODE_MENU, KeyEvent.KEYCODE_1 -> {
-                    if (mIsChannelListShow) {
-                        val focusView: XulView? = xulGetFocus()
-                        val collectState: XulView? = focusView?.findItemById("collectState")
-                        when (collectState?.getAttrString("img.0.visible")) {
-                            "true" -> {
-                                removeFromCollection(focusView.bindingData?.get(0))
-                                collectState.setAttr("img.0.visible", "false")
-                                collectState.resetRender()
-                            }
-                            "false" -> {
-                                val bingDataNode: XulDataNode? = focusView.bindingData?.get(0)
-                                addToCollection(bingDataNode?.getAttributeValue("live_id"), bingDataNode?.getAttributeValue("live_name"),
-                                    bingDataNode?.getAttributeValue("live_number"), bingDataNode?.getAttributeValue("icon_img_url"),
-                                    bingDataNode?.getAttributeValue("play_url"), bingDataNode?.getAttributeValue("category_id"))
-                                collectState.setAttr("img.0.visible", "true")
-                                collectState.resetRender()
-                            }
-                            else -> return super.xulOnDispatchKeyEvent(event)
-                        }
-                        collectState.resetRender()
                     }
                 }
             }
