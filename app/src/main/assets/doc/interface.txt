@@ -19,6 +19,7 @@ http://dev.yusihuo.com/zhiboapi.php?m=Live&c=Live&a=getLiveListIncludeCategory
 //升级
 
 
+拖动预览
 升级对话框UI调整
 退出确认框
 加锁
