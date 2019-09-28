@@ -412,6 +412,9 @@
                 <style name="font-size">30</style>
                 <attr name="seek-mode">live</attr>
                 <attr name="tip.y">0</attr>
+                <attr name="preview.y">-110</attr>
+                <attr name="preview.width">250</attr>
+                <attr name="preview.height">140</attr>
             </select>
         </selector>
     </page>

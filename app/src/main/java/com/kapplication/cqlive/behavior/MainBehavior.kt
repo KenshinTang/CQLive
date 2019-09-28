@@ -1,11 +1,14 @@
 package com.kapplication.cqlive.behavior
 
+import android.graphics.Bitmap
+import android.os.AsyncTask
 import android.os.Handler
 import android.os.Message
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.ImageView
 import com.kapplication.cqlive.message.CommonMessage
 import com.kapplication.cqlive.utils.Utils
 import com.kapplication.cqlive.widget.NoUiGSYPlayer
@@ -29,13 +32,17 @@ import com.starcor.xulapp.message.XulSubscriber
 import com.starcor.xulapp.utils.XulLog
 import okhttp3.*
 import org.json.JSONObject
+import wseemann.media.FFmpegMediaMetadataRetriever
 import java.io.IOException
 import java.lang.ref.WeakReference
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
+import kotlin.concurrent.thread
 
-class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
+class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), PlayerSeekBarRender.OnProgressChangedListener {
+
     companion object {
         const val NAME = "MainBehavior"
         const val THREE_HOURS_IN_SECONDS = 3600 * 3
@@ -130,12 +137,15 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         super.xulOnRenderIsReady()
     }
 
+    private var imageView: ImageView? = null
     override fun initRenderContextView(renderContextView: View): View {
         XulLog.i(NAME, "initRenderContextView")
         val viewRoot = FrameLayout(_presenter.xulGetContext())
         val matchParent = ViewGroup.LayoutParams.MATCH_PARENT
         viewRoot.addView(mMediaPlayer, matchParent, matchParent)
         viewRoot.addView(renderContextView, matchParent, matchParent)
+        imageView = ImageView(_presenter.xulGetContext())
+        viewRoot.addView(imageView, 500, 500)
         return viewRoot
     }
 
@@ -153,6 +163,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         mSeekBarRender = xulGetRenderContext().findItemById("player-pos").render as PlayerSeekBarRender
         mSeekBarRender.setSeekBarTips("直播中")
         mSeekBarRender.seekBarPos = 1.0
+        mSeekBarRender.setOnProgressChangedListener(this)
 
         GSYVideoType.setShowType(GSYVideoType.SCREEN_MATCH_FULL)
     }
@@ -318,6 +329,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         }
         mCurrentChannelId = channelId
         updateTitleArea(channelId!!)
+        loadPreviewBitmaps()
 
         return mCurrentChannelNode?.getAttributeValue("play_url")?:""
     }
@@ -347,13 +359,14 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
             }
 
             updateTitleArea(mCurrentChannelId!!)
+            loadPreviewBitmaps()
 
             // pre load both up and down source
             var upIndex: Int = mCurrentChannelIndex - 1
             if (upIndex < 0) upIndex = mUpDownSwitchChannelNodes.size - 1
             var downIndex: Int = mCurrentChannelIndex + 1
             if (downIndex == mUpDownSwitchChannelNodes.size) downIndex = 0
-            XulLog.i("kenshin1", "CurrentIndex = $mCurrentChannelIndex, upIndex = $upIndex, downIndex = $downIndex")
+            XulLog.i(NAME, "CurrentIndex = $mCurrentChannelIndex, upIndex = $upIndex, downIndex = $downIndex")
             mUpVideoManager = GSYVideoManager.tmpInstance(null)
             mUpVideoManager?.prepare(mUpDownSwitchChannelNodes[upIndex].getAttributeValue("play_url"), null, false, 1f, false, null)
             mDownVideoManager = GSYVideoManager.tmpInstance(null)
@@ -384,13 +397,14 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         if (mCurrentChannelIndex == mUpDownSwitchChannelNodes.size) mCurrentChannelIndex = 0
         mCurrentChannelId = mUpDownSwitchChannelNodes[mCurrentChannelIndex].getAttributeValue("live_id")
         updateTitleArea(mCurrentChannelId!!)
+        loadPreviewBitmaps()
 
         var upIndex: Int = mCurrentChannelIndex - 1
         if (upIndex < 0) upIndex = mUpDownSwitchChannelNodes.size - 1
         var downIndex: Int = mCurrentChannelIndex + 1
         if (downIndex == mUpDownSwitchChannelNodes.size) downIndex = 0
 
-        XulLog.e("kenshin1", "CurrentIndex = $mCurrentChannelIndex, upIndex = $upIndex, downIndex = $downIndex")
+        XulLog.i(NAME, "CurrentIndex = $mCurrentChannelIndex, upIndex = $upIndex, downIndex = $downIndex")
         val nextUpPlayUrl: String = mUpDownSwitchChannelNodes[upIndex].getAttributeValue("play_url")
         mUpVideoManager = GSYVideoManager.tmpInstance(null)
         mUpVideoManager?.prepare(nextUpPlayUrl, null, false, 1f, false, null)
@@ -422,6 +436,32 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
             mCurrentVideoManager = mNextVideoManager
             mPreloadSuccess = true
         }
+    }
+
+    private fun loadPreviewBitmaps() {
+        val playUrl: String? = mCurrentChannelNode?.getAttributeValue("play_url")
+
+//        for (i in 1..10) {
+//            val time: Long = (i * mMediaPlayer.duration / 100).toLong()
+            val time: Long = 20
+            XulLog.i("kenshin", "loadPreviewBitmaps time = $time")
+            val width: Int = (xulGetRenderContext().xScalar * 250).toInt()
+            val height: Int = (xulGetRenderContext().yScalar * 140).toInt()
+
+//        object : AsyncTask<Void, Void, Bitmap>() {
+//            override fun doInBackground(vararg p0: Void?): Bitmap? {
+//                val mmr = FFmpegMediaMetadataRetriever()
+//                mmr.setDataSource(playUrl, HashMap())
+//                val b = mmr.getScaledFrameAtTime(2*1000*1000, FFmpegMediaMetadataRetriever.OPTION_CLOSEST_SYNC, width, height)
+//                XulLog.e("kenshin", "bitmap = $b")
+//                return b
+//            }
+//
+//            override fun onPostExecute(result: Bitmap?) {
+//                imageView?.setImageBitmap(result)
+//            }
+//        }.execute()
+
     }
 
     private fun appendCollectionCategory() {
@@ -737,6 +777,10 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
         return super.xulOnDispatchKeyEvent(event)
     }
 
+    override fun onProgressChanged(pos: Double) {
+        XulLog.i("kenshin", "onProgressChanged.  pos = $pos, duration = ${mMediaPlayer.duration} time = ${(mMediaPlayer.duration * pos).toInt()})")
+    }
+
     private fun showChannelList(show: Boolean) {
         if (show) {
             syncFocus()
@@ -754,7 +798,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter) {
 
     private fun showControlFrame(show: Boolean) {
         if (show) {
-            mHandler.sendEmptyMessageDelayed(CommonMessage.EVENT_AUTO_HIDE_UI, 8 * 1000)
+//            mHandler.sendEmptyMessageDelayed(CommonMessage.EVENT_AUTO_HIDE_UI, 8 * 1000)
         }
         mTitleArea.setStyle("display", if(show) "block" else "none")
         mTitleArea.resetRender()

@@ -2,6 +2,7 @@ package com.kapplication.cqlive.widget;
 
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
@@ -32,14 +33,24 @@ public class PlayerSeekBarRender extends XulImageRender {
         super(ctx, (XulItem) view);
     }
 
+    public interface OnProgressChangedListener {
+        void onProgressChanged(double pos);
+    }
+
+    OnProgressChangedListener listener;
     Paint.FontMetrics _fontMetrics;
     int _textWidth;
     int _textHeight;
     Bitmap seekTipBg;
+    Bitmap previewImg;
     int seekBgWidth;
     int seekBgHeight;
+    int previewWidth;
+    int previewHeight;
     int progressWidth;
     int tipOffset;
+    int previewOffset;
+    boolean showPreview = false;
     String seekMode = "";
 
     public static void register() {
@@ -61,8 +72,11 @@ public class PlayerSeekBarRender extends XulImageRender {
         super.syncData();
         seekBgWidth = (int) (150 * getXScalar());
         seekBgHeight = (int) (69 * getYScalar());
+        previewWidth = (int) (XulUtils.tryParseInt(_view.getAttrString("preview.width")) * getXScalar());
+        previewHeight = (int) (XulUtils.tryParseInt(_view.getAttrString("preview.height")) * getYScalar());
         progressWidth = (int) (XulUtils.tryParseInt(_view.getAttrString("img.4.width")) * getXScalar());
         tipOffset = (int) (XulUtils.tryParseInt(_view.getAttrString("tip.y")) * getXScalar());
+        previewOffset = (int) (XulUtils.tryParseInt(_view.getAttrString("preview.y")) * getXScalar());
         seekMode = _view.getAttrString("seek-mode");
     }
 
@@ -80,13 +94,40 @@ public class PlayerSeekBarRender extends XulImageRender {
             RectF animRect = getAnimRect();
             int xOffset;
             if ("playback".equals(seekMode) || "live".equals(seekMode)) {
-                if (seekTipBg == null) {
-                    seekTipBg = getImageFromAssetsFile("images/img_seek_tip_bg.png");
+                if (showPreview) {
+                    if (previewImg == null) {
+                        previewImg = getImageFromAssetsFile("images/test.png");
+                    }
+                    int previewXOffset = (int) (padding.left + (animRect.width() - padding.left - padding.right - progressWidth) * _seekBarPos - (previewWidth - progressWidth) / 2);
+
+                    // test border
+                    Paint borderPaint = new Paint();
+                    borderPaint.setColor(Color.RED);
+                    dc.drawRect(animRect.left + previewXOffset + xBase + _screenX,
+                            animRect.top + yBase + _screenY + previewOffset,
+                            animRect.left + previewXOffset + xBase + _screenX + previewWidth,
+                            animRect.top + yBase + _screenY + previewOffset + previewHeight, borderPaint);
+
+                    // preview img
+                    RectF des = new RectF(animRect.left + previewXOffset + xBase + _screenX,
+                            animRect.top + yBase + _screenY + previewOffset,
+                            animRect.left + previewXOffset + xBase + _screenX + previewWidth,
+                            animRect.top + yBase + _screenY + previewOffset + previewHeight);
+//                    dc.drawBitmap(previewImg, animRect.left + previewXOffset + xBase + _screenX, animRect.top + yBase + _screenY + previewOffset, null);
+                    dc.drawBitmap(XulDrawable.fromBitmap(previewImg, "", ""), des, null);
+
+                    // text, time.
+                    xOffset = (int) (padding.left + (animRect.width() - padding.left - padding.right - progressWidth) * _seekBarPos - (_textWidth - progressWidth) / 2);
+                    dc.drawText(_seekTips, 0, _seekTips.length(), animRect.left + xOffset + xBase + _screenX, animRect.top + yBase + _screenY + previewOffset + previewHeight - 5, textPaint);
+                } else {
+                    if (seekTipBg == null) {
+                        seekTipBg = getImageFromAssetsFile("images/img_seek_tip_bg.png");
+                    }
+                    int bgXOffset = (int) (padding.left + (animRect.width() - padding.left - padding.right - progressWidth) * _seekBarPos - (seekBgWidth - progressWidth) / 2);
+                    dc.drawBitmap(seekTipBg, animRect.left + bgXOffset + xBase + _screenX, animRect.top + yBase + _screenY, null);
+                    xOffset = (int) (padding.left + (animRect.width() - padding.left - padding.right - progressWidth) * _seekBarPos - (_textWidth - progressWidth) / 2);
+                    dc.drawText(_seekTips, 0, _seekTips.length(), animRect.left + xOffset + xBase + _screenX, animRect.top + yBase + _screenY - _fontMetrics.top + tipOffset, textPaint);
                 }
-                int bgXOffset = (int) (padding.left + (animRect.width() - padding.left - padding.right - progressWidth) * _seekBarPos - (seekBgWidth - progressWidth) / 2);
-                dc.drawBitmap(seekTipBg, animRect.left + bgXOffset + xBase + _screenX, animRect.top + yBase + _screenY, null);
-                xOffset = (int) (padding.left + (animRect.width() - padding.left - padding.right - progressWidth) * _seekBarPos - (_textWidth - progressWidth) / 2);
-                dc.drawText(_seekTips, 0, _seekTips.length(), animRect.left + xOffset + xBase + _screenX, animRect.top + yBase + _screenY - _fontMetrics.top + tipOffset, textPaint);
             } else {
                 xOffset = (int) (padding.left + (animRect.width() - padding.left - padding.right - _textWidth) * _seekBarPos);
                 dc.drawText(_seekTips, 0, _seekTips.length(), animRect.left + xOffset + xBase + _screenX, animRect.top + yBase + _screenY - _fontMetrics.top, textPaint);
@@ -128,6 +169,9 @@ public class PlayerSeekBarRender extends XulImageRender {
     public void setSeekBarPos(double percent) {
         _seekBarPos = Math.max(0, Math.min(percent, 1.0f));
         markDirtyView();
+        if (listener != null) {
+            listener.onProgressChanged(percent);
+        }
     }
 
     public double getSeekBarPos() {
@@ -165,5 +209,17 @@ public class PlayerSeekBarRender extends XulImageRender {
             e.printStackTrace();
         }
         return image;
+    }
+
+    public void setShowPreview(boolean show) {
+        showPreview = show;
+    }
+
+    public boolean getShowPreview() {
+        return showPreview;
+    }
+
+    public void setOnProgressChangedListener(OnProgressChangedListener listener) {
+        this.listener = listener;
     }
 }

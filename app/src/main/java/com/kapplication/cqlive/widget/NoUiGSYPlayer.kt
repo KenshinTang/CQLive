@@ -47,7 +47,7 @@ open class NoUiGSYPlayer : StandardGSYVideoPlayer {
         gsyVideoManager.seekTo(position)
     }
 
-    public fun getSurface() : Surface {
+    fun getSurface() : Surface {
         return mSurface
     }
 
