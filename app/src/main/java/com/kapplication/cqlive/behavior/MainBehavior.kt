@@ -1,7 +1,5 @@
 package com.kapplication.cqlive.behavior
 
-import android.graphics.Bitmap
-import android.os.AsyncTask
 import android.os.Handler
 import android.os.Message
 import android.view.KeyEvent
@@ -32,14 +30,11 @@ import com.starcor.xulapp.message.XulSubscriber
 import com.starcor.xulapp.utils.XulLog
 import okhttp3.*
 import org.json.JSONObject
-import wseemann.media.FFmpegMediaMetadataRetriever
 import java.io.IOException
 import java.lang.ref.WeakReference
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
-import kotlin.concurrent.thread
 
 class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), PlayerSeekBarRender.OnProgressChangedListener {
 
