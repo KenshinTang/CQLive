@@ -753,14 +753,14 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                     }
                 }
                 KeyEvent.KEYCODE_DPAD_UP -> {
-                    if (!mIsChannelListShow && !mIsControlFrameShow) {
+                    if (!mIsChannelListShow/* && !mIsControlFrameShow*/) {
                         XulLog.i(NAME, "up pressed.")
                         startToPlay("", -1)
                         return true
                     }
                 }
                 KeyEvent.KEYCODE_DPAD_DOWN -> {
-                    if (!mIsChannelListShow && !mIsControlFrameShow) {
+                    if (!mIsChannelListShow/* && !mIsControlFrameShow*/) {
                         XulLog.i(NAME, "down pressed.")
                         startToPlay("", 1)
                         return true
@@ -793,7 +793,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
 
     private fun showControlFrame(show: Boolean) {
         if (show) {
-//            mHandler.sendEmptyMessageDelayed(CommonMessage.EVENT_AUTO_HIDE_UI, 8 * 1000)
+            mHandler.sendEmptyMessageDelayed(CommonMessage.EVENT_AUTO_HIDE_UI, 8 * 1000)
         }
         mTitleArea.setStyle("display", if(show) "block" else "none")
         mTitleArea.resetRender()
