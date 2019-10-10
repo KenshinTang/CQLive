@@ -47,63 +47,64 @@
             </area>
 
             <area id="category-list" desc="频道栏">
-<!--                <style name="display">none</style>-->
-<!--                <attr name="x">0</attr>-->
                 <attr name="x">-1060</attr>
                 <attr name="y">0</attr>
-                <attr name="width">1060</attr>
+<!--                <attr name="width">1060</attr>-->
                 <attr name="height">match_parent</attr>
-                <area desc="频道分类" type="radio">
-                    <style name="background-color">f2434343</style>
-                    <attr name="checked-class">category_checked</attr>
-                    <focus mode="dynamic"/>
-                    <attr name="x">0</attr>
-                    <attr name="y">0</attr>
-                    <attr name="width">420</attr>
-                    <attr name="height">match_parent</attr>
-                    <area type="slider">
-                        <attr name="direction">vertical</attr>
+                <area type="layer" class="effect-layer" desc="频道分类" >
+                    <attr name="effect-type">category</attr>
+                    <area type="radio">
+                        <style name="background-color">f2434343</style>
+                        <attr name="checked-class">category_checked</attr>
+                        <focus mode="dynamic"/>
                         <attr name="x">0</attr>
-                        <attr name="y">190</attr>
-                        <attr name="width">match_parent</attr>
-                        <attr name="height">840</attr>
-    <!--                    <attr name="lock-focus">0.5</attr>-->
-                        <style name="clip-children">true</style>
-                        <area id="category" type="massive" class="playbill-list-massive">
-                            <template id="@item-template">
-                                <item filter="[0]" class="playbill-item, playbill-category-item" type="image">
-                                    <focus mode="focusable" focused="true"/>
-                                    <data name="category_id" binding="[=category_id]"/>
-                                    <attr name="text" binding="[=category_name]"/>
-                                    <attr name="img.0" binding="[=default_icon_img_url]"/>
-                                    <action event="focus" type="script/javascript">
-                                        if(!this.hasClass("category_checked")){
-                                            this.fireEvent("click");
-                                        }
-                                    </action>
-                                    <action event="checked" type="script/javascript">
-                                        var category_id = this.getData("category_id");
-                                        var category_name = this.text;
-                                        this.dispatchEvent("switchCategory", "usr_cmd", JSON.stringify({"category_id":category_id, "category_name":category_name}));
-                                    </action>
-                                </item>
-                                <item class="playbill-item, playbill-category-item" type="image">
-                                    <focus mode="focusable" focused="true"/>
-                                    <data name="category_id" binding="[=category_id]"/>
-                                    <attr name="text" binding="[=category_name]"/>
-                                    <attr name="img.0" binding="[=default_icon_img_url]"/>
-                                    <action event="focus" type="script/javascript">
-                                        if(!this.hasClass("category_checked")){
-                                            this.fireEvent("click");
-                                        }
-                                    </action>
-                                    <action event="checked" type="script/javascript">
-                                        var category_id = this.getData("category_id");
-                                        var category_name = this.text;
-                                        this.dispatchEvent("switchCategory", "usr_cmd", JSON.stringify({"category_id":category_id, "category_name":category_name}));
-                                    </action>
-                                </item>
-                            </template>
+                        <attr name="y">0</attr>
+                        <attr name="width">420</attr>
+                        <attr name="height">match_parent</attr>
+                        <area type="slider">
+                            <attr name="direction">vertical</attr>
+                            <attr name="x">0</attr>
+                            <attr name="y">190</attr>
+                            <attr name="width">match_parent</attr>
+                            <attr name="height">840</attr>
+        <!--                    <attr name="lock-focus">0.5</attr>-->
+                            <style name="clip-children">true</style>
+                            <area id="category" type="massive" class="playbill-list-massive">
+                                <template id="@item-template">
+                                    <item filter="[0]" class="playbill-item, playbill-category-item" type="image">
+                                        <focus mode="focusable" focused="true"/>
+                                        <data name="category_id" binding="[=category_id]"/>
+                                        <attr name="text" binding="[=category_name]"/>
+                                        <attr name="img.0" binding="[=default_icon_img_url]"/>
+                                        <action event="focus" type="script/javascript">
+                                            if(!this.hasClass("category_checked")){
+                                                this.fireEvent("click");
+                                            }
+                                        </action>
+                                        <action event="checked" type="script/javascript">
+                                            var category_id = this.getData("category_id");
+                                            var category_name = this.text;
+                                            this.dispatchEvent("switchCategory", "usr_cmd", JSON.stringify({"category_id":category_id, "category_name":category_name}));
+                                        </action>
+                                    </item>
+                                    <item class="playbill-item, playbill-category-item" type="image">
+                                        <focus mode="focusable" focused="true"/>
+                                        <data name="category_id" binding="[=category_id]"/>
+                                        <attr name="text" binding="[=category_name]"/>
+                                        <attr name="img.0" binding="[=default_icon_img_url]"/>
+                                        <action event="focus" type="script/javascript">
+                                            if(!this.hasClass("category_checked")){
+                                                this.fireEvent("click");
+                                            }
+                                        </action>
+                                        <action event="checked" type="script/javascript">
+                                            var category_id = this.getData("category_id");
+                                            var category_name = this.text;
+                                            this.dispatchEvent("switchCategory", "usr_cmd", JSON.stringify({"category_id":category_id, "category_name":category_name}));
+                                        </action>
+                                    </item>
+                                </template>
+                            </area>
                         </area>
                     </area>
                 </area>
@@ -113,128 +114,180 @@
                     <style name="background-color">19ffffff</style>
                     <focus mode="nofocus"/>
                 </item>
-                <area desc="频道列表" type="radio">
-                    <style name="background-color">e5313131</style>
-                    <attr name="checked-class">category_checked</attr>
-                    <attr name="x">420</attr>
-                    <attr name="y">0</attr>
-                    <attr name="width">640</attr>
-                    <attr name="height">match_parent</attr>
-                    <area desc="顶部提示">
-                        <focus mode="nofocus"/>
-                        <attr name="height">190</attr>
-                        <attr name="width">match_parent</attr>
-                        <item id="category_name_label" type="label">
+                <area type="layer" class="effect-layer" desc="频道列表">
+                    <attr name="effect-type">channel</attr>
+                    <area type="radio">
+                        <style name="background-color">e5313131</style>
+                        <attr name="checked-class">category_checked</attr>
+                        <attr name="x">420</attr>
+                        <attr name="y">0</attr>
+                        <attr name="width">640</attr>
+                        <attr name="height">match_parent</attr>
+                        <area desc="顶部提示">
                             <focus mode="nofocus"/>
-                            <attr name="x">60</attr>
-                            <attr name="y">90</attr>
-                            <attr name="width">178</attr>
-                            <attr name="marquee">500,1000,800,40%</attr>
-                            <attr name="text">分类名称</attr>
-                            <style name="font-size">42</style>
-                            <style name="font-weight">1.1</style>
-                            <style name="font-color">ddffffff</style>
-                        </item>
-                        <item id="txt_tips_1" type="label">
-                            <focus mode="nofocus"/>
-                            <attr name="height">match_parent</attr>
-                            <attr name="x">248</attr>
-                            <attr name="y">108</attr>
-                            <attr name="text">遥控器</attr>
-                            <style name="font-size">26</style>
-                            <style name="font-color">ffbbbbbb</style>
-                        </item>
-                        <item id="txt_tips_2" type="label">
-                            <focus mode="nofocus"/>
-                            <attr name="height">match_parent</attr>
-                            <attr name="x">326</attr>
-                            <attr name="y">108</attr>
-                            <attr name="text"> 菜单键 </attr>
-                            <style name="font-size">26</style>
-                            <style name="font-color">ffffffff</style>
-                        </item>
-                        <item id="txt_tips_3" type="label">
-                            <focus mode="nofocus"/>
-                            <attr name="x">415</attr>
-                            <attr name="y">108</attr>
-                            <attr name="height">match_parent</attr>
-                            <attr name="text">收藏频道</attr>
-                            <style name="font-size">26</style>
-                            <style name="font-color">ffbbbbbb</style>
-                        </item>
-                    </area>
-                    <area type="slider">
-                        <focus mode="dynamic,nearby"/>
-                        <attr name="direction">vertical</attr>
-                        <attr name="x">0</attr>
-                        <attr name="y">190</attr>
-                        <attr name="width">match_parent</attr>
-                        <attr name="height">840</attr>
-                        <attr name="lock-focus">0.2008</attr>
-                        <style name="clip-children">true</style>
-                        <area id="channel" type="massive" class="playbill-list-massive">
-                            <template id="@item-template">
-                                <area class="playbill-item">
-                                    <action event="focus" type="script/javascript">
-                                        this.dispatchEvent("preloadPlayRes", "usr_cmd", "");
-                                    </action>
-                                    <attr name="width">match_parent</attr>
-                                    <attr name="height">140</attr>
-                                    <data name="live_id" binding="[=live_id]"/>
-                                    <data name="category_id" binding="[=category_id]"/>
-                                    <action event="checked" type="script/javascript">
-                                        var live_id = this.getData("live_id");
-                                        var category_id = this.getData("category_id");
-                                        this.dispatchEvent("switchChannel", "usr_cmd", JSON.stringify({"live_id":live_id, "category_id":category_id}));
-                                    </action>
-                                    <item id="channel_id" type="label" desc="频道号">
-                                        <attr name="x">60</attr>
-                                        <attr name="height">match_parent</attr>
-                                        <style name="font-align">0, 0.5</style>
-                                        <style name="font-size">40</style>
-                                        <style name="font-color">FFFFFFFF</style>
-                                        <attr name="text" binding="[=live_number]"/>
-                                    </item>
-                                    <item type="image" desc="频道图标">
-                                        <focus mode="nofocus"/>
-                                        <attr name="x">160</attr>
-                                        <attr name="y">15</attr>
-                                        <attr name="img.0.width">120</attr>
-                                        <attr name="img.0.height">120</attr>
-                                        <attr name="img.0.mode">center</attr>
-                                        <attr name="img.0" binding="[=icon_img_url]"/>
-                                    </item>
-                                    <item id="channel_name" type="label" desc="频道名">
-                                        <attr name="x">300</attr>
-                                        <attr name="height">match_parent</attr>
-                                        <style name="font-align">0, 0.5</style>
-                                        <style name="font-size">40</style>
-                                        <style name="font-color">FFFFFFFF</style>
-                                        <attr name="text" binding="[=live_name]"/>
-                                    </item>
-<!--                                    <item type="image" desc="加锁图标">-->
-<!--                                        <focus mode="nofocus"/>-->
-<!--                                        <attr name="x">530</attr>-->
-<!--                                        <attr name="y">56</attr>-->
-<!--                                        <attr name="img.0.width">28</attr>-->
-<!--                                        <attr name="img.0.height">32</attr>-->
-<!--                                        <attr name="img.0">file:///.assets/images/icon_lock.png</attr>-->
-<!--                                    </item>-->
-                                    <item id="collectState" type="image" desc="收藏图标">
-                                        <focus mode="nofocus"/>
-                                        <attr name="x">555</attr>
-                                        <attr name="y">56</attr>
-                                        <attr name="img.0.width">32</attr>
-                                        <attr name="img.0.height">32</attr>
-                                        <attr name="img.0">file:///.assets/images/icon_star.png</attr>
-                                        <attr name="img.0.visible">false</attr>
-                                    </item>
-                                </area>
-                            </template>
+                            <attr name="height">190</attr>
+                            <attr name="width">match_parent</attr>
+                            <item id="category_name_label" type="label">
+                                <focus mode="nofocus"/>
+                                <attr name="x">60</attr>
+                                <attr name="y">90</attr>
+                                <attr name="width">178</attr>
+                                <attr name="marquee">500,1000,800,40%</attr>
+                                <attr name="text">分类名称</attr>
+                                <style name="font-size">42</style>
+                                <style name="font-weight">1.1</style>
+                                <style name="font-color">ddffffff</style>
+                            </item>
+                            <item id="txt_tips_1" type="label">
+                                <focus mode="nofocus"/>
+                                <attr name="height">match_parent</attr>
+                                <attr name="x">248</attr>
+                                <attr name="y">108</attr>
+                                <attr name="text">遥控器</attr>
+                                <style name="font-size">26</style>
+                                <style name="font-color">ffbbbbbb</style>
+                            </item>
+                            <item id="txt_tips_2" type="label">
+                                <focus mode="nofocus"/>
+                                <attr name="height">match_parent</attr>
+                                <attr name="x">326</attr>
+                                <attr name="y">108</attr>
+                                <attr name="text"> 菜单键 </attr>
+                                <style name="font-size">26</style>
+                                <style name="font-color">ffffffff</style>
+                            </item>
+                            <item id="txt_tips_3" type="label">
+                                <focus mode="nofocus"/>
+                                <attr name="x">415</attr>
+                                <attr name="y">108</attr>
+                                <attr name="height">match_parent</attr>
+                                <attr name="text">收藏频道</attr>
+                                <style name="font-size">26</style>
+                                <style name="font-color">ffbbbbbb</style>
+                            </item>
+                        </area>
+                        <area type="slider">
+                            <focus mode="dynamic,nearby"/>
+                            <attr name="direction">vertical</attr>
+                            <attr name="x">0</attr>
+                            <attr name="y">190</attr>
+                            <attr name="width">match_parent</attr>
+                            <attr name="height">840</attr>
+                            <attr name="lock-focus">0.2008</attr>
+                            <style name="clip-children">true</style>
+                            <area id="channel" type="massive" class="playbill-list-massive">
+                                <template id="@item-template">
+                                    <area class="playbill-item">
+                                        <action event="focus" type="script/javascript">
+                                            this.dispatchEvent("preloadPlayRes", "usr_cmd", "");
+                                        </action>
+                                        <attr name="width">match_parent</attr>
+                                        <attr name="height">140</attr>
+                                        <data name="live_id" binding="[=live_id]"/>
+                                        <data name="category_id" binding="[=category_id]"/>
+                                        <action event="checked" type="script/javascript">
+                                            var live_id = this.getData("live_id");
+                                            var category_id = this.getData("category_id");
+                                            this.dispatchEvent("switchChannel", "usr_cmd", JSON.stringify({"live_id":live_id, "category_id":category_id}));
+                                        </action>
+                                        <item id="channel_id" type="label" desc="频道号">
+                                            <attr name="x">60</attr>
+                                            <attr name="height">match_parent</attr>
+                                            <style name="font-align">0, 0.5</style>
+                                            <style name="font-size">40</style>
+                                            <style name="font-color">FFFFFFFF</style>
+                                            <attr name="text" binding="[=live_number]"/>
+                                        </item>
+                                        <item type="image" desc="频道图标">
+                                            <focus mode="nofocus"/>
+                                            <attr name="x">160</attr>
+                                            <attr name="y">15</attr>
+                                            <attr name="img.0.width">120</attr>
+                                            <attr name="img.0.height">120</attr>
+                                            <attr name="img.0.mode">center</attr>
+                                            <attr name="img.0" binding="[=icon_img_url]"/>
+                                        </item>
+                                        <item id="channel_name" type="label" desc="频道名">
+                                            <attr name="x">300</attr>
+                                            <attr name="height">match_parent</attr>
+                                            <style name="font-align">0, 0.5</style>
+                                            <style name="font-size">40</style>
+                                            <style name="font-color">FFFFFFFF</style>
+                                            <attr name="text" binding="[=live_name]"/>
+                                        </item>
+    <!--                                    <item type="image" desc="加锁图标">-->
+    <!--                                        <focus mode="nofocus"/>-->
+    <!--                                        <attr name="x">530</attr>-->
+    <!--                                        <attr name="y">56</attr>-->
+    <!--                                        <attr name="img.0.width">28</attr>-->
+    <!--                                        <attr name="img.0.height">32</attr>-->
+    <!--                                        <attr name="img.0">file:///.assets/images/icon_lock.png</attr>-->
+    <!--                                    </item>-->
+                                        <item id="collectState" type="image" desc="收藏图标">
+                                            <focus mode="nofocus"/>
+                                            <attr name="x">505</attr>
+                                            <attr name="y">56</attr>
+                                            <attr name="img.0.width">32</attr>
+                                            <attr name="img.0.height">32</attr>
+                                            <attr name="img.0">file:///.assets/images/icon_star.png</attr>
+                                            <attr name="img.0.visible">false</attr>
+                                        </item>
+                                        <item type="image" desc="右键回看箭头">
+                                            <focus mode="nofocus"/>
+                                            <attr name="x">585</attr>
+                                            <attr name="y">50</attr>
+                                            <attr name="img.0.width">32</attr>
+                                            <attr name="img.0.height">32</attr>
+                                            <attr name="img.0">file:///.assets/images/icon_right_arrow.png</attr>
+                                            <attr name="img.0.visible">true</attr>
+                                        </item>
+                                    </area>
+                                </template>
+                            </area>
                         </area>
                     </area>
                 </area>
-                <area id="area_none_channel">
+                <area type="layer" class="effect-layer" desc="回看日期">
+                    <attr name="effect-type">date</attr>
+                    <area type="radio">
+                        <style name="background-color">e5313131</style>
+                        <attr name="checked-class">category_checked</attr>
+                        <attr name="x">1060</attr>
+                        <attr name="y">0</attr>
+                        <attr name="width">210</attr>
+                        <attr name="height">match_parent</attr>
+                        <item type="image" desc="分割线">
+                            <attr name="width">1</attr>
+                            <attr name="height">match_parent</attr>
+                            <style name="background-color">19ffffff</style>
+                            <focus mode="nofocus"/>
+                        </item>
+                        <area type="slider">
+
+                        </area>
+                    </area>
+                </area>
+                <area type="layer" class="effect-layer" desc="节目单">
+                    <attr name="effect-type">playbill</attr>
+                    <area type="radio">
+                        <style name="background-color">e5313131</style>
+                        <attr name="checked-class">category_checked</attr>
+                        <attr name="x">1270</attr>
+                        <attr name="y">0</attr>
+                        <attr name="width">600</attr>
+                        <attr name="height">match_parent</attr>
+                        <item type="image" desc="分割线">
+                            <attr name="width">1</attr>
+                            <attr name="height">match_parent</attr>
+                            <style name="background-color">19ffffff</style>
+                            <focus mode="nofocus"/>
+                        </item>
+                        <area type="slider">
+
+                        </area>
+                    </area>
+                </area>
+                <area id="area_none_channel" desc="无频道提示">
                     <style name="display">none</style>
                     <focus mode="nofocus"/>
                     <item type="image">
