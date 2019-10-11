@@ -47,16 +47,16 @@
             </area>
 
             <area id="category-list" desc="频道栏">
-                <attr name="x">-1060</attr>
+                <attr name="x">-1870</attr>
                 <attr name="y">0</attr>
-<!--                <attr name="width">1060</attr>-->
+                <attr name="width">1870</attr>
                 <attr name="height">match_parent</attr>
                 <area type="layer" class="effect-layer" desc="频道分类" >
                     <attr name="effect-type">category</attr>
+                    <focus mode="dynamic"/>
                     <area type="radio">
                         <style name="background-color">f2434343</style>
                         <attr name="checked-class">category_checked</attr>
-                        <focus mode="dynamic"/>
                         <attr name="x">0</attr>
                         <attr name="y">0</attr>
                         <attr name="width">420</attr>
@@ -108,14 +108,9 @@
                         </area>
                     </area>
                 </area>
-                <item type="image" desc="分割线">
-                    <attr name="width">1</attr>
-                    <attr name="height">match_parent</attr>
-                    <style name="background-color">19ffffff</style>
-                    <focus mode="nofocus"/>
-                </item>
                 <area type="layer" class="effect-layer" desc="频道列表">
                     <attr name="effect-type">channel</attr>
+                    <focus mode="dynamic,nearby"/>
                     <area type="radio">
                         <style name="background-color">e5313131</style>
                         <attr name="checked-class">category_checked</attr>
@@ -167,7 +162,6 @@
                             </item>
                         </area>
                         <area type="slider">
-                            <focus mode="dynamic,nearby"/>
                             <attr name="direction">vertical</attr>
                             <attr name="x">0</attr>
                             <attr name="y">190</attr>
@@ -249,6 +243,7 @@
                 </area>
                 <area type="layer" class="effect-layer" desc="回看日期">
                     <attr name="effect-type">date</attr>
+                    <focus mode="dynamic,nearby"/>
                     <area type="radio">
                         <style name="background-color">e5313131</style>
                         <attr name="checked-class">category_checked</attr>
@@ -263,7 +258,39 @@
                             <focus mode="nofocus"/>
                         </item>
                         <area type="slider">
-
+                            <attr name="direction">vertical</attr>
+                            <attr name="x">0</attr>
+                            <attr name="y">50</attr>
+                            <attr name="width">match_parent</attr>
+                            <attr name="height">960</attr>
+                            <area id="date" type="massive" class="playbill-list-massive">
+                                <template id="@item-template">
+                                    <area class="playbill-item">
+                                        <attr name="width">match_parent</attr>
+                                        <attr name="height">120</attr>
+                                        <action event="focus" type="script/javascript">
+                                        </action>
+                                        <action event="checked" type="script/javascript">
+                                        </action>
+                                        <item type="label" desc="星期">
+                                            <focus mode="nofocus"/>
+                                            <attr name="x">60</attr>
+                                            <attr name="y">30</attr>
+                                            <style name="font-size">40</style>
+                                            <style name="font-color">FFFFFFFF</style>
+                                            <attr name="text" binding="[=week]"/>
+                                        </item>
+                                        <item type="label" desc="日期">
+                                            <focus mode="nofocus"/>
+                                            <attr name="x">58</attr>
+                                            <attr name="y">68</attr>
+                                            <style name="font-size">30</style>
+                                            <style name="font-color">FFFFFFFF</style>
+                                            <attr name="text" binding="[=date]"/>
+                                        </item>
+                                    </area>
+                                </template>
+                            </area>
                         </area>
                     </area>
                 </area>

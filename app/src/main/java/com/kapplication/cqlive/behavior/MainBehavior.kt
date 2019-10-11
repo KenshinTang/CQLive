@@ -61,6 +61,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
 
     private lateinit var mCategoryListWrapper: XulMassiveAreaWrapper
     private lateinit var mChannelListWrapper: XulMassiveAreaWrapper
+    private lateinit var mDateListWrapper: XulMassiveAreaWrapper
     private lateinit var mTitleArea: XulArea
     private lateinit var mChannelArea: XulArea
     private lateinit var mControlArea: XulArea
@@ -147,6 +148,20 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
     private fun initView() {
         mCategoryListWrapper = XulMassiveAreaWrapper.fromXulView(xulGetRenderContext().findItemById("category"))
         mChannelListWrapper = XulMassiveAreaWrapper.fromXulView(xulGetRenderContext().findItemById("channel"))
+        mDateListWrapper = XulMassiveAreaWrapper.fromXulView(xulGetRenderContext().findItemById("date"))
+
+        val item: XulDataNode = XulDataNode.obtainDataNode("item")
+        item.setAttribute("week", "周一")
+        item.setAttribute("date", "12月31日")
+        mDateListWrapper.addItem(item)
+        mDateListWrapper.addItem(item)
+        mDateListWrapper.addItem(item)
+        mDateListWrapper.addItem(item)
+        mDateListWrapper.addItem(item)
+        mDateListWrapper.addItem(item)
+        mDateListWrapper.addItem(item)
+        mDateListWrapper.addItem(item)
+        mDateListWrapper.syncContentView()
 
         mTitleArea = xulGetRenderContext().findItemById("title-frame") as XulArea
         mChannelArea = xulGetRenderContext().findItemById("category-list") as XulArea
@@ -231,7 +246,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
 
         mUpDownTmpSwitchChannelNodes.clear()
         mChannelListWrapper.clear()
-        mChannelListWrapper.asView?.parent?.dynamicFocus = null
+        mChannelListWrapper.asView?.findParentByType("layer")?.dynamicFocus = null
         XulSliderAreaWrapper.fromXulView(mChannelListWrapper.asView)?.scrollTo(0, false)
 
         xulGetRenderContext().findItemById("category_name_label").setAttr("text", categoryName)
@@ -266,7 +281,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                 val liveId: String = node.getAttributeValue("live_id")
                 if (liveId == mCurrentChannelId) {
                     v?.addClass("category_checked")
-                    mChannelListWrapper.asView?.parent?.dynamicFocus = v
+                    mChannelListWrapper.asView?.findParentByType("layer")?.dynamicFocus = v
                     mCurrentChannelIndex = idx
                 } else {
                     v?.removeClass("category_checked")
@@ -302,7 +317,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
             val v: XulView? = mChannelListWrapper.getItemView(idx)
             if (node.getAttributeValue("live_id") == mCurrentChannelId) {
                 v?.addClass("category_checked")
-                mChannelListWrapper.asView?.parent?.dynamicFocus = v
+                mChannelListWrapper.asView?.findParentByType("layer")?.dynamicFocus = v
                 xulGetRenderContext().layout.requestFocus(v)
             } else {
                 v?.removeClass("category_checked")
@@ -779,9 +794,9 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
     private fun showChannelList(show: Boolean) {
         if (show) {
             syncFocus()
-            mHandler.sendEmptyMessageDelayed(CommonMessage.EVENT_AUTO_HIDE_UI, 8 * 1000)
+//            mHandler.sendEmptyMessageDelayed(CommonMessage.EVENT_AUTO_HIDE_UI, 8 * 1000)
         }
-        mChannelArea.setAttr("x", if(show) "0" else "-1060")
+        mChannelArea.setAttr("x", if(show) "0" else "-1870")
         mChannelArea.resetRender()
         mIsChannelListShow = show
 
@@ -801,7 +816,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         mControlArea.resetRender()
         mIsControlFrameShow = show
 
-        mChannelArea.setAttr("x", "-1060")
+        mChannelArea.setAttr("x", "-1870")
         mChannelArea.resetRender()
     }
 
