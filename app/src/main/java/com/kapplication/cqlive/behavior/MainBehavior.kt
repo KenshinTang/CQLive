@@ -62,6 +62,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
     private lateinit var mCategoryListWrapper: XulMassiveAreaWrapper
     private lateinit var mChannelListWrapper: XulMassiveAreaWrapper
     private lateinit var mDateListWrapper: XulMassiveAreaWrapper
+    private lateinit var mProgramListWrapper: XulMassiveAreaWrapper
     private lateinit var mTitleArea: XulArea
     private lateinit var mChannelArea: XulArea
     private lateinit var mControlArea: XulArea
@@ -149,6 +150,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         mCategoryListWrapper = XulMassiveAreaWrapper.fromXulView(xulGetRenderContext().findItemById("category"))
         mChannelListWrapper = XulMassiveAreaWrapper.fromXulView(xulGetRenderContext().findItemById("channel"))
         mDateListWrapper = XulMassiveAreaWrapper.fromXulView(xulGetRenderContext().findItemById("date"))
+        mProgramListWrapper = XulMassiveAreaWrapper.fromXulView(xulGetRenderContext().findItemById("program"))
 
         val item: XulDataNode = XulDataNode.obtainDataNode("item")
         item.setAttribute("week", "周一")
@@ -162,6 +164,26 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         mDateListWrapper.addItem(item)
         mDateListWrapper.addItem(item)
         mDateListWrapper.syncContentView()
+
+        val program: XulDataNode = XulDataNode.obtainDataNode("item")
+        program.setAttribute("program_name", "江苏气象新闻")
+        program.setAttribute("program_time", "18:57 - 19:30")
+        mProgramListWrapper.addItem(program)
+        mProgramListWrapper.addItem(program)
+        mProgramListWrapper.addItem(program)
+        mProgramListWrapper.addItem(program)
+        mProgramListWrapper.addItem(program)
+        mProgramListWrapper.addItem(program)
+        mProgramListWrapper.addItem(program)
+        mProgramListWrapper.addItem(program)
+        mProgramListWrapper.addItem(program)
+        mProgramListWrapper.addItem(program)
+        mProgramListWrapper.addItem(program)
+        mProgramListWrapper.addItem(program)
+        mProgramListWrapper.addItem(program)
+        mProgramListWrapper.addItem(program)
+        mProgramListWrapper.addItem(program)
+        mProgramListWrapper.syncContentView()
 
         mTitleArea = xulGetRenderContext().findItemById("title-frame") as XulArea
         mChannelArea = xulGetRenderContext().findItemById("category-list") as XulArea

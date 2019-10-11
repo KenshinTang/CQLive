@@ -67,7 +67,6 @@
                             <attr name="y">190</attr>
                             <attr name="width">match_parent</attr>
                             <attr name="height">840</attr>
-        <!--                    <attr name="lock-focus">0.5</attr>-->
                             <style name="clip-children">true</style>
                             <area id="category" type="massive" class="playbill-list-massive">
                                 <template id="@item-template">
@@ -111,12 +110,14 @@
                 <area type="layer" class="effect-layer" desc="频道列表">
                     <attr name="effect-type">channel</attr>
                     <focus mode="dynamic,nearby"/>
+                    <attr name="x">420</attr>
+                    <attr name="y">0</attr>
+                    <attr name="width">640</attr>
+                    <attr name="height">match_parent</attr>
                     <area type="radio">
                         <style name="background-color">e5313131</style>
                         <attr name="checked-class">category_checked</attr>
-                        <attr name="x">420</attr>
-                        <attr name="y">0</attr>
-                        <attr name="width">640</attr>
+                        <attr name="width">match_parent</attr>
                         <attr name="height">match_parent</attr>
                         <area desc="顶部提示">
                             <focus mode="nofocus"/>
@@ -243,13 +244,15 @@
                 </area>
                 <area type="layer" class="effect-layer" desc="回看日期">
                     <attr name="effect-type">date</attr>
-                    <focus mode="dynamic,nearby"/>
+                    <focus mode="priority,nearby"/>
+                    <attr name="x">1060</attr>
+                    <attr name="y">0</attr>
+                    <attr name="width">210</attr>
+                    <attr name="height">match_parent</attr>
                     <area type="radio">
                         <style name="background-color">e5313131</style>
                         <attr name="checked-class">category_checked</attr>
-                        <attr name="x">1060</attr>
-                        <attr name="y">0</attr>
-                        <attr name="width">210</attr>
+                        <attr name="width">match_parent</attr>
                         <attr name="height">match_parent</attr>
                         <item type="image" desc="分割线">
                             <attr name="width">1</attr>
@@ -296,12 +299,15 @@
                 </area>
                 <area type="layer" class="effect-layer" desc="节目单">
                     <attr name="effect-type">playbill</attr>
+                    <focus mode="priority,nearby"/>
+                    <attr name="x">1270</attr>
+                    <attr name="y">0</attr>
+                    <attr name="width">600</attr>
+                    <attr name="height">match_parent</attr>
                     <area type="radio">
                         <style name="background-color">e5313131</style>
                         <attr name="checked-class">category_checked</attr>
-                        <attr name="x">1270</attr>
-                        <attr name="y">0</attr>
-                        <attr name="width">600</attr>
+                        <attr name="width">match_parent</attr>
                         <attr name="height">match_parent</attr>
                         <item type="image" desc="分割线">
                             <attr name="width">1</attr>
@@ -310,7 +316,36 @@
                             <focus mode="nofocus"/>
                         </item>
                         <area type="slider">
-
+                            <attr name="direction">vertical</attr>
+                            <attr name="x">0</attr>
+                            <attr name="y">50</attr>
+                            <attr name="width">match_parent</attr>
+                            <attr name="height">980</attr>
+                            <style name="clip-children">true</style>
+                            <area id="program" type="massive" class="playbill-list-massive">
+                                <template id="@item-template">
+                                    <area class="playbill-item">
+                                        <attr name="width">match_parent</attr>
+                                        <attr name="height">140</attr>
+                                        <item id="program_name" type="label" desc="节目名">
+                                            <attr name="x">60</attr>
+                                            <attr name="y">35</attr>
+                                            <attr name="height">match_parent</attr>
+                                            <style name="font-size">40</style>
+                                            <style name="font-color">FFFFFFFF</style>
+                                            <attr name="text" binding="[=program_name]"/>
+                                        </item>
+                                        <item id="program_time" type="label" desc="节目时间">
+                                            <attr name="x">60</attr>
+                                            <attr name="y">80</attr>
+                                            <attr name="height">match_parent</attr>
+                                            <style name="font-size">30</style>
+                                            <style name="font-color">FFFFFFFF</style>
+                                            <attr name="text" binding="[=program_time]"/>
+                                        </item>
+                                    </area>
+                                </template>
+                            </area>
                         </area>
                     </area>
                 </area>
@@ -413,7 +448,7 @@
                 <attr name="cache-pages">0.6</attr>
             </select>
             <select class="playbill-item">
-                <focus mode="focusable" priority="1"/>
+                <focus mode="focusable"/>
             </select>
             <select class="playbill-item" state="focused">
                 <attr name="marquee">500,1000,800,40%</attr>
