@@ -122,6 +122,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                         if (view == instance.xulGetFocus() && !view.hasClass("category_checked")) {
                             val liveNode: XulDataNode? = view.bindingData?.get(0)
                             instance.preloadPlayRes(liveNode)
+                            instance.preloadProgram(liveNode)
                         }
                     }
                 }
@@ -465,6 +466,28 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
             mCurrentVideoManager = mNextVideoManager
             mPreloadSuccess = true
         }
+    }
+
+    private fun preloadProgram(channelNode: XulDataNode?) {
+        if (channelNode == null) return
+
+        val urlBuilder = HttpUrl.parse(Utils.HOST)!!.newBuilder()
+            .addQueryParameter("m", "Live")
+            .addQueryParameter("c", "LivePlayBill")
+            .addQueryParameter("a", "getPlayBillList")
+            .addQueryParameter("live_id", channelNode.getAttributeValue("live_id"))
+
+        XulLog.i(NAME, "Request url: ${urlBuilder.build()}")
+
+        val request: Request = Request.Builder().cacheControl(cacheControl).url(urlBuilder.build()).build()
+        okHttpClient.newCall(request).enqueue(object : Callback{
+            override fun onFailure(call: Call, e: IOException) {
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+            }
+
+        })
     }
 
     private fun loadPreviewBitmaps() {

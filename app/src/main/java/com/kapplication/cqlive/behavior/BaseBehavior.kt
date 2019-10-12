@@ -26,6 +26,14 @@ import java.util.concurrent.TimeUnit
 
 abstract class BaseBehavior(xulPresenter: XulPresenter) : XulUiBehavior(xulPresenter) {
     protected val okHttpClient: OkHttpClient = OkHttpClient.Builder()
+            .addNetworkInterceptor {
+                val response = it.proceed(it.request())
+                val onlineCacheTime = 5*60
+                return@addNetworkInterceptor response.newBuilder()
+                    .removeHeader("Pragma")
+                    .header("Cache-Control", "public, max-age=$onlineCacheTime")
+                    .build()
+            }
             .cache(Cache(XulApplication.getAppContext().getDir("okhttpCache", Context.MODE_PRIVATE), 5*1024*1024))
             .build()
     protected val cacheControl: CacheControl = CacheControl.Builder()
