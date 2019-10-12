@@ -273,9 +273,7 @@
                                         <attr name="width">match_parent</attr>
                                         <attr name="height">120</attr>
                                         <action event="focus" type="script/javascript">
-                                            if(!this.hasClass("category_checked")){
-                                                this.fireEvent("click");
-                                            }
+                                            this.fireEvent("click");
                                         </action>
                                         <action event="checked" type="script/javascript">
                                             this.dispatchEvent("switchPlaybackProgram", "usr_cmd", "");

@@ -649,6 +649,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
 //                                val dateRadioView: XulArea = xulGetRenderContext().findItemById("date_radio") as XulArea
 //                                XulGroupAreaWrapper.fromXulView(dateRadioView).setChecked(todayView)
                                 xulGetRenderContext().layout.requestFocus(todayView)
+                                switchPlaybackProgram(todayView.getBindingData(0))
                             }
                         }
                     }
