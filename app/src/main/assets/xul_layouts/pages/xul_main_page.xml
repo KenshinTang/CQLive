@@ -51,7 +51,7 @@
                 <attr name="y">0</attr>
                 <attr name="width">1870</attr>
                 <attr name="height">match_parent</attr>
-                <area type="layer" class="effect-layer" desc="频道分类" >
+                <area id="category-layer" type="layer" class="effect-layer" desc="频道分类" >
                     <attr name="effect-type">category</attr>
                     <focus mode="dynamic"/>
                     <area type="radio">
@@ -107,7 +107,7 @@
                         </area>
                     </area>
                 </area>
-                <area type="layer" class="effect-layer" desc="频道列表">
+                <area id="channel-layer" type="layer" class="effect-layer" desc="频道列表">
                     <attr name="effect-type">channel</attr>
                     <focus mode="dynamic,nearby"/>
                     <attr name="x">420</attr>
@@ -242,7 +242,8 @@
                         </area>
                     </area>
                 </area>
-                <area type="layer" class="effect-layer" desc="回看日期">
+                <area id="date-layer" type="layer" class="effect-layer" desc="回看日期">
+                    <style name="display">none</style>
                     <attr name="effect-type">date</attr>
                     <focus mode="dynamic,nearby"/>
                     <attr name="x">1060</attr>
@@ -301,7 +302,8 @@
                         </area>
                     </area>
                 </area>
-                <area type="layer" class="effect-layer" desc="节目单">
+                <area id="program-layer" type="layer" class="effect-layer" desc="节目单">
+                    <style name="display">none</style>
                     <attr name="effect-type">playbill</attr>
                     <focus mode="priority,nearby"/>
                     <attr name="x">1270</attr>
@@ -331,9 +333,10 @@
                                     <area class="playbill-item">
                                         <attr name="width">match_parent</attr>
                                         <attr name="height">140</attr>
-                                        <item id="program_name" type="label" desc="节目名">
+                                        <item id="program_name" type="label" class="program_name" desc="节目名">
                                             <attr name="x">60</attr>
                                             <attr name="y">35</attr>
+                                            <attr name="width">370</attr>
                                             <attr name="height">match_parent</attr>
                                             <style name="font-size">40</style>
                                             <style name="font-color">FFFFFFFF</style>
@@ -346,6 +349,17 @@
                                             <style name="font-size">30</style>
                                             <style name="font-color">FFFFFFFF</style>
                                             <attr name="text" binding="[=program_time]"/>
+                                        </item>
+                                        <item id="program_state" type="label" desc="回看状态">
+                                            <attr name="x">490</attr>
+                                            <attr name="y">48</attr>
+                                            <attr name="width">80</attr>
+                                            <attr name="height">38</attr>
+                                            <style name="font-size">24</style>
+                                            <style name="font-align">0.5</style>
+                                            <style name="font-color">FFFFFFFF</style>
+                                            <style name="border">2,FFFFFFFF,5,5</style>
+                                            <attr name="text">回看</attr>
                                         </item>
                                     </area>
                                 </template>
@@ -453,6 +467,9 @@
             </select>
             <select class="playbill-item">
                 <focus mode="focusable"/>
+            </select>
+            <select class="program_name" state="focused">
+                <attr name="marquee">500,1000,800,40%</attr>
             </select>
             <select class="playbill-item" state="focused">
                 <attr name="marquee">500,1000,800,40%</attr>

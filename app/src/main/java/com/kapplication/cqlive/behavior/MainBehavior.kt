@@ -70,6 +70,10 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
     private lateinit var mMediaTimeStartView: XulView
     private lateinit var mMediaTimeEndView: XulView
     private lateinit var mTimeshiftLogoView: XulView
+    private lateinit var mCategoryLayer: XulView
+    private lateinit var mChannelLayer: XulView
+    private lateinit var mDateLayer: XulView
+    private lateinit var mProgramLayer: XulView
     private lateinit var mSeekBarRender: PlayerSeekBarRender
 
     private var mIsChannelListShow: Boolean = false
@@ -157,6 +161,11 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         mTitleArea = xulGetRenderContext().findItemById("title-frame") as XulArea
         mChannelArea = xulGetRenderContext().findItemById("category-list") as XulArea
         mControlArea = xulGetRenderContext().findItemById("control-frame") as XulArea
+
+        mCategoryLayer = xulGetRenderContext().findItemById("category-layer")
+        mChannelLayer = xulGetRenderContext().findItemById("channel-layer")
+        mDateLayer = xulGetRenderContext().findItemById("date-layer")
+        mProgramLayer = xulGetRenderContext().findItemById("program-layer")
 
         mTimeshiftLogoView = xulGetRenderContext().findItemById("timeshift_logo")
         mMediaTimeStartView = xulGetRenderContext().findItemById("player-time-begin")
@@ -565,8 +574,31 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
 
     private fun showPlaybackList(liveId: String, show: Boolean) {
         if (!show) {
+            mCategoryLayer.setStyle("translate-x", "0")
+            mChannelLayer.setStyle("translate-x", "0")
+            mDateLayer.setStyle("display", "none")
+            mDateLayer.setStyle("translate-x", "0")
+            mProgramLayer.setStyle("display", "none")
+            mProgramLayer.setStyle("translate-x", "0")
+
+            mCategoryLayer.resetRender()
+            mChannelLayer.resetRender()
+            mDateLayer.resetRender()
+            mProgramLayer.resetRender()
             return
         }
+
+        mCategoryLayer.setStyle("translate-x", "-420")
+        mChannelLayer.setStyle("translate-x", "-420")
+        mDateLayer.setStyle("display", "block")
+        mDateLayer.setStyle("translate-x", "-420")
+        mProgramLayer.setStyle("display", "block")
+        mProgramLayer.setStyle("translate-x", "-420")
+
+        mCategoryLayer.resetRender()
+        mChannelLayer.resetRender()
+        mDateLayer.resetRender()
+        mProgramLayer.resetRender()
 
         val urlBuilder = HttpUrl.parse(Utils.HOST)!!.newBuilder()
             .addQueryParameter("m", "Live")
@@ -730,7 +762,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                 startToPlay(url, 0)
             }
             "switchPlaybackProgram" -> {
-                val programData = view?.getBindingData()?.get(0)
+                val programData = view?.bindingData?.get(0)
                 switchPlaybackProgram(programData)
             }
             "preloadPlayRes" -> {
