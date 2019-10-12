@@ -244,12 +244,12 @@
                 </area>
                 <area type="layer" class="effect-layer" desc="回看日期">
                     <attr name="effect-type">date</attr>
-                    <focus mode="priority,nearby"/>
+                    <focus mode="dynamic,nearby"/>
                     <attr name="x">1060</attr>
                     <attr name="y">0</attr>
                     <attr name="width">210</attr>
                     <attr name="height">match_parent</attr>
-                    <area type="radio">
+                    <area id="date_radio" type="radio">
                         <style name="background-color">e5313131</style>
                         <attr name="checked-class">category_checked</attr>
                         <attr name="width">match_parent</attr>
@@ -272,13 +272,17 @@
                                         <attr name="width">match_parent</attr>
                                         <attr name="height">120</attr>
                                         <action event="focus" type="script/javascript">
+                                            if(!this.hasClass("category_checked")){
+                                                this.fireEvent("click");
+                                            }
                                         </action>
                                         <action event="checked" type="script/javascript">
+                                            this.dispatchEvent("switchPlaybackProgram", "usr_cmd", "");
                                         </action>
                                         <item type="label" desc="星期">
                                             <focus mode="nofocus"/>
                                             <attr name="x">60</attr>
-                                            <attr name="y">30</attr>
+                                            <attr name="y">20</attr>
                                             <style name="font-size">40</style>
                                             <style name="font-color">FFFFFFFF</style>
                                             <attr name="text" binding="[=week]"/>
@@ -286,7 +290,7 @@
                                         <item type="label" desc="日期">
                                             <focus mode="nofocus"/>
                                             <attr name="x">58</attr>
-                                            <attr name="y">68</attr>
+                                            <attr name="y">60</attr>
                                             <style name="font-size">30</style>
                                             <style name="font-color">FFFFFFFF</style>
                                             <attr name="text" binding="[=date]"/>
@@ -333,7 +337,7 @@
                                             <attr name="height">match_parent</attr>
                                             <style name="font-size">40</style>
                                             <style name="font-color">FFFFFFFF</style>
-                                            <attr name="text" binding="[=program_name]"/>
+                                            <attr name="text" binding="[=name]"/>
                                         </item>
                                         <item id="program_time" type="label" desc="节目时间">
                                             <attr name="x">60</attr>

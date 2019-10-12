@@ -2,6 +2,7 @@ package com.kapplication.cqlive.behavior
 
 import android.os.Handler
 import android.os.Message
+import android.text.TextUtils
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
@@ -74,7 +75,8 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
     private var mIsChannelListShow: Boolean = false
     private var mIsControlFrameShow: Boolean = false
 
-    private var mDataNode: XulDataNode? = null   //全量数据
+    private var mLiveDataNode: XulDataNode? = null   //全量直播数据
+    private var mPlaybackDataNode: XulDataNode? = null // 全量回看数据
     private var mCollectionNode: XulDataNode? = null
     private var mCurrentChannelNode: XulDataNode? = null
     private var mCurrentChannelId: String? = "429535885"
@@ -152,39 +154,6 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         mDateListWrapper = XulMassiveAreaWrapper.fromXulView(xulGetRenderContext().findItemById("date"))
         mProgramListWrapper = XulMassiveAreaWrapper.fromXulView(xulGetRenderContext().findItemById("program"))
 
-        val item: XulDataNode = XulDataNode.obtainDataNode("item")
-        item.setAttribute("week", "周一")
-        item.setAttribute("date", "12月31日")
-        mDateListWrapper.addItem(item)
-        mDateListWrapper.addItem(item)
-        mDateListWrapper.addItem(item)
-        mDateListWrapper.addItem(item)
-        mDateListWrapper.addItem(item)
-        mDateListWrapper.addItem(item)
-        mDateListWrapper.addItem(item)
-        mDateListWrapper.addItem(item)
-        mDateListWrapper.syncContentView()
-
-        val program: XulDataNode = XulDataNode.obtainDataNode("item")
-        program.setAttribute("program_name", "江苏气象新闻")
-        program.setAttribute("program_time", "18:57 - 19:30")
-        mProgramListWrapper.addItem(program)
-        mProgramListWrapper.addItem(program)
-        mProgramListWrapper.addItem(program)
-        mProgramListWrapper.addItem(program)
-        mProgramListWrapper.addItem(program)
-        mProgramListWrapper.addItem(program)
-        mProgramListWrapper.addItem(program)
-        mProgramListWrapper.addItem(program)
-        mProgramListWrapper.addItem(program)
-        mProgramListWrapper.addItem(program)
-        mProgramListWrapper.addItem(program)
-        mProgramListWrapper.addItem(program)
-        mProgramListWrapper.addItem(program)
-        mProgramListWrapper.addItem(program)
-        mProgramListWrapper.addItem(program)
-        mProgramListWrapper.syncContentView()
-
         mTitleArea = xulGetRenderContext().findItemById("title-frame") as XulArea
         mChannelArea = xulGetRenderContext().findItemById("category-list") as XulArea
         mControlArea = xulGetRenderContext().findItemById("control-frame") as XulArea
@@ -222,8 +191,8 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                     val result : String = responseBody!!.string()
                     XulLog.json(NAME, result)
 
-                    mDataNode = XulDataNode.buildFromJson(result)
-                    val dataNode: XulDataNode? = mDataNode
+                    mLiveDataNode = XulDataNode.buildFromJson(result)
+                    val dataNode: XulDataNode? = mLiveDataNode
 
                     if (handleError(dataNode)) {
                         XulApplication.getAppInstance().postToMainLooper {
@@ -274,7 +243,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         xulGetRenderContext().findItemById("category_name_label").setAttr("text", categoryName)
         xulGetRenderContext().findItemById("category_name_label").resetRender()
 
-        var categoryNode: XulDataNode? = mDataNode?.getChildNode("data")?.firstChild
+        var categoryNode: XulDataNode? = mLiveDataNode?.getChildNode("data")?.firstChild
         var channelList: XulDataNode? = null
         while (categoryNode != null) {
             val id: String? = categoryNode.getAttributeValue("category_id")
@@ -332,6 +301,25 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         } else {
             showEmptyTips(true)
         }
+    }
+
+    private fun switchPlaybackProgram(programData: XulDataNode?) {
+        if (programData == null) {
+//            showProgramEmpty(true)
+            return
+        }
+
+        mProgramListWrapper.clear()
+        mProgramListWrapper.asView?.findParentByType("layer")?.dynamicFocus = null
+        XulSliderAreaWrapper.fromXulView(mProgramListWrapper.asView)?.scrollTo(0, false)
+        var program = programData.getChildNode("playbill_list").firstChild
+        while (program != null) {
+            val programTime: String = program.getAttributeValue("begin_time") + " - " + program.getAttributeValue("end_time")
+            program.setAttribute("program_time", programTime)
+            mProgramListWrapper.addItem(program)
+            program = program.next
+        }
+        mProgramListWrapper.syncContentView()
     }
 
     private fun syncFocus() {
@@ -513,7 +501,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
 
         collectCategory.appendChild(mCollectionNode)
 
-        mDataNode?.getChildNode("data")?.appendChild(collectCategory)
+        mLiveDataNode?.getChildNode("data")?.appendChild(collectCategory)
     }
 
     private fun addToCollection(node: XulDataNode?) {
@@ -551,7 +539,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
     }
 
     private fun updateTitleArea(channelId: String) {
-        mCurrentChannelNode = mDataNode?.getChildNode("data")?.firstChild?.getChildNode("live_list")?.firstChild
+        mCurrentChannelNode = mLiveDataNode?.getChildNode("data")?.firstChild?.getChildNode("live_list")?.firstChild
         while (mCurrentChannelNode != null) {
             val liveId: String? = mCurrentChannelNode?.getAttributeValue("live_id")
             if (liveId == channelId) {
@@ -573,6 +561,75 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         val emptyView: XulView = xulGetRenderContext().findItemById("area_none_channel")
         emptyView.setStyle("display", if(show) "block" else "none")
         emptyView.resetRender()
+    }
+
+    private fun showPlaybackList(liveId: String, show: Boolean) {
+        if (!show) {
+            return
+        }
+
+        val urlBuilder = HttpUrl.parse(Utils.HOST)!!.newBuilder()
+            .addQueryParameter("m", "Live")
+            .addQueryParameter("c", "LivePlayBill")
+            .addQueryParameter("a", "getPlayBillList")
+            .addQueryParameter("live_id", liveId)
+
+        XulLog.i(NAME, "Request url: ${urlBuilder.build()}")
+
+        val request: Request = Request.Builder().cacheControl(cacheControl).url(urlBuilder.build()).build()
+        okHttpClient.newCall(request).enqueue(object : Callback {
+            override fun onResponse(call: Call?, response: Response?) {
+                response!!.body().use { responseBody ->
+                    if (!response.isSuccessful) {
+                        XulLog.e(NAME, "getPlayBillList onResponse, but is not Successful")
+                        throw IOException("Unexpected code $response")
+                    }
+
+                    XulLog.i(NAME, "getPlayBillList onResponse")
+
+                    val result : String = responseBody!!.string()
+                    XulLog.json(NAME, result)
+
+                    mPlaybackDataNode = XulDataNode.buildFromJson(result)
+                    val dataNode: XulDataNode? = mPlaybackDataNode
+
+                    if (handleError(dataNode)) {
+//                        XulApplication.getAppInstance().postToMainLooper {
+//                            showEmptyTips(true)
+//                        }
+                    } else {
+                        XulApplication.getAppInstance().postToMainLooper {
+                            if (dataNode?.getChildNode("data")?.size() == 0) {
+//                                showEmptyTips(true)
+                            } else {
+                                mDateListWrapper.clear()
+                                mDateListWrapper.asView?.findParentByType("layer")?.dynamicFocus = null
+                                XulSliderAreaWrapper.fromXulView(mDateListWrapper.asView)?.scrollTo(0, false)
+                                var programNode: XulDataNode? = dataNode?.getChildNode("data")?.firstChild
+                                while (programNode != null) {
+                                    mDateListWrapper.addItem(programNode)
+                                    programNode = programNode.next
+                                }
+
+                                mDateListWrapper.syncContentView()
+
+                                val todayView = mDateListWrapper.getItemView(mDateListWrapper.itemNum() - 1)
+//                                val dateRadioView: XulArea = xulGetRenderContext().findItemById("date_radio") as XulArea
+//                                XulGroupAreaWrapper.fromXulView(dateRadioView).setChecked(todayView)
+                                xulGetRenderContext().layout.requestFocus(todayView)
+                            }
+                        }
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call?, e: IOException?) {
+                XulLog.e(NAME, "getPlayBillList onFailure")
+//                XulApplication.getAppInstance().postToMainLooper {
+//
+//                }
+            }
+        })
     }
 
     override fun xulOnBackPressed(): Boolean {
@@ -672,6 +729,10 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                 }
                 startToPlay(url, 0)
             }
+            "switchPlaybackProgram" -> {
+                val programData = view?.getBindingData()?.get(0)
+                switchPlaybackProgram(programData)
+            }
             "preloadPlayRes" -> {
                 if (mIsChannelListShow) {
                     val focusView: XulView? = xulGetFocus()
@@ -685,6 +746,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         }
         super.xulDoAction(view, action, type, command, userdata)
     }
+
 
     private var direction = 0
     override fun xulOnDispatchKeyEvent(event: KeyEvent?): Boolean {
@@ -786,6 +848,28 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                         mTimeshiftLogoView.resetRender()
                         XulLog.i(NAME, "seekBarPos = $seekBarPos, duration = $duration. seekBarPos * duration = $seekPos")
                         mMediaPlayer.seekTo(seekPos)
+                        return true
+                    }
+
+                    if (event.keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
+                        val liveId: String = xulGetFocus().getDataString("live_id")
+                        if (TextUtils.isEmpty(liveId)) {
+                            XulLog.d("kenshin", "right on not channel")
+                            return true
+                        }
+                        XulLog.i("kenshin", "right on channel, show playback list.")
+                        showPlaybackList(liveId, true)
+                        return true
+                    }
+
+                    if (event.keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
+                        val liveId: String = xulGetFocus().getDataString("live_id")
+                        if (TextUtils.isEmpty(liveId)) {
+                            XulLog.d("kenshin", "left on not channel")
+                            return true
+                        }
+                        XulLog.i("kenshin", "left on channel, hide playback list.")
+                        showPlaybackList(liveId, false)
                         return true
                     }
                 }
