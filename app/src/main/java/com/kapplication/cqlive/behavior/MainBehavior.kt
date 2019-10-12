@@ -837,11 +837,11 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                     }
                 }
                 KeyEvent.KEYCODE_MENU, KeyEvent.KEYCODE_1 -> {
-                    if (!mIsChannelListShow && !mIsControlFrameShow) {
+                    if (!mIsChannelListShow) {
+                        showControlFrame(false)
                         showChannelList(true)
                         return true
-                    }
-                    if (mIsChannelListShow) {
+                    } else {
                         val focusView: XulView? = xulGetFocus()
                         val collectState: XulView? = focusView?.findItemById("collectState")
                         when (collectState?.getAttrString("img.0.visible")) {
