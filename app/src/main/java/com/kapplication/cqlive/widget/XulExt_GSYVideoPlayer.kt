@@ -26,7 +26,7 @@ class XulExt_GSYVideoPlayer(context: Context) : StandardGSYVideoPlayer(context),
     }
 
     override fun extOnKeyEvent(event: KeyEvent): Boolean {
-//        XulLog.i("kenshin", "$event")
+//        XulLog.i(NAME, "$event")
         val keyCode = event.keyCode
         when (keyCode) {
             KeyEvent.KEYCODE_DPAD_CENTER -> {

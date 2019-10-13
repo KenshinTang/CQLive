@@ -496,7 +496,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
 //        for (i in 1..10) {
 //            val time: Long = (i * mMediaPlayer.duration / 100).toLong()
             val time: Long = 20
-            XulLog.i("kenshin", "loadPreviewBitmaps time = $time")
+            XulLog.i(NAME, "loadPreviewBitmaps time = $time")
             val width: Int = (xulGetRenderContext().xScalar * 250).toInt()
             val height: Int = (xulGetRenderContext().yScalar * 140).toInt()
 
@@ -910,10 +910,10 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                     if (event.keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
                         val liveId: String = xulGetFocus().getDataString("live_id")
                         if (TextUtils.isEmpty(liveId)) {
-                            XulLog.d("kenshin", "right on not channel")
+                            XulLog.d(NAME, "right on not channel")
                             return true
                         }
-                        XulLog.i("kenshin", "right on channel, show playback list.")
+                        XulLog.i(NAME, "right on channel, show playback list.")
                         showPlaybackList(liveId, true)
                         return true
                     }
@@ -921,10 +921,10 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                     if (event.keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
                         val liveId: String = xulGetFocus().getDataString("live_id")
                         if (TextUtils.isEmpty(liveId)) {
-                            XulLog.d("kenshin", "left on not channel")
+                            XulLog.d(NAME, "left on not channel")
                             return true
                         }
-                        XulLog.i("kenshin", "left on channel, hide playback list.")
+                        XulLog.i(NAME, "left on channel, hide playback list.")
                         showPlaybackList(liveId, false)
                         return true
                     }
@@ -950,7 +950,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
     }
 
     override fun onProgressChanged(pos: Double) {
-        XulLog.i("kenshin", "onProgressChanged.  pos = $pos, duration = ${mMediaPlayer.duration} time = ${(mMediaPlayer.duration * pos).toInt()})")
+        XulLog.i(NAME, "onProgressChanged.  pos = $pos, duration = ${mMediaPlayer.duration} time = ${(mMediaPlayer.duration * pos).toInt()})")
     }
 
     private fun showChannelList(show: Boolean) {

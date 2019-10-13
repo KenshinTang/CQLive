@@ -331,6 +331,28 @@
                                     <area class="playbill-item">
                                         <attr name="width">match_parent</attr>
                                         <attr name="height">140</attr>
+                                        <data name="play_status" binding="[=play_status]"/>
+                                        <action event="bindingFinished" type="script/javascript">
+                                            var play_status = this.getData("play_status");
+                                            var program_name = this.findItemById("program_name");
+                                            var program_time = this.findItemById("program_time");
+                                            var program_state = this.findItemById("program_state");
+                                            if (play_status == "1") {
+                                                program_name.setStyle("font-color", "FFFFFFFF");
+                                                program_time.setStyle("font-color", "FFFFFFFF");
+                                                program_state.setStyle("display", "block");
+                                                program_state.setAttr("text", "回看");
+                                            } else if (play_status == "2") {
+                                                program_name.setStyle("font-color", "FFFFFFFF");
+                                                program_time.setStyle("font-color", "FFFFFFFF");
+                                                program_state.setStyle("display", "block");
+                                                program_state.setAttr("text", "直播");
+                                            } else {
+                                                program_name.setStyle("font-color", "B3B3B3B3");
+                                                program_time.setStyle("font-color", "B3B3B3B3");
+                                                program_state.setStyle("display", "none");
+                                            }
+                                        </action>
                                         <item id="program_name" type="label" class="program_name" desc="节目名">
                                             <attr name="x">60</attr>
                                             <attr name="y">35</attr>
