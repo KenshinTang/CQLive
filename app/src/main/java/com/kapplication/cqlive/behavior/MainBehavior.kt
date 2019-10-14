@@ -908,6 +908,9 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                     }
 
                     if (event.keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
+                        if (super.xulOnDispatchKeyEvent(event)) {
+                            return true
+                        }
                         val liveId: String = xulGetFocus().getDataString("live_id")
                         if (TextUtils.isEmpty(liveId)) {
                             XulLog.d(NAME, "right on not channel")
