@@ -8,12 +8,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.Toast
 import com.kapplication.cqlive.message.CommonMessage
 import com.kapplication.cqlive.utils.Utils
 import com.kapplication.cqlive.widget.NoUiGSYPlayer
 import com.kapplication.cqlive.widget.PlayerSeekBarRender
 import com.kapplication.cqlive.widget.XulExt_GSYVideoPlayer
 import com.shuyu.gsyvideoplayer.GSYVideoManager
+import com.shuyu.gsyvideoplayer.listener.GSYSampleCallBack
 import com.shuyu.gsyvideoplayer.utils.GSYVideoType
 import com.starcor.xul.IXulExternalView
 import com.starcor.xul.Wrapper.XulMassiveAreaWrapper
@@ -361,7 +363,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
     }
 
     private fun requestPlayUrl(channelId: String?): String {
-        if (channelId == mCurrentChannelId && !mFirst) {
+        if (channelId == "" && !mFirst) {
             return ""
         }
         mCurrentChannelId = channelId
@@ -379,14 +381,14 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         resetUI()
         if (upOrDown == 0) {
             if (mFirst || !mPreloadSuccess) {
-                XulLog.i(NAME, "play live!!!")
+                XulLog.i(NAME, "play live!!! $playUrl")
                 mMediaPlayer.isReleaseWhenLossAudio = true
                 GSYVideoManager.instance().stop()
                 GSYVideoManager.instance().releaseMediaPlayer()
                 mMediaPlayer.setUp(playUrl, false, "")
                 mMediaPlayer.startPlayLogic()
             } else {
-                XulLog.w(NAME, "play live(preload)!!!")
+                XulLog.w(NAME, "play live(preload)!!! $playUrl")
                 GSYVideoManager.instance().stop()
                 GSYVideoManager.instance().releaseMediaPlayer()
                 GSYVideoManager.changeManager(mCurrentVideoManager)
@@ -460,10 +462,16 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         GSYVideoManager.instance().stop()
         GSYVideoManager.instance().releaseMediaPlayer()
 
-        val testUrl = "http://9890.vod.myqcloud.com/9890_4e292f9a3dd011e6b4078980237cc3d3.f20.mp4"
+        val testUrl = "http://7xjmzj.com1.z0.glb.clouddn.com/20171026175005_JObCxCE2.mp4"
         mMediaPlayer.setUp(testUrl, false, "")
 //        mMediaPlayer.setUp(playUrl, false, "")
-
+        mMediaPlayer.setVideoAllCallBack(object : GSYSampleCallBack() {
+            override fun onAutoComplete(url: String?, vararg objects: Any?) {
+                XulLog.i(NAME, "回看播放完成,2秒后回到直播, $url")
+                Toast.makeText(context, "回看播放完成,2秒后回到直播", Toast.LENGTH_SHORT).show()
+                xulDoAction(null, "switchChannel", "usr_cmd", "{\"live_id\":\"$mCurrentChannelId\",\"category_id\":\"$mCurrentCategoryId\"}", null)
+            }
+        })
         mMediaPlayer.startPlayLogic()
     }
 
