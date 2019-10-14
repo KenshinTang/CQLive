@@ -184,7 +184,7 @@
                                         <attr name="height">140</attr>
                                         <data name="live_id" binding="[=live_id]"/>
                                         <data name="category_id" binding="[=category_id]"/>
-                                        <item id="playing_indicator" class="playing_indicator" type="image">
+                                        <item id="playing_indicator" class="playing_indicator" type="image" desc="正在播放图标">
                                             <attr name="x">20</attr>
                                             <attr name="y">58</attr>
                                             <attr name="img.0.width">28</attr>
@@ -325,6 +325,8 @@
                             <attr name="height">980</attr>
                             <style name="clip-children">true</style>
                             <area id="program" type="massive" class="playbill-list-massive">
+                                <attr name="minimum-item">60</attr>
+                                <attr name="cache-pages">10</attr>
                                 <template id="@item-template">
                                     <area class="playbill-item">
                                         <action event="click" type="script/javascript">
@@ -338,10 +340,6 @@
                                                 logger.d("kenshin", " do reservation!!!")
                                             }
                                         </action>
-                                        <attr name="width">match_parent</attr>
-                                        <attr name="height">140</attr>
-                                        <data name="play_status" binding="[=play_status]"/>
-                                        <data name="play_url" binding="[=play_url]"/>
                                         <action event="bindingFinished" type="script/javascript">
                                             var play_status = this.getData("play_status");
                                             var program_name = this.findItemById("program_name");
@@ -363,17 +361,30 @@
                                                 program_state.setStyle("display", "none");
                                             }
                                         </action>
+                                        <attr name="width">match_parent</attr>
+                                        <attr name="height">140</attr>
+                                        <data name="play_status" binding="[=play_status]"/>
+                                        <data name="play_url" binding="[=play_url]"/>
+                                        <data name="live_id" binding="[=live_id]"/>
+                                        <item id="playing_indicator" class="playing_indicator" type="image" desc="正在播放图标">
+                                            <attr name="x">20</attr>
+                                            <attr name="y">58</attr>
+                                            <attr name="img.0.width">28</attr>
+                                            <attr name="img.0.height">24</attr>
+                                            <attr name="img.0">file:///.assets/images/playing.ani.zip</attr>
+                                            <attr name="img.0.visible">false</attr>
+                                        </item>
                                         <item id="program_name" type="label" class="program_name" desc="节目名">
-                                            <attr name="x">60</attr>
+                                            <attr name="x">80</attr>
                                             <attr name="y">35</attr>
-                                            <attr name="width">370</attr>
+                                            <attr name="width">350</attr>
                                             <attr name="height">match_parent</attr>
                                             <style name="font-size">40</style>
                                             <style name="font-color">FFFFFFFF</style>
                                             <attr name="text" binding="[=name]"/>
                                         </item>
                                         <item id="program_time" type="label" desc="节目时间">
-                                            <attr name="x">60</attr>
+                                            <attr name="x">80</attr>
                                             <attr name="y">80</attr>
                                             <attr name="height">match_parent</attr>
                                             <style name="font-size">30</style>

@@ -325,7 +325,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
 
         mProgramListWrapper.clear()
         mProgramListWrapper.asView?.findParentByType("layer")?.dynamicFocus = null
-        XulSliderAreaWrapper.fromXulView(mProgramListWrapper.asView)?.scrollTo(0, false)
+        XulSliderAreaWrapper.fromXulView(mProgramListWrapper.asView.parent)?.scrollTo(0, false)
         var program = programData.getChildNode("playbill_list").firstChild
         while (program != null) {
             val programTime: String = program.getAttributeValue("begin_time") + " - " + program.getAttributeValue("end_time")
@@ -337,16 +337,18 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
     }
 
     private fun syncFocus() {
-        mChannelListWrapper.eachItem { idx, node ->
-            val v: XulView? = mChannelListWrapper.getItemView(idx)
-            if (node.getAttributeValue("live_id") == mCurrentChannelId) {
-                v?.findItemById("playing_indicator")?.setAttr("img.0.visible", "true")
-                v?.findItemById("playing_indicator")?.resetRender()
-                mChannelListWrapper.asView?.findParentByType("layer")?.dynamicFocus = v
-                xulGetRenderContext().layout.requestFocus(v)
-            } else {
-                v?.findItemById("playing_indicator")?.setAttr("img.0.visible", "false")
-                v?.findItemById("playing_indicator")?.resetRender()
+        if (mIsLiveMode) {
+            mChannelListWrapper.eachItem { idx, node ->
+                val v: XulView? = mChannelListWrapper.getItemView(idx)
+                if (node.getAttributeValue("live_id") == mCurrentChannelId) {
+                    v?.findItemById("playing_indicator")?.setAttr("img.0.visible", "true")
+                    v?.findItemById("playing_indicator")?.resetRender()
+                    mChannelListWrapper.asView?.findParentByType("layer")?.dynamicFocus = v
+                    xulGetRenderContext().layout.requestFocus(v)
+                } else {
+                    v?.findItemById("playing_indicator")?.setAttr("img.0.visible", "false")
+                    v?.findItemById("playing_indicator")?.resetRender()
+                }
             }
         }
     }
@@ -682,6 +684,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                                 XulSliderAreaWrapper.fromXulView(mDateListWrapper.asView)?.scrollTo(0, false)
                                 var programNode: XulDataNode? = dataNode?.getChildNode("data")?.firstChild
                                 while (programNode != null) {
+                                    programNode.setAttribute("live_id", liveId)
                                     mDateListWrapper.addItem(programNode)
                                     programNode = programNode.next
                                 }
@@ -689,8 +692,6 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                                 mDateListWrapper.syncContentView()
 
                                 val todayView = mDateListWrapper.getItemView(mDateListWrapper.itemNum() - 1)
-//                                val dateRadioView: XulArea = xulGetRenderContext().findItemById("date_radio") as XulArea
-//                                XulGroupAreaWrapper.fromXulView(dateRadioView).setChecked(todayView)
                                 xulGetRenderContext().layout.requestFocus(todayView)
                                 switchPlaybackProgram(todayView.getBindingData(0))
                             }
@@ -813,6 +814,14 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
             "doPlayback" -> {
                 val data = JSONObject(command)
                 val playbackUrl = data.optString("play_url")
+
+                val indicators = xulGetRenderContext().findItemsByClass("playing_indicator")
+                for (i in indicators) {
+                    i.setAttr("img.0.visible", "false")
+                    i.resetRender()
+                }
+                view?.findItemById("playing_indicator")?.setAttr("img.0.visible", "true")
+                view?.findItemById("playing_indicator")?.resetRender()
                 startToPlayPlayback(playbackUrl)
             }
             "preloadPlayRes" -> {
@@ -990,7 +999,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
     private fun showChannelList(show: Boolean) {
         if (show) {
             syncFocus()
-            mHandler.sendEmptyMessageDelayed(CommonMessage.EVENT_AUTO_HIDE_UI, 8 * 1000)
+//            mHandler.sendEmptyMessageDelayed(CommonMessage.EVENT_AUTO_HIDE_UI, 8 * 1000)
         }
         mChannelArea.setAttr("x", if(show) "0" else "-1870")
         mChannelArea.resetRender()
