@@ -83,7 +83,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
     private var mPlaybackDataNode: XulDataNode? = null // 全量回看数据
     private var mCollectionNode: XulDataNode? = null
     private var mCurrentChannelNode: XulDataNode? = null
-    private var mCurrentChannelId: String? = "429535885"
+    private var mCurrentChannelId: String? = "515972557"
     private var mCurrentCategoryId: String? = ""
     private var mUpDownSwitchChannelNodes: ArrayList<XulDataNode> = ArrayList()
     private var mUpDownTmpSwitchChannelNodes: ArrayList<XulDataNode> = ArrayList()
@@ -119,7 +119,8 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                 CommonMessage.EVENT_PRELOAD_PLAY_RES -> {
                     val view: XulView = msg.obj as XulView
                     if (instance != null) {
-                        if (view == instance.xulGetFocus() && !view.hasClass("category_checked")) {
+                        if (view == instance.xulGetFocus()
+                            && (view.findItemById("playing_indicator").getAttrString("img.0.visible") == "false")) {
                             val liveNode: XulDataNode? = view.bindingData?.get(0)
                             instance.preloadPlayRes(liveNode)
                             instance.preloadProgram(liveNode)
@@ -281,11 +282,13 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                 val v: XulView? = mChannelListWrapper.getItemView(idx)
                 val liveId: String = node.getAttributeValue("live_id")
                 if (liveId == mCurrentChannelId) {
-                    v?.addClass("category_checked")
+                    v?.findItemById("playing_indicator")?.setAttr("img.0.visible", "true")
+                    v?.findItemById("playing_indicator")?.resetRender()
                     mChannelListWrapper.asView?.findParentByType("layer")?.dynamicFocus = v
                     mCurrentChannelIndex = idx
                 } else {
-                    v?.removeClass("category_checked")
+                    v?.findItemById("playing_indicator")?.setAttr("img.0.visible", "false")
+                    v?.findItemById("playing_indicator")?.resetRender()
                 }
 
                 v?.findItemById("collectState")?.setAttr("img.0.visible", "false")
@@ -336,15 +339,11 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         mChannelListWrapper.eachItem { idx, node ->
             val v: XulView? = mChannelListWrapper.getItemView(idx)
             if (node.getAttributeValue("live_id") == mCurrentChannelId) {
-                v?.addClass("category_checked")
-                v?.resetRender()
                 v?.findItemById("playing_indicator")?.setAttr("img.0.visible", "true")
                 v?.findItemById("playing_indicator")?.resetRender()
                 mChannelListWrapper.asView?.findParentByType("layer")?.dynamicFocus = v
                 xulGetRenderContext().layout.requestFocus(v)
             } else {
-                v?.removeClass("category_checked")
-                v?.resetRender()
                 v?.findItemById("playing_indicator")?.setAttr("img.0.visible", "false")
                 v?.findItemById("playing_indicator")?.resetRender()
             }
@@ -788,15 +787,6 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                         break
                     }
                 }
-//                val indicators = xulGetRenderContext().findItemsByClass("playing_indicator")
-//                for (i in indicators) {
-//                    if (i.parent.getDataString("live_id") == liveId) {
-//                        i.setAttr("img.0.visible", "true")
-//                    } else {
-//                        i.setAttr("img.0.visible", "false")
-//                    }
-//                    i.resetRender()
-//                }
                 syncFocus()
                 startToPlay(url, 0)
             }
@@ -926,23 +916,29 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                         if (super.xulOnDispatchKeyEvent(event)) {
                             return true
                         }
-                        val liveId: String = xulGetFocus().getDataString("live_id")
+                        val channelView: XulView = xulGetFocus()
+                        val liveId: String = channelView.getDataString("live_id")
                         if (TextUtils.isEmpty(liveId)) {
                             XulLog.d(NAME, "right on not channel")
                             return true
                         }
                         XulLog.i(NAME, "right on channel, show playback list.")
+                        channelView.addClass("category_checked")
+                        channelView.resetRender()
                         showPlaybackList(liveId, true)
                         return true
                     }
 
                     if (event.keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
-                        val liveId: String = xulGetFocus().getDataString("live_id")
+                        val channelView: XulView = xulGetFocus()
+                        val liveId: String = channelView.getDataString("live_id")
                         if (TextUtils.isEmpty(liveId)) {
                             XulLog.d(NAME, "left on not channel")
                             return true
                         }
                         XulLog.i(NAME, "left on channel, hide playback list.")
+                        channelView.removeClass("category_checked")
+                        channelView.resetRender()
                         showPlaybackList(liveId, false)
                         return true
                     }

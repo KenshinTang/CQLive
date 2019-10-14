@@ -114,9 +114,9 @@
                     <attr name="y">0</attr>
                     <attr name="width">640</attr>
                     <attr name="height">match_parent</attr>
-                    <area type="radio">
+                    <area>
                         <style name="background-color">e5313131</style>
-                        <attr name="checked-class">category_checked</attr>
+<!--                        <attr name="checked-class">category_checked</attr>-->
                         <attr name="width">match_parent</attr>
                         <attr name="height">match_parent</attr>
                         <area desc="顶部提示">
@@ -176,15 +176,15 @@
                                         <action event="focus" type="script/javascript">
                                             this.dispatchEvent("preloadPlayRes", "usr_cmd", "");
                                         </action>
-                                        <attr name="width">match_parent</attr>
-                                        <attr name="height">140</attr>
-                                        <data name="live_id" binding="[=live_id]"/>
-                                        <data name="category_id" binding="[=category_id]"/>
                                         <action event="click" type="script/javascript">
                                             var live_id = this.getData("live_id");
                                             var category_id = this.getData("category_id");
                                             this.dispatchEvent("switchChannel", "usr_cmd", JSON.stringify({"live_id":live_id, "category_id":category_id}));
                                         </action>
+                                        <attr name="width">match_parent</attr>
+                                        <attr name="height">140</attr>
+                                        <data name="live_id" binding="[=live_id]"/>
+                                        <data name="category_id" binding="[=category_id]"/>
                                         <item id="playing_indicator" class="playing_indicator" type="image">
                                             <attr name="x">20</attr>
                                             <attr name="y">58</attr>
