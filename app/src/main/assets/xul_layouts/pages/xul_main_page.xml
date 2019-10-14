@@ -180,13 +180,21 @@
                                         <attr name="height">140</attr>
                                         <data name="live_id" binding="[=live_id]"/>
                                         <data name="category_id" binding="[=category_id]"/>
-                                        <action event="checked" type="script/javascript">
+                                        <action event="click" type="script/javascript">
                                             var live_id = this.getData("live_id");
                                             var category_id = this.getData("category_id");
                                             this.dispatchEvent("switchChannel", "usr_cmd", JSON.stringify({"live_id":live_id, "category_id":category_id}));
                                         </action>
+                                        <item id="playing_indicator" type="image">
+                                            <attr name="x">20</attr>
+                                            <attr name="y">58</attr>
+                                            <attr name="img.0.width">28</attr>
+                                            <attr name="img.0.height">24</attr>
+                                            <attr name="img.0">file:///.assets/images/playing.ani.zip</attr>
+<!--                                            <attr name="img.0.visible">false</attr>-->
+                                        </item>
                                         <item id="channel_id" type="label" desc="频道号">
-                                            <attr name="x">60</attr>
+                                            <attr name="x">80</attr>
                                             <attr name="height">match_parent</attr>
                                             <style name="font-align">0, 0.5</style>
                                             <style name="font-size">40</style>
@@ -195,7 +203,7 @@
                                         </item>
                                         <item type="image" desc="频道图标">
                                             <focus mode="nofocus"/>
-                                            <attr name="x">160</attr>
+                                            <attr name="x">180</attr>
                                             <attr name="y">15</attr>
                                             <attr name="img.0.width">120</attr>
                                             <attr name="img.0.height">120</attr>
@@ -203,7 +211,7 @@
                                             <attr name="img.0" binding="[=icon_img_url]"/>
                                         </item>
                                         <item id="channel_name" type="label" desc="频道名">
-                                            <attr name="x">300</attr>
+                                            <attr name="x">320</attr>
                                             <attr name="height">match_parent</attr>
                                             <style name="font-align">0, 0.5</style>
                                             <style name="font-size">40</style>
