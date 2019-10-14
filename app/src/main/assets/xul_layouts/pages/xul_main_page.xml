@@ -185,13 +185,13 @@
                                             var category_id = this.getData("category_id");
                                             this.dispatchEvent("switchChannel", "usr_cmd", JSON.stringify({"live_id":live_id, "category_id":category_id}));
                                         </action>
-                                        <item id="playing_indicator" type="image">
+                                        <item id="playing_indicator" class="playing_indicator" type="image">
                                             <attr name="x">20</attr>
                                             <attr name="y">58</attr>
                                             <attr name="img.0.width">28</attr>
                                             <attr name="img.0.height">24</attr>
                                             <attr name="img.0">file:///.assets/images/playing.ani.zip</attr>
-<!--                                            <attr name="img.0.visible">false</attr>-->
+                                            <attr name="img.0.visible">false</attr>
                                         </item>
                                         <item id="channel_id" type="label" desc="频道号">
                                             <attr name="x">80</attr>

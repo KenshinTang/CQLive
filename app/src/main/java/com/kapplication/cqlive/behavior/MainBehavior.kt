@@ -337,12 +337,17 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
             val v: XulView? = mChannelListWrapper.getItemView(idx)
             if (node.getAttributeValue("live_id") == mCurrentChannelId) {
                 v?.addClass("category_checked")
+                v?.resetRender()
+                v?.findItemById("playing_indicator")?.setAttr("img.0.visible", "true")
+                v?.findItemById("playing_indicator")?.resetRender()
                 mChannelListWrapper.asView?.findParentByType("layer")?.dynamicFocus = v
                 xulGetRenderContext().layout.requestFocus(v)
             } else {
                 v?.removeClass("category_checked")
+                v?.resetRender()
+                v?.findItemById("playing_indicator")?.setAttr("img.0.visible", "false")
+                v?.findItemById("playing_indicator")?.resetRender()
             }
-            v?.resetRender()
         }
     }
 
@@ -783,6 +788,16 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                         break
                     }
                 }
+//                val indicators = xulGetRenderContext().findItemsByClass("playing_indicator")
+//                for (i in indicators) {
+//                    if (i.parent.getDataString("live_id") == liveId) {
+//                        i.setAttr("img.0.visible", "true")
+//                    } else {
+//                        i.setAttr("img.0.visible", "false")
+//                    }
+//                    i.resetRender()
+//                }
+                syncFocus()
                 startToPlay(url, 0)
             }
             "switchPlaybackProgram" -> {
