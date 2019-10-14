@@ -116,7 +116,6 @@
                     <attr name="height">match_parent</attr>
                     <area>
                         <style name="background-color">e5313131</style>
-<!--                        <attr name="checked-class">category_checked</attr>-->
                         <attr name="width">match_parent</attr>
                         <attr name="height">match_parent</attr>
                         <area desc="顶部提示">
@@ -218,14 +217,6 @@
                                             <style name="font-color">FFFFFFFF</style>
                                             <attr name="text" binding="[=live_name]"/>
                                         </item>
-    <!--                                    <item type="image" desc="加锁图标">-->
-    <!--                                        <focus mode="nofocus"/>-->
-    <!--                                        <attr name="x">530</attr>-->
-    <!--                                        <attr name="y">56</attr>-->
-    <!--                                        <attr name="img.0.width">28</attr>-->
-    <!--                                        <attr name="img.0.height">32</attr>-->
-    <!--                                        <attr name="img.0">file:///.assets/images/icon_lock.png</attr>-->
-    <!--                                    </item>-->
                                         <item id="collectState" type="image" desc="收藏图标">
                                             <focus mode="nofocus"/>
                                             <attr name="x">505</attr>
@@ -316,9 +307,8 @@
                     <attr name="y">0</attr>
                     <attr name="width">600</attr>
                     <attr name="height">match_parent</attr>
-                    <area type="radio">
+                    <area>
                         <style name="background-color">e5313131</style>
-                        <attr name="checked-class">category_checked</attr>
                         <attr name="width">match_parent</attr>
                         <attr name="height">match_parent</attr>
                         <item type="image" desc="分割线">
@@ -337,9 +327,21 @@
                             <area id="program" type="massive" class="playbill-list-massive">
                                 <template id="@item-template">
                                     <area class="playbill-item">
+                                        <action event="click" type="script/javascript">
+                                            var play_url = this.getData("play_url");
+                                            var play_status = this.getData("play_status");
+                                            if (play_status == "1") {
+                                                this.dispatchEvent("doPlayback", "usr_cmd", JSON.stringify({"play_url":play_url}));
+                                            } else if (play_status == "2") {
+                                                logger.d("kenshin", " play live!!!")
+                                            } else {
+                                                logger.d("kenshin", " do reservation!!!")
+                                            }
+                                        </action>
                                         <attr name="width">match_parent</attr>
                                         <attr name="height">140</attr>
                                         <data name="play_status" binding="[=play_status]"/>
+                                        <data name="play_url" binding="[=play_url]"/>
                                         <action event="bindingFinished" type="script/javascript">
                                             var play_status = this.getData("play_status");
                                             var program_name = this.findItemById("program_name");

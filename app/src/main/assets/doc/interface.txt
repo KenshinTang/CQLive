@@ -7,7 +7,9 @@ http://117.59.125.132/__cl/cg:ingest01/__c/cctv3/__op/default/__f/index.m3u8
 http://129.28.160.49/__cl/cg:ingest01/__c/cctv5/__op/default/__f/index.m3u8
 http://129.28.160.49/__cl/cg:ingest01/__c/cctv6/__op/default/__f/index.m3u8
 http://129.28.160.49/__cl/cg:ingest01/__c/cctv8/__op/default/__f/index.m3u8
+http://9890.vod.myqcloud.com/9890_4e292f9a3dd011e6b4078980237cc3d3.f20.mp4
 http://dev.yusihuo.com/zhiboapi.php?m=Live&c=Live&a=getLiveListIncludeCategory
+http://dev.yusihuo.com/zhiboapi.php?m=Live&c=LivePlayBill&a=getPlayBillList&live_id=515972557
 
 //上下键切台
 //UI控制,自动隐藏

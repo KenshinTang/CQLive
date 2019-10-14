@@ -90,6 +90,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
     private var mCurrentChannelIndex = 0  // current channel index in current channel list
     private var mFirst: Boolean = true
     private var mPreloadSuccess: Boolean = false
+    private var mIsLiveMode: Boolean = true  // true: live, false: playback
 
     private var mCurrentVideoManager: GSYVideoManager? = GSYVideoManager.instance()
     private var mNextVideoManager: GSYVideoManager? = null
@@ -308,7 +309,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                 xulGetRenderContext().layout.requestFocus(mChannelListWrapper.getItemView(mCurrentChannelIndex))
                 mUpDownSwitchChannelNodes.addAll(mUpDownTmpSwitchChannelNodes)
                 val url: String = requestPlayUrl(mCurrentChannelId)
-                startToPlay(url, 0)
+                startToPlayLive(url, 0)
                 mFirst = false
             }
         } else {
@@ -368,21 +369,22 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         return mCurrentChannelNode?.getAttributeValue("play_url")?:""
     }
 
-    private fun startToPlay(playUrl: String, upOrDown: Int) {
+    private fun startToPlayLive(playUrl: String, upOrDown: Int) {
+        mIsLiveMode = true
         //upOrDown -1 -> 按上键触发的播放
         //upOrDown =0 -> 非上下键触发的播放, 比如频道列表选择
         //upOrDown =1 -> 按下键触发的播放
         resetUI()
         if (upOrDown == 0) {
             if (mFirst || !mPreloadSuccess) {
-                XulLog.i(NAME, "play!!!")
+                XulLog.i(NAME, "play live!!!")
                 mMediaPlayer.isReleaseWhenLossAudio = true
                 GSYVideoManager.instance().stop()
                 GSYVideoManager.instance().releaseMediaPlayer()
                 mMediaPlayer.setUp(playUrl, false, "")
                 mMediaPlayer.startPlayLogic()
             } else {
-                XulLog.w(NAME, "play preload!!!")
+                XulLog.w(NAME, "play live(preload)!!!")
                 GSYVideoManager.instance().stop()
                 GSYVideoManager.instance().releaseMediaPlayer()
                 GSYVideoManager.changeManager(mCurrentVideoManager)
@@ -447,6 +449,20 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         mDownVideoManager = GSYVideoManager.tmpInstance(null)
         mDownVideoManager?.prepare(nextDownPlayUrl, null, false, 1f, false, null)
         mCurrentVideoManager = if (upOrDown == -1) mUpVideoManager else mDownVideoManager
+    }
+
+    private fun startToPlayPlayback(playUrl: String) {
+        mIsLiveMode = false
+        XulLog.i(NAME, "play Playback!!!")
+        mMediaPlayer.isReleaseWhenLossAudio = true
+        GSYVideoManager.instance().stop()
+        GSYVideoManager.instance().releaseMediaPlayer()
+
+        val testUrl = "http://9890.vod.myqcloud.com/9890_4e292f9a3dd011e6b4078980237cc3d3.f20.mp4"
+        mMediaPlayer.setUp(testUrl, false, "")
+//        mMediaPlayer.setUp(playUrl, false, "")
+
+        mMediaPlayer.startPlayLogic()
     }
 
     private fun preloadPlayRes(channelNode: XulDataNode?) {
@@ -788,11 +804,16 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                     }
                 }
                 syncFocus()
-                startToPlay(url, 0)
+                startToPlayLive(url, 0)
             }
             "switchPlaybackProgram" -> {
                 val programData = view?.bindingData?.get(0)
                 switchPlaybackProgram(programData)
+            }
+            "doPlayback" -> {
+                val data = JSONObject(command)
+                val playbackUrl = data.optString("play_url")
+                startToPlayPlayback(playbackUrl)
             }
             "preloadPlayRes" -> {
                 if (mIsChannelListShow) {
@@ -807,7 +828,6 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         }
         super.xulDoAction(view, action, type, command, userdata)
     }
-
 
     private var direction = 0
     override fun xulOnDispatchKeyEvent(event: KeyEvent?): Boolean {
@@ -946,14 +966,14 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                 KeyEvent.KEYCODE_DPAD_UP -> {
                     if (!mIsChannelListShow/* && !mIsControlFrameShow*/) {
                         XulLog.i(NAME, "up pressed.")
-                        startToPlay("", -1)
+                        startToPlayLive("", -1)
                         return true
                     }
                 }
                 KeyEvent.KEYCODE_DPAD_DOWN -> {
                     if (!mIsChannelListShow/* && !mIsControlFrameShow*/) {
                         XulLog.i(NAME, "down pressed.")
-                        startToPlay("", 1)
+                        startToPlayLive("", 1)
                         return true
                     }
                 }
@@ -970,7 +990,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
     private fun showChannelList(show: Boolean) {
         if (show) {
             syncFocus()
-//            mHandler.sendEmptyMessageDelayed(CommonMessage.EVENT_AUTO_HIDE_UI, 8 * 1000)
+            mHandler.sendEmptyMessageDelayed(CommonMessage.EVENT_AUTO_HIDE_UI, 8 * 1000)
         }
         mChannelArea.setAttr("x", if(show) "0" else "-1870")
         mChannelArea.resetRender()
