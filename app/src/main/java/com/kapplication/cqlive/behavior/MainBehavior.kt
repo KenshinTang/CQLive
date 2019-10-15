@@ -392,6 +392,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
     }
 
     private fun startToPlayLive(playUrl: String, upOrDown: Int) {
+        var playUrl = "http://117.59.125.132/__cl/cg:ingest01/__c/cctv3/__op/default/__f/index.m3u8"
         mIsLiveMode = true
         //upOrDown -1 -> 按上键触发的播放
         //upOrDown =0 -> 非上下键触发的播放, 比如频道列表选择
@@ -480,7 +481,8 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         GSYVideoManager.instance().stop()
         GSYVideoManager.instance().releaseMediaPlayer()
 
-        val testUrl = "http://7xjmzj.com1.z0.glb.clouddn.com/20171026175005_JObCxCE2.mp4"
+//        val testUrl = "http://7xjmzj.com1.z0.glb.clouddn.com/20171026175005_JObCxCE2.mp4"
+        val testUrl = "http://9890.vod.myqcloud.com/9890_4e292f9a3dd011e6b4078980237cc3d3.f20.mp4"
         mMediaPlayer.setUp(testUrl, false, "")
 //        mMediaPlayer.setUp(playUrl, false, "")
         mMediaPlayer.setVideoAllCallBack(object : GSYSampleCallBack() {
@@ -815,7 +817,10 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                 )
             }
         } else {
-
+            mSeekBarRender.seekBarPos = (mMediaPlayer.currentPositionWhenPlaying.toDouble() / mMediaPlayer.duration.toDouble())
+            mSeekBarRender.setSeekBarTips(dateFormat.format(mMediaPlayer.currentPositionWhenPlaying - TimeZone.getDefault().rawOffset))
+            mMediaTimeStartView.setAttr("text", dateFormat.format(mMediaPlayer.currentPositionWhenPlaying - TimeZone.getDefault().rawOffset))
+            mMediaTimeStartView.resetRender()
         }
     }
 
@@ -967,21 +972,25 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                 }
                 KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_DPAD_RIGHT -> {
                     if (mIsControlFrameShow) {
-                        showPlayerStateIndicator(0)
-                        val seekBarPos: Double = mSeekBarRender.seekBarPos
-                        val duration: Int = mMediaPlayer.duration
-                        var seekPos: Long = (seekBarPos * duration).toLong()
-                        if (seekPos < 0) {
-                            seekPos = 3000
+                        if (mIsLiveMode) {
+                            showPlayerStateIndicator(0)
+                            val seekBarPos: Double = mSeekBarRender.seekBarPos
+                            val duration: Int = mMediaPlayer.duration
+                            var seekPos: Long = (seekBarPos * duration).toLong()
+                            if (seekPos < 0) {
+                                seekPos = 3000
+                            }
+                            mTimeshiftLogoView.setStyle("display", "block")
+                            if (seekPos >= duration) {
+                                seekPos = duration - 3000.toLong()
+                                mTimeshiftLogoView.setStyle("display", "none")
+                            }
+                            mTimeshiftLogoView.resetRender()
+                            XulLog.i(NAME, "seekBarPos = $seekBarPos, duration = $duration. seekBarPos * duration = $seekPos")
+                            mMediaPlayer.seekTo(seekPos)
+                        } else {
+
                         }
-                        mTimeshiftLogoView.setStyle("display", "block")
-                        if (seekPos >= duration) {
-                            seekPos = duration - 3000.toLong()
-                            mTimeshiftLogoView.setStyle("display", "none")
-                        }
-                        mTimeshiftLogoView.resetRender()
-                        XulLog.i(NAME, "seekBarPos = $seekBarPos, duration = $duration. seekBarPos * duration = $seekPos")
-                        mMediaPlayer.seekTo(seekPos)
                         return true
                     }
 
@@ -1057,7 +1066,22 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
 
     private fun showControlFrame(show: Boolean) {
         if (show) {
-//            mHandler.sendEmptyMessageDelayed(CommonMessage.EVENT_AUTO_HIDE_UI, 8 * 1000)
+            mHandler.sendEmptyMessageDelayed(CommonMessage.EVENT_AUTO_HIDE_UI, 8 * 1000)
+            if (mIsLiveMode) {
+                val seekBarPos: Double = mSeekBarRender.seekBarPos
+                if (seekBarPos < 1.0) {
+                    mTimeshiftLogoView.setStyle("display", "block")
+                    mTimeshiftLogoView.setAttr("text", "时移")
+                    mTimeshiftLogoView.resetRender()
+                } else {
+                    mTimeshiftLogoView.setStyle("display", "none")
+                    mTimeshiftLogoView.resetRender()
+                }
+            } else {
+                mTimeshiftLogoView.setStyle("display", "block")
+                mTimeshiftLogoView.setAttr("text", "回看")
+                mTimeshiftLogoView.resetRender()
+            }
         }
         mTitleArea.setStyle("display", if(show) "block" else "none")
         mTitleArea.resetRender()
