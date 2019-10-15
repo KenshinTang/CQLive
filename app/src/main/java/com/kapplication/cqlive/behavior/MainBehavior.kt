@@ -352,6 +352,12 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                     v?.findItemById("playing_indicator")?.resetRender()
                 }
             }
+
+            mProgramListWrapper.eachItem { idx, _ ->
+                val v: XulView? = mProgramListWrapper.getItemView(idx)
+                v?.findItemById("playing_indicator")?.setAttr("img.0.visible", "false")
+                v?.findItemById("playing_indicator")?.resetRender()
+            }
         }
     }
 
@@ -812,8 +818,8 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                         break
                     }
                 }
-                syncFocus()
                 startToPlayLive(url, 0)
+                syncFocus()
             }
             "switchPlaybackProgram" -> {
                 val programData = view?.bindingData?.get(0)
