@@ -17,6 +17,8 @@ import com.kapplication.cqlive.widget.XulExt_GSYVideoPlayer
 import com.shuyu.gsyvideoplayer.GSYVideoManager
 import com.shuyu.gsyvideoplayer.listener.GSYSampleCallBack
 import com.shuyu.gsyvideoplayer.utils.GSYVideoType
+import com.shuyu.gsyvideoplayer.video.base.GSYVideoView.CURRENT_STATE_PAUSE
+import com.shuyu.gsyvideoplayer.video.base.GSYVideoView.CURRENT_STATE_PLAYING
 import com.starcor.xul.IXulExternalView
 import com.starcor.xul.Wrapper.XulMassiveAreaWrapper
 import com.starcor.xul.Wrapper.XulSliderAreaWrapper
@@ -937,7 +939,16 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         if (event?.action == KeyEvent.ACTION_UP) {
             when (event.keyCode) {
                 KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_ENTER -> {
-                    if (!mIsChannelListShow && !mIsControlFrameShow) {
+                    if (!mIsChannelListShow) {
+                        if (!mIsLiveMode) {
+                            if (mMediaPlayer.currentState == CURRENT_STATE_PLAYING) {
+                                mMediaPlayer.onVideoPause()
+                                showPlayerStateIndicator(2)
+                            } else if (mMediaPlayer.currentState == CURRENT_STATE_PAUSE) {
+                                mMediaPlayer.onVideoResume()
+                                showPlayerStateIndicator(0)
+                            }
+                        }
                         showControlFrame(true)
                         return true
                     }
@@ -1066,7 +1077,6 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
 
     private fun showControlFrame(show: Boolean) {
         if (show) {
-            mHandler.sendEmptyMessageDelayed(CommonMessage.EVENT_AUTO_HIDE_UI, 8 * 1000)
             if (mIsLiveMode) {
                 val seekBarPos: Double = mSeekBarRender.seekBarPos
                 if (seekBarPos < 1.0) {
@@ -1077,10 +1087,14 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                     mTimeshiftLogoView.setStyle("display", "none")
                     mTimeshiftLogoView.resetRender()
                 }
+                mHandler.sendEmptyMessageDelayed(CommonMessage.EVENT_AUTO_HIDE_UI, 8 * 1000)
             } else {
                 mTimeshiftLogoView.setStyle("display", "block")
                 mTimeshiftLogoView.setAttr("text", "回看")
                 mTimeshiftLogoView.resetRender()
+                if (mMediaPlayer.currentState != CURRENT_STATE_PAUSE) {
+                    mHandler.sendEmptyMessageDelayed(CommonMessage.EVENT_AUTO_HIDE_UI, 8 * 1000)
+                }
             }
         }
         mTitleArea.setStyle("display", if(show) "block" else "none")
@@ -1094,12 +1108,26 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
     }
 
     private fun showPlayerStateIndicator(direction: Int) {
-        //<0 rewind, >0 fast forward
+        //-1 rewind, 1 fast forward, 2 pause
         val playerState: XulView = xulGetRenderContext().findItemById("player-state")
         when (direction) {
-            -1 -> playerState.setAttr("img.3.visible", "true")
-            1 -> playerState.setAttr("img.2.visible", "true")
+            -1 -> {
+                playerState.setAttr("img.3.visible", "true")
+                playerState.setAttr("img.2.visible", "false")
+                playerState.setAttr("img.1.visible", "false")
+            }
+            1 -> {
+                playerState.setAttr("img.2.visible", "true")
+                playerState.setAttr("img.1.visible", "false")
+                playerState.setAttr("img.3.visible", "false")
+            }
+            2 -> {
+                playerState.setAttr("img.1.visible", "true")
+                playerState.setAttr("img.2.visible", "false")
+                playerState.setAttr("img.3.visible", "false")
+            }
             0 -> {
+                playerState.setAttr("img.1.visible", "false")
                 playerState.setAttr("img.2.visible", "false")
                 playerState.setAttr("img.3.visible", "false")
             }
