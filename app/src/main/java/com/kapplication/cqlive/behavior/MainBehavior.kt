@@ -394,7 +394,6 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
     }
 
     private fun startToPlayLive(playUrl: String, upOrDown: Int) {
-        var playUrl = "http://117.59.125.132/__cl/cg:ingest01/__c/cctv3/__op/default/__f/index.m3u8"
         mIsLiveMode = true
         //upOrDown -1 -> 按上键触发的播放
         //upOrDown =0 -> 非上下键触发的播放, 比如频道列表选择
@@ -484,9 +483,9 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         GSYVideoManager.instance().releaseMediaPlayer()
 
 //        val testUrl = "http://7xjmzj.com1.z0.glb.clouddn.com/20171026175005_JObCxCE2.mp4"
-        val testUrl = "http://9890.vod.myqcloud.com/9890_4e292f9a3dd011e6b4078980237cc3d3.f20.mp4"
-        mMediaPlayer.setUp(testUrl, false, "")
-//        mMediaPlayer.setUp(playUrl, false, "")
+//        val testUrl = "http://9890.vod.myqcloud.com/9890_4e292f9a3dd011e6b4078980237cc3d3.f20.mp4"
+//        mMediaPlayer.setUp(testUrl, false, "")
+        mMediaPlayer.setUp(playUrl, false, "")
         mMediaPlayer.setVideoAllCallBack(object : GSYSampleCallBack() {
             override fun onAutoComplete(url: String?, vararg objects: Any?) {
                 XulLog.i(NAME, "回看播放完成,2秒后回到直播, $url")
@@ -816,7 +815,9 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         } else {
 //            if (!mIsPlaybackSeeking) {
                 mSeekBarRender.seekBarPos = (mMediaPlayer.currentPositionWhenPlaying.toDouble() / mMediaPlayer.duration.toDouble())
-                mSeekBarRender.setSeekBarTips(dateFormat.format(mMediaPlayer.currentPositionWhenPlaying - TimeZone.getDefault().rawOffset))
+                if (mMediaPlayer.currentPositionWhenPlaying != 0) {
+                    mSeekBarRender.setSeekBarTips(dateFormat.format(mMediaPlayer.currentPositionWhenPlaying - TimeZone.getDefault().rawOffset))
+                }
                 mMediaTimeStartView.setAttr("text", dateFormat.format(mMediaPlayer.currentPositionWhenPlaying - TimeZone.getDefault().rawOffset))
                 mMediaTimeStartView.resetRender()
 //            }
