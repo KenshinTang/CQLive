@@ -810,19 +810,16 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                 mMediaTimeStartView.setAttr("text", dateFormat.format(threeHoursAgoDate))
                 mMediaTimeStartView.resetRender()
 
-                timeshiftDate.time =
-                    currentTimeMillis - ((1.0f - mSeekBarRender.seekBarPos) * THREE_HOURS_IN_SECONDS * 1000).toLong()
-                mSeekBarRender.setSeekBarTips(
-                    if (mSeekBarRender.seekBarPos == 1.0) "直播中" else dateFormat.format(
-                        timeshiftDate
-                    )
-                )
+                timeshiftDate.time = currentTimeMillis - ((1.0f - mSeekBarRender.seekBarPos) * THREE_HOURS_IN_SECONDS * 1000).toLong()
+                mSeekBarRender.setSeekBarTips(if (mSeekBarRender.seekBarPos == 1.0) "直播中" else dateFormat.format(timeshiftDate))
             }
         } else {
-            mSeekBarRender.seekBarPos = (mMediaPlayer.currentPositionWhenPlaying.toDouble() / mMediaPlayer.duration.toDouble())
-            mSeekBarRender.setSeekBarTips(dateFormat.format(mMediaPlayer.currentPositionWhenPlaying - TimeZone.getDefault().rawOffset))
-            mMediaTimeStartView.setAttr("text", dateFormat.format(mMediaPlayer.currentPositionWhenPlaying - TimeZone.getDefault().rawOffset))
-            mMediaTimeStartView.resetRender()
+//            if (!mIsPlaybackSeeking) {
+                mSeekBarRender.seekBarPos = (mMediaPlayer.currentPositionWhenPlaying.toDouble() / mMediaPlayer.duration.toDouble())
+                mSeekBarRender.setSeekBarTips(dateFormat.format(mMediaPlayer.currentPositionWhenPlaying - TimeZone.getDefault().rawOffset))
+                mMediaTimeStartView.setAttr("text", dateFormat.format(mMediaPlayer.currentPositionWhenPlaying - TimeZone.getDefault().rawOffset))
+                mMediaTimeStartView.resetRender()
+//            }
         }
     }
 
@@ -885,6 +882,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
     }
 
     private var direction = 0
+//    private var mIsPlaybackSeeking = false
     override fun xulOnDispatchKeyEvent(event: KeyEvent?): Boolean {
         XulLog.i(NAME, "event = $event")
         if (mHandler.hasMessages(CommonMessage.EVENT_AUTO_HIDE_UI)) {
@@ -927,10 +925,29 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                                 }
                                 showPlayerStateIndicator(1)
                             }
-                            mSeekBarRender.seekBarPos =
-                                (THREE_HOURS_IN_SECONDS + direction) / THREE_HOURS_IN_SECONDS.toDouble()
+                            mSeekBarRender.seekBarPos = (THREE_HOURS_IN_SECONDS + direction) / THREE_HOURS_IN_SECONDS.toDouble()
                         } else {
-
+//                            mIsPlaybackSeeking = true
+//                            mMediaPlayer.onVideoPause()
+//                            val step = 10 * 1000
+//                            if (event.keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
+//                                if (direction - step < 0) {
+//                                    direction = 0
+//                                } else {
+//                                    direction -= step
+//                                }
+//                                showPlayerStateIndicator(-1)
+//                            } else {
+//                                if (direction + step > mMediaPlayer.duration) {
+//                                    direction = mMediaPlayer.duration - step
+//                                } else {
+//                                    direction += step
+//                                }
+//                                showPlayerStateIndicator(1)
+//                            }
+//                            if (mMediaPlayer.duration != 0) {
+//                                mSeekBarRender.seekBarPos = direction / mMediaPlayer.duration.toDouble()
+//                            }
                         }
                     }
                 }
@@ -1000,7 +1017,14 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                             XulLog.i(NAME, "seekBarPos = $seekBarPos, duration = $duration. seekBarPos * duration = $seekPos")
                             mMediaPlayer.seekTo(seekPos)
                         } else {
-
+//                            showPlayerStateIndicator(0)
+//                            val seekBarPos: Double = mSeekBarRender.seekBarPos
+//                            val duration: Int = mMediaPlayer.duration
+//                            var seekPos: Long = (seekBarPos * duration).toLong()
+//                            XulLog.i(NAME, "seekBarPos = $seekBarPos, duration = $duration. seekBarPos * duration = $seekPos")
+//                            mMediaPlayer.seekTo(seekPos)
+//                            mMediaPlayer.onVideoResume()
+//                            mIsPlaybackSeeking = false
                         }
                         return true
                     }
