@@ -176,11 +176,23 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         mMediaTimeStartView = xulGetRenderContext().findItemById("player-time-begin")
         mMediaTimeEndView = xulGetRenderContext().findItemById("player-time-end")
         mSeekBarRender = xulGetRenderContext().findItemById("player-pos").render as PlayerSeekBarRender
-        mSeekBarRender.setSeekBarTips("直播中")
-        mSeekBarRender.seekBarPos = 1.0
         mSeekBarRender.setOnProgressChangedListener(this)
+        initSeekBar()
 
         GSYVideoType.setShowType(GSYVideoType.SCREEN_MATCH_FULL)
+    }
+
+    private fun initSeekBar() {
+        if (mIsLiveMode) {
+            mSeekBarRender.setSeekBarTips("直播中")
+            mSeekBarRender.seekBarPos = 1.0
+        } else {
+            mSeekBarRender.seekBarPos = 0.0
+            mMediaTimeStartView.setAttr("text", "00:00:00")
+            mMediaTimeStartView.resetRender()
+            mMediaTimeEndView.setAttr("text", dateFormat.format(mMediaPlayer.duration - TimeZone.getDefault().rawOffset))
+            mMediaTimeEndView.resetRender()
+        }
     }
 
     private fun requestChannel() {
@@ -476,6 +488,10 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                 XulLog.i(NAME, "回看播放完成,2秒后回到直播, $url")
                 Toast.makeText(context, "回看播放完成,2秒后回到直播", Toast.LENGTH_SHORT).show()
                 xulDoAction(null, "switchChannel", "usr_cmd", "{\"live_id\":\"$mCurrentChannelId\",\"category_id\":\"$mCurrentCategoryId\"}", null)
+            }
+
+            override fun onPrepared(url: String?, vararg objects: Any?) {
+                initSeekBar()
             }
         })
         mMediaPlayer.startPlayLogic()
@@ -778,19 +794,28 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
     private val threeHoursAgoDate = Date()
     @XulSubscriber(tag = CommonMessage.EVENT_HALF_SECOND)
     private fun onHalfSecondPassed(dummy: Any) {
-        val currentTimeMillis = System.currentTimeMillis()
-        if (currentTimeMillis / 1000 != currentDate.time / 1000) {
-            currentDate.time = currentTimeMillis
-            dateFormat.timeZone = TimeZone.getTimeZone("Asia/Shanghai")
-            mMediaTimeEndView.setAttr("text", dateFormat.format(currentDate))
-            mMediaTimeEndView.resetRender()
+        if (mIsLiveMode) {
+            val currentTimeMillis = System.currentTimeMillis()
+            if (currentTimeMillis / 1000 != currentDate.time / 1000) {
+                currentDate.time = currentTimeMillis
+                dateFormat.timeZone = TimeZone.getTimeZone("Asia/Shanghai")
+                mMediaTimeEndView.setAttr("text", dateFormat.format(currentDate))
+                mMediaTimeEndView.resetRender()
 
-            threeHoursAgoDate.time = currentTimeMillis - THREE_HOURS_IN_SECONDS * 1000
-            mMediaTimeStartView.setAttr("text", dateFormat.format(threeHoursAgoDate))
-            mMediaTimeStartView.resetRender()
+                threeHoursAgoDate.time = currentTimeMillis - THREE_HOURS_IN_SECONDS * 1000
+                mMediaTimeStartView.setAttr("text", dateFormat.format(threeHoursAgoDate))
+                mMediaTimeStartView.resetRender()
 
-            timeshiftDate.time = currentTimeMillis - ((1.0f - mSeekBarRender.seekBarPos) * THREE_HOURS_IN_SECONDS * 1000).toLong()
-            mSeekBarRender.setSeekBarTips(if (mSeekBarRender.seekBarPos == 1.0) "直播中" else dateFormat.format(timeshiftDate))
+                timeshiftDate.time =
+                    currentTimeMillis - ((1.0f - mSeekBarRender.seekBarPos) * THREE_HOURS_IN_SECONDS * 1000).toLong()
+                mSeekBarRender.setSeekBarTips(
+                    if (mSeekBarRender.seekBarPos == 1.0) "直播中" else dateFormat.format(
+                        timeshiftDate
+                    )
+                )
+            }
+        } else {
+
         }
     }
 
@@ -873,28 +898,33 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                         return true
                     }
                     if (mIsControlFrameShow) {
-                        val step = when(event.repeatCount) {
-                            0 -> 10
-                            in 1..10 -> 30
-                            in 11..30 -> 60
-                            else -> 90
-                        }
-                        if (event.keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
-                            if (direction - step < -THREE_HOURS_IN_SECONDS) {
-                                direction = -THREE_HOURS_IN_SECONDS
-                            } else {
-                                direction -= step
+                        if (mIsLiveMode) {
+                            val step = when (event.repeatCount) {
+                                0 -> 10
+                                in 1..10 -> 30
+                                in 11..30 -> 60
+                                else -> 90
                             }
-                            showTimeshiftIndicator(-1)
+                            if (event.keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
+                                if (direction - step < -THREE_HOURS_IN_SECONDS) {
+                                    direction = -THREE_HOURS_IN_SECONDS
+                                } else {
+                                    direction -= step
+                                }
+                                showPlayerStateIndicator(-1)
+                            } else {
+                                if (direction + step > 0) {
+                                    direction = 0
+                                } else {
+                                    direction += step
+                                }
+                                showPlayerStateIndicator(1)
+                            }
+                            mSeekBarRender.seekBarPos =
+                                (THREE_HOURS_IN_SECONDS + direction) / THREE_HOURS_IN_SECONDS.toDouble()
                         } else {
-                            if (direction + step > 0) {
-                                direction = 0
-                            } else {
-                                direction += step
-                            }
-                            showTimeshiftIndicator(1)
+
                         }
-                        mSeekBarRender.seekBarPos = (THREE_HOURS_IN_SECONDS + direction) / THREE_HOURS_IN_SECONDS.toDouble()
                     }
                 }
             }
@@ -937,7 +967,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                 }
                 KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_DPAD_RIGHT -> {
                     if (mIsControlFrameShow) {
-                        showTimeshiftIndicator(0)
+                        showPlayerStateIndicator(0)
                         val seekBarPos: Double = mSeekBarRender.seekBarPos
                         val duration: Int = mMediaPlayer.duration
                         var seekPos: Long = (seekBarPos * duration).toLong()
@@ -1013,7 +1043,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
     private fun showChannelList(show: Boolean) {
         if (show) {
             syncFocus()
-//            mHandler.sendEmptyMessageDelayed(CommonMessage.EVENT_AUTO_HIDE_UI, 8 * 1000)
+            mHandler.sendEmptyMessageDelayed(CommonMessage.EVENT_AUTO_HIDE_UI, 8 * 1000)
         }
         mChannelArea.setAttr("x", if(show) "0" else "-1870")
         mChannelArea.resetRender()
@@ -1027,7 +1057,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
 
     private fun showControlFrame(show: Boolean) {
         if (show) {
-            mHandler.sendEmptyMessageDelayed(CommonMessage.EVENT_AUTO_HIDE_UI, 8 * 1000)
+//            mHandler.sendEmptyMessageDelayed(CommonMessage.EVENT_AUTO_HIDE_UI, 8 * 1000)
         }
         mTitleArea.setStyle("display", if(show) "block" else "none")
         mTitleArea.resetRender()
@@ -1039,7 +1069,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         mChannelArea.resetRender()
     }
 
-    private fun showTimeshiftIndicator(direction: Int) {
+    private fun showPlayerStateIndicator(direction: Int) {
         //<0 rewind, >0 fast forward
         val playerState: XulView = xulGetRenderContext().findItemById("player-state")
         when (direction) {

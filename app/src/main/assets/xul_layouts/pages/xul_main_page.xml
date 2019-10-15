@@ -333,7 +333,9 @@
                                             var play_url = this.getData("play_url");
                                             var play_status = this.getData("play_status");
                                             if (play_status == "1") {
-                                                this.dispatchEvent("doPlayback", "usr_cmd", JSON.stringify({"play_url":play_url}));
+                                                if (this.findItemById("playing_indicator").getAttr("img.0.visible") == "false") {
+                                                    this.dispatchEvent("doPlayback", "usr_cmd", JSON.stringify({"play_url":play_url}));
+                                                }
                                             } else if (play_status == "2") {
                                                 logger.d("kenshin", " play live!!!")
                                             } else {
