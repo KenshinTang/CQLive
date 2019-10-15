@@ -987,15 +987,15 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                     }
                 }
                 KeyEvent.KEYCODE_DPAD_UP -> {
-                    if (!mIsChannelListShow/* && !mIsControlFrameShow*/) {
-                        XulLog.i(NAME, "up pressed.")
+                    if (!mIsChannelListShow && mIsLiveMode) {
+                        XulLog.i(NAME, "up pressed in live mode.")
                         startToPlayLive("", -1)
                         return true
                     }
                 }
                 KeyEvent.KEYCODE_DPAD_DOWN -> {
-                    if (!mIsChannelListShow/* && !mIsControlFrameShow*/) {
-                        XulLog.i(NAME, "down pressed.")
+                    if (!mIsChannelListShow && mIsLiveMode) {
+                        XulLog.i(NAME, "down pressed in live mode.")
                         startToPlayLive("", 1)
                         return true
                     }
