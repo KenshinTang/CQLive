@@ -504,8 +504,12 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         if (channelNode == null) return
 
         val playUrl: String? = channelNode.getAttributeValue("play_url")
-        XulLog.i(NAME, "preload url: $playUrl")
 
+        preloadPlayRes(playUrl)
+    }
+
+    private fun preloadPlayRes(playUrl: String?) {
+        XulLog.i(NAME, "preload url: $playUrl")
         if (mNextVideoManager != null && mNextVideoManager!!.isPlaying) {
             mNextVideoManager2?.stop()
             mNextVideoManager2?.releaseMediaPlayer()
@@ -521,6 +525,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
             mCurrentVideoManager = mNextVideoManager
             mPreloadSuccess = true
         }
+
     }
 
     private fun preloadProgram(channelNode: XulDataNode?) {
@@ -747,12 +752,16 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
             showChannelList(false)
             return true
         }
-        val seekBarPos: Double = mSeekBarRender.seekBarPos
-        if (seekBarPos < 1.0) {
-            mMediaPlayer.seekTo(mMediaPlayer.duration.toLong())
-            showControlFrame(true)
-            resetUI()
-            return true
+        if (mIsLiveMode) {
+            val seekBarPos: Double = mSeekBarRender.seekBarPos
+            if (seekBarPos < 1.0) {
+                mMediaPlayer.seekTo(mMediaPlayer.duration.toLong())
+                showControlFrame(true)
+                resetUI()
+                return true
+            }
+        } else {
+//            xulDoAction(null, "switchChannel", "usr_cmd", "{\"live_id\":\"$mCurrentChannelId\",\"category_id\":\"$mCurrentCategoryId\"}", null)
         }
         if (mIsControlFrameShow) {
             showControlFrame(false)
@@ -814,8 +823,8 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
             }
         } else {
 //            if (!mIsPlaybackSeeking) {
-                mSeekBarRender.seekBarPos = (mMediaPlayer.currentPositionWhenPlaying.toDouble() / mMediaPlayer.duration.toDouble())
                 if (mMediaPlayer.currentPositionWhenPlaying != 0) {
+                    mSeekBarRender.seekBarPos = (mMediaPlayer.currentPositionWhenPlaying.toDouble() / mMediaPlayer.duration.toDouble())
                     mSeekBarRender.setSeekBarTips(dateFormat.format(mMediaPlayer.currentPositionWhenPlaying - TimeZone.getDefault().rawOffset))
                 }
                 mMediaTimeStartView.setAttr("text", dateFormat.format(mMediaPlayer.currentPositionWhenPlaying - TimeZone.getDefault().rawOffset))
@@ -877,6 +886,12 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                     }
                     mHandler.sendMessageDelayed(preloadMessage, 50)
                 }
+            }
+            "preloadPlayResFromPlayback" -> {
+                val data = JSONObject(command)
+                val liveId = data.optString("live_id")
+                val url: String = requestPlayUrl(liveId)
+                preloadPlayRes(url)
             }
         }
         super.xulDoAction(view, action, type, command, userdata)
