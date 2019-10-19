@@ -490,6 +490,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
             override fun onAutoComplete(url: String?, vararg objects: Any?) {
                 XulLog.i(NAME, "回看播放完成,2秒后回到直播, $url")
                 Toast.makeText(context, "回看播放完成,2秒后回到直播", Toast.LENGTH_SHORT).show()
+                mPreloadSuccess = false
                 xulDoAction(null, "switchChannel", "usr_cmd", "{\"live_id\":\"$mCurrentChannelId\",\"category_id\":\"$mCurrentCategoryId\"}", null)
             }
 
@@ -761,7 +762,8 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                 return true
             }
         } else {
-//            xulDoAction(null, "switchChannel", "usr_cmd", "{\"live_id\":\"$mCurrentChannelId\",\"category_id\":\"$mCurrentCategoryId\"}", null)
+            xulDoAction(null, "switchChannel", "usr_cmd", "{\"live_id\":\"$mCurrentChannelId\",\"category_id\":\"$mCurrentCategoryId\"}", null)
+            return true
         }
         if (mIsControlFrameShow) {
             showControlFrame(false)
@@ -775,6 +777,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         }
 
         GSYVideoManager.instance().releaseMediaPlayer()
+        android.os.Process.killProcess(android.os.Process.myPid())
         return super.xulOnBackPressed()
     }
 
