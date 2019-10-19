@@ -386,6 +386,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         if (channelId == "" && !mFirst) {
             return ""
         }
+        XulLog.i(NAME, "requestPlayUrl, liveId = $channelId ")
         mCurrentChannelId = channelId
         updateTitleArea(channelId!!)
         loadPreviewBitmaps()
@@ -488,7 +489,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         mMediaPlayer.setUp(playUrl, false, "")
         mMediaPlayer.setVideoAllCallBack(object : GSYSampleCallBack() {
             override fun onAutoComplete(url: String?, vararg objects: Any?) {
-                XulLog.i(NAME, "回看播放完成,2秒后回到直播, $url")
+                XulLog.i(NAME, "回看播放完成, 2秒后回到直播, liveId = $mCurrentChannelId ")
                 Toast.makeText(context, "回看播放完成,2秒后回到直播", Toast.LENGTH_SHORT).show()
                 mPreloadSuccess = false
                 xulDoAction(null, "switchChannel", "usr_cmd", "{\"live_id\":\"$mCurrentChannelId\",\"category_id\":\"$mCurrentCategoryId\"}", null)
@@ -762,6 +763,8 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                 return true
             }
         } else {
+            XulLog.i(NAME, "back key press in playback mode, back to live, liveId = $mCurrentChannelId")
+            mPreloadSuccess = false
             xulDoAction(null, "switchChannel", "usr_cmd", "{\"live_id\":\"$mCurrentChannelId\",\"category_id\":\"$mCurrentCategoryId\"}", null)
             return true
         }
@@ -1059,6 +1062,11 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                             return true
                         }
                         XulLog.i(NAME, "right on channel, show playback list.")
+                        mChannelListWrapper.eachItem { idx, _ ->
+                            val v: XulView? = mChannelListWrapper.getItemView(idx)
+                            v?.removeClass("category_checked")
+                            v?.resetRender()
+                        }
                         channelView.addClass("category_checked")
                         channelView.resetRender()
                         showPlaybackList(liveId, true)
@@ -1105,6 +1113,14 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
 
     private fun showChannelList(show: Boolean) {
         if (show) {
+            if (mIsLiveMode) {
+                showPlaybackList("", false)
+                mChannelListWrapper.eachItem { idx, _ ->
+                    val v: XulView? = mChannelListWrapper.getItemView(idx)
+                    v?.removeClass("category_checked")
+                    v?.resetRender()
+                }
+            }
             syncFocus()
             mHandler.sendEmptyMessageDelayed(CommonMessage.EVENT_AUTO_HIDE_UI, 8 * 1000)
         }
