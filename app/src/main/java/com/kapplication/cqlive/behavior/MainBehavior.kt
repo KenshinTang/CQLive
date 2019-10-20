@@ -505,6 +505,10 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                 XulLog.i(NAME, "onSeekComplete()")
                 mIsPlaybackSeeking = false
             }
+
+            override fun onInfo(what: Int, extra: Int) {
+                XulLog.i(NAME, "onInfo($what, $extra)")
+            }
         })
         mMediaPlayer.startPlayLogic()
     }

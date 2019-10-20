@@ -26,6 +26,7 @@ open class NoUiGSYPlayer : StandardGSYVideoPlayer {
         fun onAutoCompletion()
         fun onPrepared()
         fun onSeekComplete()
+        fun onInfo(what: Int, extra: Int)
     }
 
     private var listener: PlayerListener? = null
@@ -95,6 +96,7 @@ open class NoUiGSYPlayer : StandardGSYVideoPlayer {
     override fun onInfo(what: Int, extra: Int) {
         XulLog.i(MainBehavior.NAME, "$TAG onInfo(what:$what, extra:$extra)")
         super.onInfo(what, extra)
+        listener?.onInfo(what, extra)
     }
 
     override fun onVideoSizeChanged() {
