@@ -176,9 +176,12 @@
                                             this.dispatchEvent("preloadPlayRes", "usr_cmd", "");
                                         </action>
                                         <action event="click" type="script/javascript">
-                                            var live_id = this.getData("live_id");
-                                            var category_id = this.getData("category_id");
-                                            this.dispatchEvent("switchChannel", "usr_cmd", JSON.stringify({"live_id":live_id, "category_id":category_id}));
+                                            var category-list = this.ownerPage.findItemById("category-list");
+                                            if (category-list.getAttr("x") == "0") {
+                                                var live_id = this.getData("live_id");
+                                                var category_id = this.getData("category_id");
+                                                this.dispatchEvent("switchChannel", "usr_cmd", JSON.stringify({"live_id":live_id, "category_id":category_id}));
+                                            }
                                         </action>
                                         <attr name="width">match_parent</attr>
                                         <attr name="height">140</attr>
@@ -337,9 +340,9 @@
                                                     this.dispatchEvent("doPlayback", "usr_cmd", JSON.stringify({"play_url":play_url}));
                                                 }
                                             } else if (play_status == "2") {
-                                                logger.d("kenshin", " play live!!!")
+                                                logger.d("kenshin", " play live!!!");
                                             } else {
-                                                logger.d("kenshin", " do reservation!!!")
+                                                logger.d("kenshin", " do reservation!!!");
                                             }
                                         </action>
                                         <action event="bindingFinished" type="script/javascript">
