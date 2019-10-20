@@ -15,7 +15,6 @@ import com.kapplication.cqlive.widget.NoUiGSYPlayer
 import com.kapplication.cqlive.widget.PlayerSeekBarRender
 import com.kapplication.cqlive.widget.XulExt_GSYVideoPlayer
 import com.shuyu.gsyvideoplayer.GSYVideoManager
-import com.shuyu.gsyvideoplayer.listener.GSYSampleCallBack
 import com.shuyu.gsyvideoplayer.utils.GSYVideoType
 import com.shuyu.gsyvideoplayer.video.base.GSYVideoView.CURRENT_STATE_PAUSE
 import com.shuyu.gsyvideoplayer.video.base.GSYVideoView.CURRENT_STATE_PLAYING
@@ -484,19 +483,27 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         GSYVideoManager.instance().releaseMediaPlayer()
 
 //        val testUrl = "http://7xjmzj.com1.z0.glb.clouddn.com/20171026175005_JObCxCE2.mp4"
-//        val testUrl = "http://9890.vod.myqcloud.com/9890_4e292f9a3dd011e6b4078980237cc3d3.f20.mp4"
-//        mMediaPlayer.setUp(testUrl, false, "")
-        mMediaPlayer.setUp(playUrl, false, "")
-        mMediaPlayer.setVideoAllCallBack(object : GSYSampleCallBack() {
-            override fun onAutoComplete(url: String?, vararg objects: Any?) {
-                XulLog.i(NAME, "回看播放完成, 2秒后回到直播, liveId = $mCurrentChannelId ")
+        val testUrl = "http://9890.vod.myqcloud.com/9890_4e292f9a3dd011e6b4078980237cc3d3.f20.mp4"
+        mMediaPlayer.setUp(testUrl, false, "")
+//        mMediaPlayer.setUp(playUrl, false, "")
+        mMediaPlayer.setListener(object : NoUiGSYPlayer.PlayerListener {
+            override fun onAutoCompletion() {
+                XulLog.i(NAME, "onAutoCompletion() 回看播放完成, 2秒后回到直播, liveId = $mCurrentChannelId ")
                 Toast.makeText(context, "回看播放完成,2秒后回到直播", Toast.LENGTH_SHORT).show()
                 mPreloadSuccess = false
                 xulDoAction(null, "switchChannel", "usr_cmd", "{\"live_id\":\"$mCurrentChannelId\",\"category_id\":\"$mCurrentCategoryId\"}", null)
             }
 
-            override fun onPrepared(url: String?, vararg objects: Any?) {
-                initSeekBar()
+            override fun onPrepared() {
+                XulLog.i(NAME, "onPrepared()")
+                if (!mIsLiveMode) {
+                    initSeekBar()
+                }
+            }
+
+            override fun onSeekComplete() {
+                XulLog.i(NAME, "onSeekComplete()")
+                mIsPlaybackSeeking = false
             }
         })
         mMediaPlayer.startPlayLogic()
@@ -828,14 +835,14 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                 mSeekBarRender.setSeekBarTips(if (mSeekBarRender.seekBarPos == 1.0) "直播中" else dateFormat.format(timeshiftDate))
             }
         } else {
-//            if (!mIsPlaybackSeeking) {
+            if (!mIsPlaybackSeeking) {
                 if (mMediaPlayer.currentPositionWhenPlaying != 0) {
                     mSeekBarRender.seekBarPos = (mMediaPlayer.currentPositionWhenPlaying.toDouble() / mMediaPlayer.duration.toDouble())
                     mSeekBarRender.setSeekBarTips(dateFormat.format(mMediaPlayer.currentPositionWhenPlaying - TimeZone.getDefault().rawOffset))
                 }
                 mMediaTimeStartView.setAttr("text", dateFormat.format(mMediaPlayer.currentPositionWhenPlaying - TimeZone.getDefault().rawOffset))
                 mMediaTimeStartView.resetRender()
-//            }
+            }
         }
     }
 
@@ -904,7 +911,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
     }
 
     private var direction = 0
-//    private var mIsPlaybackSeeking = false
+    private var mIsPlaybackSeeking = false
     override fun xulOnDispatchKeyEvent(event: KeyEvent?): Boolean {
         XulLog.i(NAME, "event = $event")
         if (mHandler.hasMessages(CommonMessage.EVENT_AUTO_HIDE_UI)) {
@@ -949,27 +956,28 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                             }
                             mSeekBarRender.seekBarPos = (THREE_HOURS_IN_SECONDS + direction) / THREE_HOURS_IN_SECONDS.toDouble()
                         } else {
-//                            mIsPlaybackSeeking = true
-//                            mMediaPlayer.onVideoPause()
-//                            val step = 10 * 1000
-//                            if (event.keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
-//                                if (direction - step < 0) {
-//                                    direction = 0
-//                                } else {
-//                                    direction -= step
-//                                }
-//                                showPlayerStateIndicator(-1)
-//                            } else {
-//                                if (direction + step > mMediaPlayer.duration) {
-//                                    direction = mMediaPlayer.duration - step
-//                                } else {
-//                                    direction += step
-//                                }
-//                                showPlayerStateIndicator(1)
-//                            }
-//                            if (mMediaPlayer.duration != 0) {
-//                                mSeekBarRender.seekBarPos = direction / mMediaPlayer.duration.toDouble()
-//                            }
+                            if (!mIsPlaybackSeeking) {
+                                direction = mMediaPlayer.currentPositionWhenPlaying
+                                mIsPlaybackSeeking = true
+                            }
+                            val step = 3000
+                            if (event.keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
+                                showPlayerStateIndicator(-1)
+                                direction -= step
+                                if (direction < 0) {
+                                    direction = 0
+                                }
+                            } else {
+                                showPlayerStateIndicator(1)
+                                direction += step
+                                if (direction > mMediaPlayer.duration) {
+                                    direction = mMediaPlayer.duration
+                                }
+                            }
+                            if (mMediaPlayer.duration != 0) {
+                                mSeekBarRender.seekBarPos = direction / mMediaPlayer.duration.toDouble()
+                                mSeekBarRender.setSeekBarTips(dateFormat.format(direction - TimeZone.getDefault().rawOffset))
+                            }
                         }
                     }
                 }
@@ -1039,14 +1047,10 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                             XulLog.i(NAME, "seekBarPos = $seekBarPos, duration = $duration. seekBarPos * duration = $seekPos")
                             mMediaPlayer.seekTo(seekPos)
                         } else {
-//                            showPlayerStateIndicator(0)
-//                            val seekBarPos: Double = mSeekBarRender.seekBarPos
-//                            val duration: Int = mMediaPlayer.duration
-//                            var seekPos: Long = (seekBarPos * duration).toLong()
-//                            XulLog.i(NAME, "seekBarPos = $seekBarPos, duration = $duration. seekBarPos * duration = $seekPos")
-//                            mMediaPlayer.seekTo(seekPos)
-//                            mMediaPlayer.onVideoResume()
-//                            mIsPlaybackSeeking = false
+                            if (mIsPlaybackSeeking) {
+                                showPlayerStateIndicator(0)
+                                mMediaPlayer.seekTo(direction.toLong())
+                            }
                         }
                         return true
                     }
@@ -1108,7 +1112,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
     }
 
     override fun onProgressChanged(pos: Double) {
-        XulLog.i(NAME, "onProgressChanged.  pos = $pos, duration = ${mMediaPlayer.duration} time = ${(mMediaPlayer.duration * pos).toInt()})")
+//        XulLog.i(NAME, "onProgressChanged.  pos = $pos, duration = ${mMediaPlayer.duration} time = ${(mMediaPlayer.duration * pos).toInt()})")
     }
 
     private fun showChannelList(show: Boolean) {

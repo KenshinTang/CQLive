@@ -22,6 +22,14 @@ open class NoUiGSYPlayer : StandardGSYVideoPlayer {
 
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
 
+    interface PlayerListener {
+        fun onAutoCompletion()
+        fun onPrepared()
+        fun onSeekComplete()
+    }
+
+    private var listener: PlayerListener? = null
+
     override fun getLayoutId(): Int {
         return R.layout.empty_control_video
     }
@@ -51,16 +59,21 @@ open class NoUiGSYPlayer : StandardGSYVideoPlayer {
         return mSurface
     }
 
+    fun setListener(listener: PlayerListener) {
+        this.listener = listener
+    }
 
     private val TAG: String = "TAG"
     override fun onAutoCompletion() {
         XulLog.i(MainBehavior.NAME, "$TAG onAutoCompletion")
         super.onAutoCompletion()
+        listener?.onAutoCompletion()
     }
 
     override fun onPrepared() {
         XulLog.i(MainBehavior.NAME, "$TAG onPrepared")
         super.onPrepared()
+        listener?.onPrepared()
     }
 
     override fun onCompletion() {
@@ -76,6 +89,7 @@ open class NoUiGSYPlayer : StandardGSYVideoPlayer {
     override fun onSeekComplete() {
         XulLog.i(MainBehavior.NAME, "$TAG onSeekComplete")
         super.onSeekComplete()
+        listener?.onSeekComplete()
     }
 
     override fun onInfo(what: Int, extra: Int) {
