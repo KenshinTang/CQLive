@@ -78,6 +78,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
     private lateinit var mDateLayer: XulView
     private lateinit var mProgramLayer: XulView
     private lateinit var mSeekBarRender: PlayerSeekBarRender
+    private lateinit var mCurrentProgramView: XulView
 
     private var mIsChannelListShow: Boolean = false
     private var mIsControlFrameShow: Boolean = false
@@ -172,6 +173,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         mChannelLayer = xulGetRenderContext().findItemById("channel-layer")
         mDateLayer = xulGetRenderContext().findItemById("date-layer")
         mProgramLayer = xulGetRenderContext().findItemById("program-layer")
+        mCurrentProgramView = xulGetRenderContext().findItemById("current-program")
 
         mTimeshiftLogoView = xulGetRenderContext().findItemById("timeshift_logo")
         mMediaTimeStartView = xulGetRenderContext().findItemById("player-time-begin")
@@ -1154,11 +1156,55 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                     mTimeshiftLogoView.setStyle("display", "none")
                     mTimeshiftLogoView.resetRender()
                 }
+
+                val urlBuilder = HttpUrl.parse(Utils.HOST)!!.newBuilder()
+                    .addQueryParameter("m", "Live")
+                    .addQueryParameter("c", "LivePlayBill")
+                    .addQueryParameter("a", "getPlayBillList")
+                    .addQueryParameter("live_id", mCurrentChannelId)
+
+                XulLog.i(NAME, "Request url: ${urlBuilder.build()}")
+
+                val request: Request = Request.Builder().cacheControl(cacheControl).url(urlBuilder.build()).build()
+                okHttpClient.newCall(request).enqueue(object : Callback {
+                    override fun onResponse(call: Call?, response: Response?) {
+                        response!!.body().use { responseBody ->
+                            if (!response.isSuccessful) {
+                                XulLog.e(NAME, "getPlayBillList onResponse, but is not Successful")
+                                throw IOException("Unexpected code $response")
+                            }
+
+                            XulLog.i(NAME, "getPlayBillList onResponse")
+
+                            val result : String = responseBody!!.string()
+                            val dataNode: XulDataNode? = XulDataNode.buildFromJson(result)
+                            XulApplication.getAppInstance().postToMainLooper {
+                                var programNode: XulDataNode? = dataNode?.getChildNode("data")?.lastChild?.getChildNode("playbill_list")?.firstChild
+                                while (programNode != null) {
+                                    if (programNode.getAttributeValue("play_status") == "2") {
+                                        mCurrentProgramView.setStyle("display", "block")
+                                        mCurrentProgramView.setAttr("text", "正在播放: ${programNode.getAttributeValue("name")}")
+                                        mCurrentProgramView.resetRender()
+                                        break
+                                    }
+                                    programNode = programNode.next
+                                }
+                            }
+                        }
+                    }
+
+                    override fun onFailure(call: Call?, e: IOException?) {
+                        XulLog.e(NAME, "getPlayBillList onFailure")
+                    }
+                })
                 mHandler.sendEmptyMessageDelayed(CommonMessage.EVENT_AUTO_HIDE_UI, 8 * 1000)
             } else {
                 mTimeshiftLogoView.setStyle("display", "block")
                 mTimeshiftLogoView.setAttr("text", "回看")
                 mTimeshiftLogoView.resetRender()
+
+                mCurrentProgramView.setStyle("display", "none")
+                mCurrentProgramView.resetRender()
                 if (mMediaPlayer.currentState != CURRENT_STATE_PAUSE) {
                     mHandler.sendEmptyMessageDelayed(CommonMessage.EVENT_AUTO_HIDE_UI, 8 * 1000)
                 }

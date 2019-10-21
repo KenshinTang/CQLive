@@ -176,8 +176,8 @@
                                             this.dispatchEvent("preloadPlayRes", "usr_cmd", "");
                                         </action>
                                         <action event="click" type="script/javascript">
-                                            var category-list = this.ownerPage.findItemById("category-list");
-                                            if (category-list.getAttr("x") == "0") {
+                                            var category = this.ownerPage.findItemById("category-list");
+                                            if (category.getAttr("x") == "0") {
                                                 var live_id = this.getData("live_id");
                                                 var category_id = this.getData("category_id");
                                                 this.dispatchEvent("switchChannel", "usr_cmd", JSON.stringify({"live_id":live_id, "category_id":category_id}));
@@ -466,6 +466,13 @@
                         <style name="clip-children">false</style>
                         <style name="padding">0,92</style>
                         <attr name="width">match_parent</attr>
+                        <item id="current-program" type="label">
+                            <attr name="x">0</attr>
+                            <attr name="y">-50</attr>
+                            <attr name="text">正在播放: 你的名字</attr>
+                            <style name="font-color">FFFFFFFF</style>
+                            <style name="font-size">38</style>
+                        </item>
                         <item id="player-time-begin" type="label" class="player-time-label" desc="左边时间/可时移时间">
                         </item>
                         <item id="player-pos" class="player-pos" type="seek_bar">
