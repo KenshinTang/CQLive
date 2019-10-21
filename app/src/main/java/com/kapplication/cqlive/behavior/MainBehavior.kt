@@ -483,9 +483,9 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         GSYVideoManager.instance().releaseMediaPlayer()
 
 //        val testUrl = "http://7xjmzj.com1.z0.glb.clouddn.com/20171026175005_JObCxCE2.mp4"
-        val testUrl = "http://9890.vod.myqcloud.com/9890_4e292f9a3dd011e6b4078980237cc3d3.f20.mp4"
-        mMediaPlayer.setUp(testUrl, false, "")
-//        mMediaPlayer.setUp(playUrl, false, "")
+//        val testUrl = "http://9890.vod.myqcloud.com/9890_4e292f9a3dd011e6b4078980237cc3d3.f20.mp4"
+//        mMediaPlayer.setUp(testUrl, false, "")
+        mMediaPlayer.setUp(playUrl, false, "")
         mMediaPlayer.setListener(object : NoUiGSYPlayer.PlayerListener {
             override fun onAutoCompletion() {
                 XulLog.i(NAME, "onAutoCompletion() 回看播放完成, 2秒后回到直播, liveId = $mCurrentChannelId ")
