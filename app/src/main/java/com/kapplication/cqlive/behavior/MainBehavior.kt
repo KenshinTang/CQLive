@@ -662,6 +662,47 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         xulGetRenderContext().findItemById("live_num")?.resetRender()
         xulGetRenderContext().findItemById("live_name")?.setAttr("text", channelName)
         xulGetRenderContext().findItemById("live_name")?.resetRender()
+
+        val urlBuilder = HttpUrl.parse(Utils.HOST)!!.newBuilder()
+            .addQueryParameter("m", "Live")
+            .addQueryParameter("c", "LivePlayBill")
+            .addQueryParameter("a", "getPlayBillList")
+            .addQueryParameter("live_id", mCurrentChannelId)
+
+        XulLog.i(NAME, "Request url: ${urlBuilder.build()}")
+
+        val request: Request = Request.Builder().cacheControl(cacheControl).url(urlBuilder.build()).build()
+        okHttpClient.newCall(request).enqueue(object : Callback {
+            override fun onResponse(call: Call?, response: Response?) {
+                response!!.body().use { responseBody ->
+                    if (!response.isSuccessful) {
+                        XulLog.e(NAME, "getPlayBillList onResponse, but is not Successful")
+                        throw IOException("Unexpected code $response")
+                    }
+
+                    XulLog.i(NAME, "getPlayBillList onResponse")
+
+                    val result : String = responseBody!!.string()
+                    val dataNode: XulDataNode? = XulDataNode.buildFromJson(result)
+                    XulApplication.getAppInstance().postToMainLooper {
+                        var programNode: XulDataNode? = dataNode?.getChildNode("data")?.lastChild?.getChildNode("playbill_list")?.firstChild
+                        while (programNode != null) {
+                            if (programNode.getAttributeValue("play_status") == "2") {
+                                mCurrentProgramView.setStyle("display", "block")
+                                mCurrentProgramView.setAttr("text", "正在播放: ${programNode.getAttributeValue("name")}")
+                                mCurrentProgramView.resetRender()
+                                break
+                            }
+                            programNode = programNode.next
+                        }
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call?, e: IOException?) {
+                XulLog.e(NAME, "getPlayBillList onFailure")
+            }
+        })
     }
 
     private fun showEmptyTips(show: Boolean) {
@@ -1157,46 +1198,6 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                     mTimeshiftLogoView.resetRender()
                 }
 
-                val urlBuilder = HttpUrl.parse(Utils.HOST)!!.newBuilder()
-                    .addQueryParameter("m", "Live")
-                    .addQueryParameter("c", "LivePlayBill")
-                    .addQueryParameter("a", "getPlayBillList")
-                    .addQueryParameter("live_id", mCurrentChannelId)
-
-                XulLog.i(NAME, "Request url: ${urlBuilder.build()}")
-
-                val request: Request = Request.Builder().cacheControl(cacheControl).url(urlBuilder.build()).build()
-                okHttpClient.newCall(request).enqueue(object : Callback {
-                    override fun onResponse(call: Call?, response: Response?) {
-                        response!!.body().use { responseBody ->
-                            if (!response.isSuccessful) {
-                                XulLog.e(NAME, "getPlayBillList onResponse, but is not Successful")
-                                throw IOException("Unexpected code $response")
-                            }
-
-                            XulLog.i(NAME, "getPlayBillList onResponse")
-
-                            val result : String = responseBody!!.string()
-                            val dataNode: XulDataNode? = XulDataNode.buildFromJson(result)
-                            XulApplication.getAppInstance().postToMainLooper {
-                                var programNode: XulDataNode? = dataNode?.getChildNode("data")?.lastChild?.getChildNode("playbill_list")?.firstChild
-                                while (programNode != null) {
-                                    if (programNode.getAttributeValue("play_status") == "2") {
-                                        mCurrentProgramView.setStyle("display", "block")
-                                        mCurrentProgramView.setAttr("text", "正在播放: ${programNode.getAttributeValue("name")}")
-                                        mCurrentProgramView.resetRender()
-                                        break
-                                    }
-                                    programNode = programNode.next
-                                }
-                            }
-                        }
-                    }
-
-                    override fun onFailure(call: Call?, e: IOException?) {
-                        XulLog.e(NAME, "getPlayBillList onFailure")
-                    }
-                })
                 mHandler.sendEmptyMessageDelayed(CommonMessage.EVENT_AUTO_HIDE_UI, 8 * 1000)
             } else {
                 mTimeshiftLogoView.setStyle("display", "block")
