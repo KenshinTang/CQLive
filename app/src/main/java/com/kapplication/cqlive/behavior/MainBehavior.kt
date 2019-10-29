@@ -87,7 +87,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
     private var mPlaybackDataNode: XulDataNode? = null // 全量回看数据
     private var mCollectionNode: XulDataNode? = null
     private var mCurrentChannelNode: XulDataNode? = null
-    private var mCurrentChannelId: String? = "515972557"
+    private var mCurrentChannelId: String? = ""
     private var mCurrentCategoryId: String? = ""
     private var mUpDownSwitchChannelNodes: ArrayList<XulDataNode> = ArrayList()
     private var mUpDownTmpSwitchChannelNodes: ArrayList<XulDataNode> = ArrayList()
@@ -127,7 +127,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                         if (view == instance.xulGetFocus()
                             && (view.findItemById("playing_indicator").getAttrString("img.0.visible") == "false")) {
                             val liveNode: XulDataNode? = view.bindingData?.get(0)
-                            instance.preloadPlayRes(liveNode)
+//                            instance.preloadPlayRes(liveNode)
                             instance.preloadProgram(liveNode)
                         }
                     }
@@ -325,6 +325,9 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
             if (mFirst) {
                 xulGetRenderContext().layout.requestFocus(mChannelListWrapper.getItemView(mCurrentChannelIndex))
                 mUpDownSwitchChannelNodes.addAll(mUpDownTmpSwitchChannelNodes)
+                if (mCurrentChannelId == "") {
+                    mCurrentChannelId = channelList.firstChild.getAttributeValue("live_id")
+                }
                 val url: String = requestPlayUrl(mCurrentChannelId)
                 startToPlayLive(url, 0)
                 mFirst = false
@@ -396,6 +399,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
     }
 
     private fun startToPlayLive(playUrl: String, upOrDown: Int) {
+        XulLog.i(NAME, "startToPlayLive, playUrl = $playUrl,  upOrDown=$upOrDown")
         mIsLiveMode = true
         //upOrDown -1 -> 按上键触发的播放
         //upOrDown =0 -> 非上下键触发的播放, 比如频道列表选择
@@ -417,7 +421,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                 GSYVideoManager.instance().setDisplay(mMediaPlayer.getSurface())
                 GSYVideoManager.instance().start()
                 mPreloadSuccess = false
-                return
+//                return
             }
 
             updateTitleArea(mCurrentChannelId!!)
@@ -474,7 +478,11 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         val nextDownPlayUrl: String = mUpDownSwitchChannelNodes[downIndex].getAttributeValue("play_url")
         mDownVideoManager = GSYVideoManager.tmpInstance(null)
         mDownVideoManager?.prepare(nextDownPlayUrl, null, false, 1f, false, null)
-        mCurrentVideoManager = if (upOrDown == -1) mUpVideoManager else mDownVideoManager
+        if (upOrDown == -1) {
+            mCurrentVideoManager = mUpVideoManager
+        } else if (upOrDown == 1) {
+            mCurrentVideoManager = mDownVideoManager
+        }
     }
 
     private fun startToPlayPlayback(playUrl: String) {
@@ -506,6 +514,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
             override fun onSeekComplete() {
                 XulLog.i(NAME, "onSeekComplete()")
                 mIsPlaybackSeeking = false
+                mIsLiveSeeking = false
             }
 
             override fun onInfo(what: Int, extra: Int) {
@@ -526,6 +535,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
     private fun preloadPlayRes(playUrl: String?) {
         XulLog.i(NAME, "preload url: $playUrl")
         if (mNextVideoManager != null && mNextVideoManager!!.isPlaying) {
+            XulLog.i(NAME, "preloadPlayRes 1")
             mNextVideoManager2?.stop()
             mNextVideoManager2?.releaseMediaPlayer()
             mNextVideoManager2 = GSYVideoManager.tmpInstance(null)
@@ -533,6 +543,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
             mCurrentVideoManager = mNextVideoManager2
             mPreloadSuccess = true
         } else if (mNextVideoManager == null || (mNextVideoManager2 != null && mNextVideoManager2!!.isPlaying)) {
+            XulLog.i(NAME, "preloadPlayRes 2")
             mNextVideoManager?.stop()
             mNextVideoManager?.releaseMediaPlayer()
             mNextVideoManager = GSYVideoManager.tmpInstance(null)
@@ -959,6 +970,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
 
     private var direction = 0
     private var mIsPlaybackSeeking = false
+    private var mIsLiveSeeking = false
     override fun xulOnDispatchKeyEvent(event: KeyEvent?): Boolean {
         XulLog.i(NAME, "event = $event")
         if (mHandler.hasMessages(CommonMessage.EVENT_AUTO_HIDE_UI)) {
@@ -980,6 +992,9 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                     }
                     if (mIsControlFrameShow) {
                         if (mIsLiveMode) {
+                            if (!mIsLiveSeeking && mSeekBarRender.seekBarPos < 1.0) {
+                                mIsLiveSeeking = true
+                            }
                             val step = when (event.repeatCount) {
                                 0 -> 10
                                 in 1..10 -> 30
@@ -994,6 +1009,9 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                                 }
                                 showPlayerStateIndicator(-1)
                             } else {
+                                if (direction == 0) {
+                                    return true
+                                }
                                 if (direction + step > 0) {
                                     direction = 0
                                 } else {
@@ -1078,21 +1096,25 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                 KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_DPAD_RIGHT -> {
                     if (mIsControlFrameShow) {
                         if (mIsLiveMode) {
-                            showPlayerStateIndicator(0)
-                            val seekBarPos: Double = mSeekBarRender.seekBarPos
-                            val duration: Int = mMediaPlayer.duration
-                            var seekPos: Long = (seekBarPos * duration).toLong()
-                            if (seekPos < 0) {
-                                seekPos = 3000
+                            if (mIsLiveSeeking) {
+                                showPlayerStateIndicator(0)
+                                val seekBarPos: Double = mSeekBarRender.seekBarPos
+                                val duration: Int = mMediaPlayer.duration
+                                var seekPos: Long = (seekBarPos * duration).toLong()
+                                if (seekPos < 0) {
+                                    seekPos = 3000
+                                }
+                                mTimeshiftLogoView.setStyle("display", "block")
+                                if (seekPos >= duration) {
+                                    seekPos = duration.toLong()
+                                    mTimeshiftLogoView.setStyle("display", "none")
+                                }
+                                mTimeshiftLogoView.resetRender()
+                                XulLog.i(NAME, "seekBarPos = $seekBarPos, duration = $duration. seekBarPos * duration = $seekPos"
+                                )
+                                mMediaPlayer.seekTo(seekPos)
+                                mIsLiveSeeking = false
                             }
-                            mTimeshiftLogoView.setStyle("display", "block")
-                            if (seekPos >= duration) {
-                                seekPos = duration - 3000.toLong()
-                                mTimeshiftLogoView.setStyle("display", "none")
-                            }
-                            mTimeshiftLogoView.resetRender()
-                            XulLog.i(NAME, "seekBarPos = $seekBarPos, duration = $duration. seekBarPos * duration = $seekPos")
-                            mMediaPlayer.seekTo(seekPos)
                         } else {
                             if (mIsPlaybackSeeking) {
                                 showPlayerStateIndicator(0)
