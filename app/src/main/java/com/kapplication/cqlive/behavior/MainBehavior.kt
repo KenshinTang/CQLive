@@ -127,7 +127,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                         if (view == instance.xulGetFocus()
                             && (view.findItemById("playing_indicator").getAttrString("img.0.visible") == "false")) {
                             val liveNode: XulDataNode? = view.bindingData?.get(0)
-//                            instance.preloadPlayRes(liveNode)
+                            instance.preloadPlayRes(liveNode)
                             instance.preloadProgram(liveNode)
                         }
                     }
@@ -534,7 +534,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
 
     private fun preloadPlayRes(playUrl: String?) {
         XulLog.i(NAME, "preload url: $playUrl")
-        if (mNextVideoManager != null && mNextVideoManager!!.isPlaying) {
+        if (mNextVideoManager != null) {
             XulLog.i(NAME, "preloadPlayRes 1")
             mNextVideoManager2?.stop()
             mNextVideoManager2?.releaseMediaPlayer()
