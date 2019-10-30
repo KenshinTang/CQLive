@@ -889,8 +889,10 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                 mMediaTimeStartView.setAttr("text", dateFormat.format(threeHoursAgoDate))
                 mMediaTimeStartView.resetRender()
 
-                timeshiftDate.time = currentTimeMillis - ((1.0f - mSeekBarRender.seekBarPos) * THREE_HOURS_IN_SECONDS * 1000).toLong()
-                mSeekBarRender.setSeekBarTips(if (mSeekBarRender.seekBarPos == 1.0) "直播中" else dateFormat.format(timeshiftDate))
+                if (!mIsLiveSeeking) {
+                    timeshiftDate.time = currentTimeMillis - ((1.0f - mSeekBarRender.seekBarPos) * THREE_HOURS_IN_SECONDS * 1000).toLong()
+                    mSeekBarRender.setSeekBarTips(if (mSeekBarRender.seekBarPos == 1.0) "直播中" else dateFormat.format(timeshiftDate))
+                }
             }
         } else {
             if (!mIsPlaybackSeeking) {
@@ -1182,6 +1184,11 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
 
     override fun onProgressChanged(pos: Double) {
 //        XulLog.i(NAME, "onProgressChanged.  pos = $pos, duration = ${mMediaPlayer.duration} time = ${(mMediaPlayer.duration * pos).toInt()})")
+        if (mIsLiveMode) {
+            val currentTimeMillis = System.currentTimeMillis()
+            timeshiftDate.time = currentTimeMillis - ((1.0f - mSeekBarRender.seekBarPos) * THREE_HOURS_IN_SECONDS * 1000).toLong()
+            mSeekBarRender.setSeekBarTips(if (mSeekBarRender.seekBarPos == 1.0) "直播中" else dateFormat.format(timeshiftDate))
+        }
     }
 
     private fun showChannelList(show: Boolean) {
