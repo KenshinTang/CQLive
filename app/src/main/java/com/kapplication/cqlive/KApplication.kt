@@ -1,18 +1,16 @@
 package com.kapplication.cqlive
 
 import com.kapplication.cqlive.behavior.MainBehavior
+import com.kapplication.cqlive.behavior.MainBehavior2
 import com.kapplication.cqlive.message.CommonMessage
+import com.kapplication.cqlive.widget.PlayerSeekBarRender
+import com.shuyu.gsyvideoplayer.player.PlayerFactory
 import com.starcor.xulapp.XulApplication
+import com.starcor.xulapp.debug.XulDebugServer
 import com.starcor.xulapp.message.XulMessageCenter
 import com.starcor.xulapp.utils.XulLog
-import tv.danmaku.ijk.media.exo2.Exo2PlayerManager
-import com.shuyu.gsyvideoplayer.player.PlayerFactory
-import androidx.core.content.ContextCompat.getSystemService
-import android.icu.lang.UCharacter.GraphemeClusterBreak.T
-import com.kapplication.cqlive.widget.PlayerSeekBarRender
-import com.shuyu.gsyvideoplayer.player.SystemPlayerManager
-import com.starcor.xulapp.debug.XulDebugServer
 import com.starcor.xulapp.utils.XulResPrefetchManager
+import tv.danmaku.ijk.media.exo2.Exo2PlayerManager
 
 
 class KApplication : XulApplication() {
@@ -66,6 +64,7 @@ class KApplication : XulApplication() {
 //        autoRegister(behaviorPkgName, XulUiBehavior::class.java)
 
         MainBehavior.register()
+        MainBehavior2.register()
 
         PlayerSeekBarRender.register()
     }

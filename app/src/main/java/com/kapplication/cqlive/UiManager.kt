@@ -2,7 +2,7 @@ package com.kapplication.cqlive
 
 import android.content.Intent
 import android.os.Bundle
-import com.kapplication.cqlive.behavior.MainBehavior
+import com.kapplication.cqlive.behavior.MainBehavior2
 import com.kapplication.cqlive.message.CommonMessage
 import com.starcor.xul.XulDataNode
 import com.starcor.xulapp.XulApplication
@@ -22,7 +22,8 @@ object UiManager {
     val uiPages = ArrayList<UiPageInfo>()
 
     init {
-        addUiPage("MainPage", "xul_layouts/pages/xul_main_page.xml", MainBehavior.NAME, MainActivity::class)
+//        addUiPage("MainPage", "xul_layouts/pages/xul_main_page.xml", MainBehavior.NAME, MainActivity::class)
+        addUiPage("MainPage", "xul_layouts/pages/xul_main_page.xml", MainBehavior2.NAME, MainActivity::class)
     }
 
     fun addUiPage(pageId: String, xulFile: String, behavior: String) {

@@ -5,6 +5,22 @@
         <action event="appEvents:toggleUi" type="script/javascript">MediaPlayer_toggleUI</action>
         <action event="load" type="usr_cmd"/>
         <layout>
+            <area id="debug_info" desc="码率">
+                <style name="display">block</style>
+                <attr name="x">1200</attr>
+                <attr name="y">50</attr>
+                <attr name="width">match_parent</attr>
+                <attr name="height">200</attr>
+                <item id="bitrate" type="label">
+                    <attr name="x">0</attr>
+                    <attr name="y">0</attr>
+                    <attr name="width">match_parent</attr>
+                    <attr name="height">match_parent</attr>
+                    <style name="font-size">50</style>
+                    <style name="font-color">FFFFFFFF</style>
+                </item>
+            </area>
+
             <area id="title-frame" desc="顶部标题栏">
                 <style name="display">none</style>
                 <attr name="y">0</attr>
