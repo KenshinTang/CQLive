@@ -19,6 +19,7 @@ import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import com.kapplication.cqlive.message.CommonMessage
+import com.kapplication.cqlive.utils.KeyEventListener
 import com.kapplication.cqlive.utils.Utils
 import com.kapplication.cqlive.widget.PlayerSeekBarRender
 import com.starcor.xul.Wrapper.XulMassiveAreaWrapper
@@ -47,6 +48,11 @@ class MainBehavior2(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pl
     companion object {
         const val NAME = "MainBehavior2"
         const val THREE_HOURS_IN_SECONDS = 3600 * 3
+
+        val keys:CharArray = charArrayOf(
+            KeyEventListener.KEY.KEY_MENU, KeyEventListener.KEY.KEY_MENU,
+            KeyEventListener.KEY.KEY_MENU, KeyEventListener.KEY.KEY_MENU,
+            KeyEventListener.KEY.KEY_MENU, KeyEventListener.KEY.KEY_RIGHT)
 
         fun register() {
             XulBehaviorManager.registerBehavior(NAME,
@@ -85,6 +91,7 @@ class MainBehavior2(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pl
 
     private var mIsChannelListShow: Boolean = false
     private var mIsControlFrameShow: Boolean = false
+    private var mIsDebugInfoShow: Boolean = false
 
     private var mLiveDataNode: XulDataNode? = null   //全量直播数据
     private var mPlaybackDataNode: XulDataNode? = null // 全量回看数据
@@ -208,6 +215,13 @@ class MainBehavior2(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pl
                 mIsLiveSeeking = false
             }
         })
+
+        KeyEventListener.register(keys) {
+            XulLog.e("kenshin", "key pressed.")
+            xulGetRenderContext().findItemById("debug_info").setStyle("display", if (mIsDebugInfoShow) "none" else "block")
+            xulGetRenderContext().findItemById("debug_info").resetRender()
+            mIsDebugInfoShow = !mIsDebugInfoShow
+        }
     }
 
     private fun initSeekBar() {
@@ -866,6 +880,10 @@ class MainBehavior2(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pl
     private var mIsLiveSeeking = false
     override fun xulOnDispatchKeyEvent(event: KeyEvent?): Boolean {
         XulLog.i(NAME, "event = $event")
+        if (event?.action == KeyEvent.ACTION_DOWN) {
+            KeyEventListener.listenKeyInput(event.keyCode)
+        }
+
         if (mHandler.hasMessages(CommonMessage.EVENT_AUTO_HIDE_UI)) {
             mHandler.removeMessages(CommonMessage.EVENT_AUTO_HIDE_UI)
             mHandler.sendEmptyMessageDelayed(CommonMessage.EVENT_AUTO_HIDE_UI, 8 * 1000)

@@ -6,7 +6,7 @@
         <action event="load" type="usr_cmd"/>
         <layout>
             <area id="debug_info" desc="码率">
-                <style name="display">block</style>
+                <style name="display">none</style>
                 <attr name="x">1200</attr>
                 <attr name="y">50</attr>
                 <attr name="width">match_parent</attr>
