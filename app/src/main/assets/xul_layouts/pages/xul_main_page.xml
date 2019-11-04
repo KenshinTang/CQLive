@@ -227,9 +227,11 @@
                                             <attr name="img.0.height">120</attr>
                                             <attr name="img.0.mode">center</attr>
                                             <attr name="img.0" binding="[=icon_img_url]"/>
+                                            <style name="display">none</style>
                                         </item>
                                         <item id="channel_name" type="label" desc="频道名">
-                                            <attr name="x">320</attr>
+<!--                                            <attr name="x">320</attr>-->
+                                            <attr name="x">180</attr>
                                             <attr name="height">match_parent</attr>
                                             <style name="font-align">0, 0.5</style>
                                             <style name="font-size">40</style>
