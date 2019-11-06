@@ -1,5 +1,6 @@
 package com.kapplication.cqlive.behavior
 
+import android.app.AlertDialog
 import android.net.Uri
 import android.os.Handler
 import android.os.Message
@@ -7,6 +8,7 @@ import android.text.TextUtils
 import android.view.*
 import android.widget.FrameLayout
 import android.widget.Toast
+import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.ExoPlayerFactory
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
@@ -18,6 +20,7 @@ import com.google.android.exoplayer2.ui.TrackNameProvider
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
+import com.kapplication.cqlive.R
 import com.kapplication.cqlive.message.CommonMessage
 import com.kapplication.cqlive.utils.KeyEventListener
 import com.kapplication.cqlive.utils.Utils
@@ -208,6 +211,10 @@ class MainBehavior2(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pl
                         }
                     }
                 }
+            }
+
+            override fun onPlayerError(error: ExoPlaybackException?) {
+                showPlayError()
             }
 
             override fun onSeekProcessed() {
@@ -1185,5 +1192,15 @@ class MainBehavior2(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pl
             }
         }
         playerState.resetRender()
+    }
+
+    private fun showPlayError() {
+        val builder = AlertDialog.Builder(context)
+        val inflater = LayoutInflater.from(context)
+        val view = inflater.inflate(R.layout.dialog_error, null)
+
+        val dialog = builder.create()
+        dialog.show()
+        dialog.window.setContentView(view)
     }
 }
