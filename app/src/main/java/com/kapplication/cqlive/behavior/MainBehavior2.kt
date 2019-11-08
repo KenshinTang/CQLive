@@ -107,6 +107,7 @@ class MainBehavior2(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pl
     private var mCurrentChannelIndex = 0  // current channel index in current channel list
     private var mFirst: Boolean = true
     private var mIsLiveMode: Boolean = true  // true: live, false: playback
+    private var mErrorDialog: AlertDialog? = null
 
     private var mLiveCollectionCache: XulCacheDomain? = null
 
@@ -224,7 +225,7 @@ class MainBehavior2(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pl
         })
 
         KeyEventListener.register(keys) {
-            XulLog.e("kenshin", "key pressed.")
+            XulLog.d(NAME, "key pressed.")
             xulGetRenderContext().findItemById("debug_info").setStyle("display", if (mIsDebugInfoShow) "none" else "block")
             xulGetRenderContext().findItemById("debug_info").resetRender()
             mIsDebugInfoShow = !mIsDebugInfoShow
@@ -901,6 +902,10 @@ class MainBehavior2(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pl
             xulGetRenderContext().findItemById("operate-tip").resetRender()
         }
 
+        if (mErrorDialog != null && mErrorDialog?.isShowing!!) {
+            mErrorDialog?.dismiss()
+        }
+
         if (event?.action == KeyEvent.ACTION_DOWN) {
             when (event.keyCode) {
                 KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_DPAD_RIGHT -> {
@@ -1081,6 +1086,7 @@ class MainBehavior2(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pl
                 KeyEvent.KEYCODE_DPAD_UP -> {
                     if (!mIsChannelListShow && mIsLiveMode) {
                         XulLog.i(NAME, "up pressed in live mode.")
+                        showControlFrame(true)
                         startToPlayLive("", -1)
                         return true
                     }
@@ -1088,6 +1094,7 @@ class MainBehavior2(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pl
                 KeyEvent.KEYCODE_DPAD_DOWN -> {
                     if (!mIsChannelListShow && mIsLiveMode) {
                         XulLog.i(NAME, "down pressed in live mode.")
+                        showControlFrame(true)
                         startToPlayLive("", 1)
                         return true
                     }
@@ -1196,11 +1203,23 @@ class MainBehavior2(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pl
 
     private fun showPlayError() {
         val builder = AlertDialog.Builder(context)
-        val inflater = LayoutInflater.from(context)
-        val view = inflater.inflate(R.layout.dialog_error, null)
+        val inflater: LayoutInflater = LayoutInflater.from(context)
+        val view: View = inflater.inflate(R.layout.dialog_error, null)
 
-        val dialog = builder.create()
-        dialog.show()
-        dialog.window.setContentView(view)
+        mErrorDialog = builder.create()
+        mErrorDialog?.show()
+        mErrorDialog?.window?.setContentView(view)
+        mErrorDialog?.setOnKeyListener { dialogInterface, keyCode, keyEvent ->
+            if (keyEvent.action == KeyEvent.ACTION_DOWN) {
+                when (keyCode) {
+                    KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_DOWN -> {
+                        dialogInterface.dismiss()
+                        return@setOnKeyListener false
+                    }
+                }
+            }
+
+            return@setOnKeyListener false
+        }
     }
 }
