@@ -26,6 +26,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAlignment="center"
+            android:paddingLeft="25dp"
+            android:paddingRight="25dp"
             android:textSize="22sp"
             android:textColor="@android:color/white"
             android:text="请重启机顶盒或拨打96868"/>
