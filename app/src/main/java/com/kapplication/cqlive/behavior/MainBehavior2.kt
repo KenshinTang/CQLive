@@ -624,15 +624,14 @@ class MainBehavior2(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pl
 
                     val code: String? = dataNode?.getAttributeValue("ret")
 
-                    if (code != "0") {
-                        mCurrentProgramView.setStyle("display", "block")
-                        mCurrentProgramView.setAttr("text", "正在播放: ")
-                        mCurrentProgramView.resetRender()
-                        return@use
-                    }
-
-
                     XulApplication.getAppInstance().postToMainLooper {
+                        if (code != "0") {
+                            mCurrentProgramView.setStyle("display", "block")
+                            mCurrentProgramView.setAttr("text", "正在播放: ")
+                            mCurrentProgramView.resetRender()
+                            return@postToMainLooper
+                        }
+
                         var programNode: XulDataNode? = dataNode?.getChildNode("data")?.lastChild?.getChildNode("playbill_list")?.firstChild
                         while (programNode != null) {
                             if (programNode.getAttributeValue("play_status") == "2") {
@@ -830,10 +829,13 @@ class MainBehavior2(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pl
                 mMediaTimeStartView.resetRender()
             }
         }
-        val trackNameProvider: TrackNameProvider = DefaultTrackNameProvider(context.resources)
-        val trackName = trackNameProvider.getTrackName(mMediaPlayer.videoFormat)
-        xulGetRenderContext().findItemById("bitrate").setAttr("text", trackName)
-        xulGetRenderContext().findItemById("bitrate").resetRender()
+
+        if (mIsDebugInfoShow) {
+            val trackNameProvider: TrackNameProvider = DefaultTrackNameProvider(context.resources)
+            val trackName = trackNameProvider.getTrackName(mMediaPlayer.videoFormat)
+            xulGetRenderContext().findItemById("bitrate").setAttr("text", trackName)
+            xulGetRenderContext().findItemById("bitrate").resetRender()
+        }
     }
 
     @XulSubscriber(tag = CommonMessage.EVENT_HALF_HOUR)
