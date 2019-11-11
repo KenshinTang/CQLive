@@ -487,7 +487,7 @@
                         <item id="current-program" type="label">
                             <attr name="x">0</attr>
                             <attr name="y">-50</attr>
-                            <attr name="text">正在播放: 你的名字</attr>
+                            <attr name="text">正在播放: </attr>
                             <style name="font-color">FFFFFFFF</style>
                             <style name="font-size">38</style>
                         </item>

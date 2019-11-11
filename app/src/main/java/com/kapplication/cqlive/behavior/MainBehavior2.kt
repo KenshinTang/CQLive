@@ -621,6 +621,17 @@ class MainBehavior2(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pl
 
                     val result : String = responseBody!!.string()
                     val dataNode: XulDataNode? = XulDataNode.buildFromJson(result)
+
+                    val code: String? = dataNode?.getAttributeValue("ret")
+
+                    if (code != "0") {
+                        mCurrentProgramView.setStyle("display", "block")
+                        mCurrentProgramView.setAttr("text", "正在播放: ")
+                        mCurrentProgramView.resetRender()
+                        return@use
+                    }
+
+
                     XulApplication.getAppInstance().postToMainLooper {
                         var programNode: XulDataNode? = dataNode?.getChildNode("data")?.lastChild?.getChildNode("playbill_list")?.firstChild
                         while (programNode != null) {
