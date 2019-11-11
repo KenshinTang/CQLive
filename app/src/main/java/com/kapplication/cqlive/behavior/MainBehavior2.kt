@@ -74,6 +74,11 @@ class MainBehavior2(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pl
 
     private val trackSelector: DefaultTrackSelector = DefaultTrackSelector()
     private var mMediaPlayer: SimpleExoPlayer = ExoPlayerFactory.newSimpleInstance(context, trackSelector)
+    private lateinit var mUpMediaPlayer: SimpleExoPlayer
+    private lateinit var mDownMediaPlayer: SimpleExoPlayer
+    private val mDataSourceFactory: DataSource.Factory = DefaultDataSourceFactory(context, Util.getUserAgent(context, "CQLive"))
+    private lateinit var mPlayerListener: Player.EventListener
+    private lateinit var mPlayerView: SurfaceView
 
     private lateinit var mCategoryListWrapper: XulMassiveAreaWrapper
     private lateinit var mChannelListWrapper: XulMassiveAreaWrapper
@@ -156,13 +161,13 @@ class MainBehavior2(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pl
         XulLog.i(NAME, "initRenderContextView")
         val viewRoot = FrameLayout(_presenter.xulGetContext())
         val matchParent = ViewGroup.LayoutParams.MATCH_PARENT
-        val playerView = createPlayerView()
-        viewRoot.addView(playerView, matchParent, matchParent)
+        mPlayerView = createPlayerView()
+        viewRoot.addView(mPlayerView, matchParent, matchParent)
         viewRoot.addView(renderContextView, matchParent, matchParent)
         return viewRoot
     }
 
-    private fun createPlayerView(): View {
+    private fun createPlayerView(): SurfaceView {
         val surfaceView = SurfaceView(context)
         surfaceView.holder.addCallback(object: SurfaceHolder.Callback {
             override fun surfaceChanged(holder: SurfaceHolder?, p1: Int, p2: Int, p3: Int) {
@@ -201,7 +206,7 @@ class MainBehavior2(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pl
         mSeekBarRender.setOnProgressChangedListener(this)
         initSeekBar()
 
-        mMediaPlayer.addListener(object: Player.EventListener {
+        mPlayerListener = object: Player.EventListener {
             override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
                 when (playbackState) {
                     Player.STATE_ENDED -> {
@@ -222,7 +227,8 @@ class MainBehavior2(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pl
                 mIsPlaybackSeeking = false
                 mIsLiveSeeking = false
             }
-        })
+        }
+        mMediaPlayer.addListener(mPlayerListener)
 
         KeyEventListener.register(keys) {
             XulLog.d(NAME, "key pressed.")
@@ -447,20 +453,57 @@ class MainBehavior2(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pl
 
     private fun startToPlayLive(playUrl: String, upOrDown: Int) {
         XulLog.i(NAME, "startToPlayLive, playUrl = $playUrl,  upOrDown=$upOrDown")
-        mIsLiveMode = true
         //upOrDown -1 -> 按上键触发的播放
         //upOrDown =0 -> 非上下键触发的播放, 比如频道列表选择
         //upOrDown =1 -> 按下键触发的播放
+
+        mIsLiveMode = true
         resetUI()
+
+        // play current channel
+        if (upOrDown == 0) {
+            val url = mUpDownSwitchChannelNodes[mCurrentChannelIndex].getAttributeValue("play_url")
+            val videoSource: MediaSource = HlsMediaSource.Factory(mDataSourceFactory).createMediaSource(Uri.parse(url))
+            mMediaPlayer.prepare(videoSource)
+            mMediaPlayer.playWhenReady = true
+        } else {
+            mMediaPlayer.stop()
+            mMediaPlayer.release()
+            if (upOrDown == -1) {
+                mMediaPlayer = mUpMediaPlayer
+                mDownMediaPlayer.release()
+            } else {
+                mMediaPlayer = mDownMediaPlayer
+                mUpMediaPlayer.release()
+            }
+            mMediaPlayer.setVideoSurfaceHolder(mPlayerView.holder)
+            mMediaPlayer.addListener(mPlayerListener)
+            mMediaPlayer.playWhenReady = true
+        }
+
         mCurrentChannelIndex += upOrDown
         if (mCurrentChannelIndex < 0) mCurrentChannelIndex = mUpDownSwitchChannelNodes.size - 1
         if (mCurrentChannelIndex == mUpDownSwitchChannelNodes.size) mCurrentChannelIndex = 0
+
+        // preload up channel
+        var upIndex = mCurrentChannelIndex - 1
+        if (upIndex < 0) upIndex = mUpDownSwitchChannelNodes.size - 1
+        val upUrl = mUpDownSwitchChannelNodes[upIndex].getAttributeValue("play_url")
+        val upVideoSource: MediaSource = HlsMediaSource.Factory(mDataSourceFactory).createMediaSource(Uri.parse(upUrl))
+        mUpMediaPlayer = ExoPlayerFactory.newSimpleInstance(context, trackSelector)
+        mUpMediaPlayer.prepare(upVideoSource)
+        mUpMediaPlayer.playWhenReady = false
+
+        // preload down channel
+        var downIndex = mCurrentChannelIndex + 1
+        if (downIndex == mUpDownSwitchChannelNodes.size) downIndex = 0
+        val downUrl = mUpDownSwitchChannelNodes[downIndex].getAttributeValue("play_url")
+        val downVideoSource: MediaSource = HlsMediaSource.Factory(mDataSourceFactory).createMediaSource(Uri.parse(downUrl))
+        mDownMediaPlayer = ExoPlayerFactory.newSimpleInstance(context, trackSelector)
+        mDownMediaPlayer.prepare(downVideoSource)
+        mDownMediaPlayer.playWhenReady = false
+
         mCurrentChannelId = mUpDownSwitchChannelNodes[mCurrentChannelIndex].getAttributeValue("live_id")
-        val url = mUpDownSwitchChannelNodes[mCurrentChannelIndex].getAttributeValue("play_url")
-        val dataSourceFactory: DataSource.Factory  = DefaultDataSourceFactory(context, Util.getUserAgent(context, "CQLive"))
-        val videoSource: MediaSource = HlsMediaSource.Factory(dataSourceFactory).createMediaSource(Uri.parse(url))
-        mMediaPlayer.prepare(videoSource)
-        mMediaPlayer.playWhenReady = true
         updateTitleArea(mCurrentChannelId!!)
         loadPreviewBitmaps()
     }
@@ -471,10 +514,8 @@ class MainBehavior2(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pl
 //        val testUrl = "http://7xjmzj.com1.z0.glb.clouddn.com/20171026175005_JObCxCE2.mp4"
 //        val testUrl = "http://9890.vod.myqcloud.com/9890_4e292f9a3dd011e6b4078980237cc3d3.f20.mp4"
 
-        val dataSourceFactory: DataSource.Factory  = DefaultDataSourceFactory(context, Util.getUserAgent(context, "CQLive"))
-
 //        val videoSource: MediaSource = ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(Uri.parse(testUrl))
-        val videoSource: MediaSource = HlsMediaSource.Factory(dataSourceFactory).createMediaSource(Uri.parse(playUrl))
+        val videoSource: MediaSource = HlsMediaSource.Factory(mDataSourceFactory).createMediaSource(Uri.parse(playUrl))
         mMediaPlayer.prepare(videoSource)
         mMediaPlayer.playWhenReady = true
         initSeekBar()
