@@ -10,6 +10,7 @@ import com.starcor.xulapp.debug.XulDebugServer
 import com.starcor.xulapp.message.XulMessageCenter
 import com.starcor.xulapp.utils.XulLog
 import com.starcor.xulapp.utils.XulResPrefetchManager
+import com.tencent.bugly.crashreport.CrashReport
 import tv.danmaku.ijk.media.exo2.Exo2PlayerManager
 
 
@@ -24,6 +25,7 @@ class KApplication : XulApplication() {
         XulLog.i("CQLive", "KApplication onCreate.")
         PlayerFactory.setPlayManager(Exo2PlayerManager::class.java)
         XulDebugServer.startUp()
+        CrashReport.initCrashReport(applicationContext, "d017744409", true)
         super.onCreate()
         startCommonMessage()
     }
@@ -87,7 +89,7 @@ class KApplication : XulApplication() {
             .setRepeat(Integer.MAX_VALUE)
 //            .setDelay(1000 * 60 * 1)
             .setDelay(1000 * 6 * 1)
-            .postSticky()
+//            .postSticky()
 
         XulMessageCenter.buildMessage()
             .setTag(CommonMessage.EVENT_HALF_HOUR)
