@@ -1,17 +1,14 @@
 package com.kapplication.cqlive
 
-import com.kapplication.cqlive.behavior.MainBehavior
 import com.kapplication.cqlive.behavior.MainBehavior2
 import com.kapplication.cqlive.message.CommonMessage
 import com.kapplication.cqlive.widget.PlayerSeekBarRender
-import com.shuyu.gsyvideoplayer.player.PlayerFactory
 import com.starcor.xulapp.XulApplication
 import com.starcor.xulapp.debug.XulDebugServer
 import com.starcor.xulapp.message.XulMessageCenter
 import com.starcor.xulapp.utils.XulLog
 import com.starcor.xulapp.utils.XulResPrefetchManager
 import com.tencent.bugly.crashreport.CrashReport
-import tv.danmaku.ijk.media.exo2.Exo2PlayerManager
 
 
 class KApplication : XulApplication() {
@@ -23,7 +20,6 @@ class KApplication : XulApplication() {
 
     override fun onCreate() {
         XulLog.i("CQLive", "KApplication onCreate.")
-        PlayerFactory.setPlayManager(Exo2PlayerManager::class.java)
         XulDebugServer.startUp()
         CrashReport.initCrashReport(applicationContext, "d017744409", true)
         super.onCreate()
@@ -65,7 +61,6 @@ class KApplication : XulApplication() {
 //        val behaviorPkgName = appPkgName + ".behavior"
 //        autoRegister(behaviorPkgName, XulUiBehavior::class.java)
 
-        MainBehavior.register()
         MainBehavior2.register()
 
         PlayerSeekBarRender.register()
