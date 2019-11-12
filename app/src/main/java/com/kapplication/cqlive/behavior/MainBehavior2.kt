@@ -220,6 +220,7 @@ class MainBehavior2(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pl
             }
 
             override fun onPlayerError(error: ExoPlaybackException?) {
+                XulLog.e(NAME, "onPlayError.", error)
                 showPlayError()
             }
 
