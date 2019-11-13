@@ -1,6 +1,6 @@
 package com.kapplication.cqlive
 
-import com.kapplication.cqlive.behavior.MainBehavior2
+import com.kapplication.cqlive.behavior.MainBehavior
 import com.kapplication.cqlive.message.CommonMessage
 import com.kapplication.cqlive.widget.PlayerSeekBarRender
 import com.starcor.xulapp.XulApplication
@@ -61,7 +61,7 @@ class KApplication : XulApplication() {
 //        val behaviorPkgName = appPkgName + ".behavior"
 //        autoRegister(behaviorPkgName, XulUiBehavior::class.java)
 
-        MainBehavior2.register()
+        MainBehavior.register()
 
         PlayerSeekBarRender.register()
     }

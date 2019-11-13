@@ -2,7 +2,7 @@ package com.kapplication.cqlive
 
 import android.os.Bundle
 import android.text.TextUtils
-import com.kapplication.cqlive.behavior.MainBehavior2
+import com.kapplication.cqlive.behavior.MainBehavior
 import com.kapplication.cqlive.message.CommonMessage
 import com.starcor.xul.IXulExternalView
 import com.starcor.xul.XulView
@@ -15,7 +15,7 @@ open class CommonActivity : XulBaseActivity() {
 
     companion object {
         const val PAGE_MAIN = "MainPage"
-        val BEHAVIOR_MAIN2 = MainBehavior2.NAME
+        val BEHAVIOR_MAIN2 = MainBehavior.NAME
     }
 
     override fun xulOnInitXulBehavior(behavior: String) {

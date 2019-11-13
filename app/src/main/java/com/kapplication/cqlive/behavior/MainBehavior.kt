@@ -46,10 +46,10 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
-class MainBehavior2(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), PlayerSeekBarRender.OnProgressChangedListener {
+class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), PlayerSeekBarRender.OnProgressChangedListener {
 
     companion object {
-        const val NAME = "MainBehavior2"
+        const val NAME = "MainBehavior"
         const val THREE_HOURS_IN_SECONDS = 3600 * 3
 
         val keys:CharArray = charArrayOf(
@@ -62,11 +62,11 @@ class MainBehavior2(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pl
                     object : XulBehaviorManager.IBehaviorFactory {
                         override fun createBehavior(
                                 xulPresenter: XulPresenter): XulUiBehavior {
-                            return MainBehavior2(xulPresenter)
+                            return MainBehavior(xulPresenter)
                         }
 
                         override fun getBehaviorClass(): Class<*> {
-                            return MainBehavior2::class.java
+                            return MainBehavior::class.java
                         }
                     })
         }
@@ -116,12 +116,12 @@ class MainBehavior2(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pl
 
     private var mLiveCollectionCache: XulCacheDomain? = null
 
-    private val mMainBehavior = WeakReference<MainBehavior2>(this)
+    private val mMainBehavior = WeakReference<MainBehavior>(this)
     private val mHandler = HideUIHandler(mMainBehavior)
 
-    class HideUIHandler(private val mainBehavior: WeakReference<MainBehavior2>): Handler() {
+    class HideUIHandler(private val mainBehavior: WeakReference<MainBehavior>): Handler() {
         override fun handleMessage(msg: Message?) {
-            val instance: MainBehavior2? = mainBehavior.get()
+            val instance: MainBehavior? = mainBehavior.get()
             when (msg?.what) {
                 CommonMessage.EVENT_AUTO_HIDE_UI -> {
                     if (instance != null) {

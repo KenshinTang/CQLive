@@ -520,7 +520,7 @@
                     <attr name="img.1">file:///.assets/images/img_live_tips.png</attr>
                     <attr name="img.1.mode">center</attr>
                     <attr name="img.1.align">0</attr>
-                    <attr name="img.1.width">239</attr>
+                    <attr name="img.1.width">255</attr>
                     <attr name="img.1.height">268</attr>
                     <attr name="img.1.padding">66,1393,0,0</attr>
                 </item>
