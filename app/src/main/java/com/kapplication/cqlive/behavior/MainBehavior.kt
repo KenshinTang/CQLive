@@ -952,7 +952,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
             mHandler.sendEmptyMessageDelayed(CommonMessage.EVENT_AUTO_HIDE_UI, 8 * 1000)
         }
 
-        if (event?.keyCode != KeyEvent.KEYCODE_BACK) {
+        if (event?.keyCode != KeyEvent.KEYCODE_BACK && event?.action == KeyEvent.ACTION_DOWN) {
             xulGetRenderContext().findItemById("operate-tip").setStyle("display", "none")
             xulGetRenderContext().findItemById("operate-tip").resetRender()
         }
