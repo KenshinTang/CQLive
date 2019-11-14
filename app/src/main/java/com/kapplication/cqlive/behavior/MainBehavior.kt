@@ -826,9 +826,12 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         return super.xulOnBackPressed()
     }
 
-    override fun xulOnDestroy() {
+    override fun xulOnStop() {
+        XulLog.i(NAME, "xulOnStop")
+        mMediaPlayer.stop()
         mMediaPlayer.release()
-        super.xulOnDestroy()
+        android.os.Process.killProcess(android.os.Process.myPid())
+        super.xulOnStop()
     }
 
     @XulSubscriber(tag = CommonMessage.EVENT_FIVE_SECOND)
