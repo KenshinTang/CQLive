@@ -21,6 +21,24 @@
                 </item>
             </area>
 
+            <area id="s" desc="">
+                <attr name="width">match_parent</attr>
+                <attr name="height">match_parent</attr>
+                <item type="label" id="timeshift_logo">
+                    <attr name="x">1710</attr>
+                    <attr name="y">54</attr>
+                    <attr name="width">120</attr>
+                    <attr name="height">60</attr>
+                    <style name="border">0,b7ffffff,8,8</style>
+                    <style name="background-color">b7ffffff</style>
+                    <style name="font-color">ff000000</style>
+                    <style name="font-size">36</style>
+                    <style name="font-align">0.5,0.5</style>
+                    <style name="display">none</style>
+                    <attr name="text">时移</attr>
+                </item>
+            </area>
+
             <area id="title-frame" desc="顶部标题栏">
                 <style name="display">none</style>
                 <attr name="y">0</attr>
@@ -45,19 +63,6 @@
                         <style name="font-size">60</style>
                         <attr name="x">283</attr>
                         <attr name="y">48</attr>
-                    </item>
-                    <item type="label" id="timeshift_logo">
-                        <attr name="x">1710</attr>
-                        <attr name="y">54</attr>
-                        <attr name="width">120</attr>
-                        <attr name="height">60</attr>
-                        <style name="border">0,b7ffffff,8,8</style>
-                        <style name="background-color">b7ffffff</style>
-                        <style name="font-color">ff000000</style>
-                        <style name="font-size">36</style>
-                        <style name="font-align">0.5,0.5</style>
-                        <style name="display">none</style>
-                        <attr name="text">时移</attr>
                     </item>
                 </area>
             </area>
