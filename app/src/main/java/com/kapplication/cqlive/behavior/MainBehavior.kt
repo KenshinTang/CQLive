@@ -74,8 +74,8 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
 
     private val trackSelector: DefaultTrackSelector = DefaultTrackSelector()
     private var mMediaPlayer: SimpleExoPlayer = ExoPlayerFactory.newSimpleInstance(context, trackSelector)
-    private lateinit var mUpMediaPlayer: SimpleExoPlayer
-    private lateinit var mDownMediaPlayer: SimpleExoPlayer
+    private var mUpMediaPlayer: SimpleExoPlayer = ExoPlayerFactory.newSimpleInstance(context, trackSelector)
+    private var mDownMediaPlayer: SimpleExoPlayer = ExoPlayerFactory.newSimpleInstance(context, trackSelector)
     private val mDataSourceFactory: DataSource.Factory = DefaultDataSourceFactory(context, Util.getUserAgent(context, "CQLive"))
     private lateinit var mPlayerListener: Player.EventListener
     private lateinit var mPlayerView: SurfaceView
@@ -467,6 +467,9 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
             val videoSource: MediaSource = HlsMediaSource.Factory(mDataSourceFactory).createMediaSource(Uri.parse(url))
             mMediaPlayer.prepare(videoSource)
             mMediaPlayer.playWhenReady = true
+
+            mUpMediaPlayer.release()
+            mDownMediaPlayer.release()
         } else {
             mMediaPlayer.stop()
             mMediaPlayer.release()
