@@ -237,6 +237,9 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
             xulGetRenderContext().findItemById("debug_info").resetRender()
             mIsDebugInfoShow = !mIsDebugInfoShow
         }
+
+        xulGetRenderContext().findItemById("version").setAttr("text", "版本号: ${Utils.getVersionName(context)}")
+        xulGetRenderContext().findItemById("version").resetRender()
     }
 
     private fun initSeekBar() {
@@ -463,21 +466,26 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
 
         // play current channel
         if (upOrDown == 0) {
+            mMediaPlayer.stop()
             val url = mUpDownSwitchChannelNodes[mCurrentChannelIndex].getAttributeValue("play_url")
             val videoSource: MediaSource = HlsMediaSource.Factory(mDataSourceFactory).createMediaSource(Uri.parse(url))
             mMediaPlayer.prepare(videoSource)
             mMediaPlayer.playWhenReady = true
 
+            mUpMediaPlayer.stop()
             mUpMediaPlayer.release()
+            mDownMediaPlayer.stop()
             mDownMediaPlayer.release()
         } else {
             mMediaPlayer.stop()
             mMediaPlayer.release()
             if (upOrDown == -1) {
                 mMediaPlayer = mUpMediaPlayer
+                mDownMediaPlayer.stop()
                 mDownMediaPlayer.release()
             } else {
                 mMediaPlayer = mDownMediaPlayer
+                mUpMediaPlayer.stop()
                 mUpMediaPlayer.release()
             }
             mMediaPlayer.setVideoSurfaceHolder(mPlayerView.holder)
@@ -515,11 +523,12 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
     private fun startToPlayPlayback(playUrl: String) {
         mIsLiveMode = false
         showControlFrame(true)
+        mMediaPlayer.stop()
         XulLog.i(NAME, "play Playback!!!")
 //        val testUrl = "http://7xjmzj.com1.z0.glb.clouddn.com/20171026175005_JObCxCE2.mp4"
 //        val testUrl = "http://9890.vod.myqcloud.com/9890_4e292f9a3dd011e6b4078980237cc3d3.f20.mp4"
 
-//        val videoSource: MediaSource = ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(Uri.parse(testUrl))
+//        val videoSource: MediaSource = ProgressiveMediaSource.Factory(mDataSourceFactory).createMediaSource(Uri.parse(testUrl))
         val videoSource: MediaSource = HlsMediaSource.Factory(mDataSourceFactory).createMediaSource(Uri.parse(playUrl))
         mMediaPlayer.prepare(videoSource)
         mMediaPlayer.playWhenReady = true

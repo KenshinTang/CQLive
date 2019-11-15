@@ -1,5 +1,8 @@
 package com.kapplication.cqlive.utils
 
+import android.content.Context
+import android.content.pm.PackageInfo
+import android.content.pm.PackageManager
 import com.starcor.xul.XulDataNode
 import com.starcor.xulapp.utils.XulLog
 import org.xmlpull.v1.XmlPullParserFactory
@@ -50,6 +53,10 @@ class Utils{
             }
             XulLog.i("Utils", "-------------------------------")
         }
-    }
 
+        fun getVersionName(context: Context): String {
+            val packInfo: PackageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+            return packInfo.versionName
+        }
+    }
 }
