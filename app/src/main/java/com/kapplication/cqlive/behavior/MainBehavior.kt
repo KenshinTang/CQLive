@@ -813,9 +813,8 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         if (mIsLiveMode) {
             val seekBarPos: Double = mSeekBarRender.seekBarPos
             if (seekBarPos < 1.0) {
-                mMediaPlayer.seekTo(mMediaPlayer.duration.toLong())
+                startToPlayLive("", 0)
                 showControlFrame(true)
-                resetUI()
                 return true
             }
         } else {
