@@ -199,6 +199,8 @@
                             <attr name="lock-focus">0.2008</attr>
                             <style name="clip-children">true</style>
                             <area id="channel" type="massive" class="playbill-list-massive">
+                                <attr name="minimum-item">60</attr>
+                                <attr name="cache-pages">10</attr>
                                 <template id="@item-template">
                                     <area class="playbill-item">
                                         <action event="focus" type="script/javascript">
