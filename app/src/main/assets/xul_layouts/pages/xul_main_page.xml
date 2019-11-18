@@ -28,8 +28,7 @@
                     <style name="font-color">FFFFFFFF</style>
                 </item>
             </area>
-
-            <area id="s" desc="">
+            <area id="s" desc="右上角时移回看标志">
                 <attr name="width">match_parent</attr>
                 <attr name="height">match_parent</attr>
                 <item type="label" id="timeshift_logo">
@@ -46,7 +45,6 @@
                     <attr name="text">时移</attr>
                 </item>
             </area>
-
             <area id="title-frame" desc="顶部标题栏">
                 <style name="display">none</style>
                 <attr name="y">0</attr>
@@ -74,7 +72,6 @@
                     </item>
                 </area>
             </area>
-
             <area id="category-list" desc="频道栏">
                 <attr name="x">-1870</attr>
                 <attr name="y">0</attr>
@@ -474,7 +471,6 @@
                     </item>
                 </area>
             </area>
-
             <area id="control-frame" desc="信息条+进度条">
                 <attr name="y">1080</attr>
                 <attr name="width">match_parent</attr>
@@ -520,7 +516,6 @@
                     </area>
                 </area>
             </area>
-
             <area id="operate-tip" desc="操作提示">
                 <style name="display">block</style>
                 <item id="img_operate_tips" type="image">
