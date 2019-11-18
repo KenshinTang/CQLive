@@ -367,10 +367,12 @@
                                     <area class="playbill-item">
                                         <action event="click" type="script/javascript">
                                             var play_url = this.getData("play_url");
+                                            var live_id = this.getData("live_id");
+                                            var name = this.getData("name");
                                             var play_status = this.getData("play_status");
                                             if (play_status == "1") {
                                                 if (this.findItemById("playing_indicator").getAttr("img.0.visible") == "false") {
-                                                    this.dispatchEvent("doPlayback", "usr_cmd", JSON.stringify({"play_url":play_url}));
+                                                    this.dispatchEvent("doPlayback", "usr_cmd", JSON.stringify({"name":name,"live_id":live_id,"play_url":play_url}));
                                                 }
                                             } else if (play_status == "2") {
                                                 logger.d("kenshin", " play live!!!");
@@ -403,6 +405,7 @@
                                         <attr name="height">140</attr>
                                         <data name="play_status" binding="[=play_status]"/>
                                         <data name="play_url" binding="[=play_url]"/>
+                                        <data name="name" binding="[=name]"/>
                                         <data name="live_id" binding="[=live_id]"/>
                                         <item id="playing_indicator" class="playing_indicator" type="image" desc="正在播放图标">
                                             <attr name="x">20</attr>
