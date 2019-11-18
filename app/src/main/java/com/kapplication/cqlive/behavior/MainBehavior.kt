@@ -250,8 +250,6 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
             mSeekBarRender.seekBarPos = 0.0
             mMediaTimeStartView.setAttr("text", "00:00:00")
             mMediaTimeStartView.resetRender()
-            mMediaTimeEndView.setAttr("text", dateFormat.format(mMediaPlayer.duration - TimeZone.getDefault().rawOffset))
-            mMediaTimeEndView.resetRender()
         }
     }
 
@@ -880,6 +878,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                 if (!mIsLiveSeeking) {
                     timeshiftDate.time = currentTimeMillis - ((1.0f - mSeekBarRender.seekBarPos) * THREE_HOURS_IN_SECONDS * 1000).toLong()
                     mSeekBarRender.setSeekBarTips(if (mSeekBarRender.seekBarPos == 1.0) "直播中" else dateFormat.format(timeshiftDate))
+                    showPlayerStateIndicator(0)
                 }
             }
         } else {
@@ -890,6 +889,8 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                 }
                 mMediaTimeStartView.setAttr("text", dateFormat.format(mMediaPlayer.currentPosition - TimeZone.getDefault().rawOffset))
                 mMediaTimeStartView.resetRender()
+                mMediaTimeEndView.setAttr("text", dateFormat.format(mMediaPlayer.duration - TimeZone.getDefault().rawOffset))
+                mMediaTimeEndView.resetRender()
             }
         }
 
@@ -1167,6 +1168,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                     if (!mIsChannelListShow && mIsLiveMode) {
                         XulLog.i(NAME, "up pressed in live mode.")
                         showControlFrame(true)
+                        showPlayerStateIndicator(0)
                         startToPlayLive("", -1)
                         return true
                     }
@@ -1175,6 +1177,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                     if (!mIsChannelListShow && mIsLiveMode) {
                         XulLog.i(NAME, "down pressed in live mode.")
                         showControlFrame(true)
+                        showPlayerStateIndicator(0)
                         startToPlayLive("", 1)
                         return true
                     }
