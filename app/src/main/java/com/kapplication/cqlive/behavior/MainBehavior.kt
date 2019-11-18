@@ -393,15 +393,14 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
     }
 
     private fun switchPlaybackProgram(programData: XulDataNode?, liveId: String?) {
-        mProgramListWrapper.clear()
-        mProgramListWrapper.asView?.findParentByType("layer")?.dynamicFocus = null
-        XulSliderAreaWrapper.fromXulView(mProgramListWrapper.asView.parent)?.scrollTo(0, false)
-
         if (programData == null) {
 //            showProgramEmpty(true)
             return
         }
 
+        mProgramListWrapper.clear()
+        mProgramListWrapper.asView?.findParentByType("layer")?.dynamicFocus = null
+        XulSliderAreaWrapper.fromXulView(mProgramListWrapper.asView.parent)?.scrollTo(0, false)
         var program = programData.getChildNode("playbill_list").firstChild
         while (program != null) {
             val programTime: String = program.getAttributeValue("begin_time") + " - " + program.getAttributeValue("end_time")
