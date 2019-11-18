@@ -933,6 +933,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                 switchPlaybackProgram(programData, programData?.getAttributeValue("live_id"))
             }
             "doPlayback" -> {
+                showChannelList(false)
                 val data = JSONObject(command)
                 val playbackUrl: String = data.optString("play_url")
                 val channelId: String = data.optString("live_id")
