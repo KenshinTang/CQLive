@@ -38,6 +38,8 @@ import com.starcor.xulapp.cache.XulCacheCenter
 import com.starcor.xulapp.cache.XulCacheDomain
 import com.starcor.xulapp.message.XulSubscriber
 import com.starcor.xulapp.utils.XulLog
+import com.tencent.bugly.crashreport.BuglyLog
+import com.tencent.bugly.crashreport.CrashReport
 import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
@@ -220,7 +222,8 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
             }
 
             override fun onPlayerError(error: ExoPlaybackException?) {
-                XulLog.e(NAME, "onPlayError.", error)
+                BuglyLog.e(NAME, "onPlayError.", error)
+                CrashReport.postCatchedException(error)
                 showPlayError()
             }
 
