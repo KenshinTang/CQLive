@@ -16,7 +16,7 @@
                     <attr name="y">0</attr>
                     <attr name="width">match_parent</attr>
                     <attr name="height">match_parent</attr>
-                    <style name="font-size">50</style>
+                    <style name="font-size">30</style>
                     <style name="font-color">FFFFFFFF</style>
                 </item>
                 <item id="version" type="label">
@@ -24,7 +24,7 @@
                     <attr name="y">60</attr>
                     <attr name="width">match_parent</attr>
                     <attr name="height">match_parent</attr>
-                    <style name="font-size">50</style>
+                    <style name="font-size">30</style>
                     <style name="font-color">FFFFFFFF</style>
                 </item>
             </area>
