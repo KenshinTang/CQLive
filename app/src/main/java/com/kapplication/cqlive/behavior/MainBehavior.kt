@@ -470,7 +470,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         if (upOrDown == 0) {
             mMediaPlayer.stop()
             val url = mUpDownSwitchChannelNodes[mCurrentChannelIndex].getAttributeValue("play_url")
-            val videoSource: MediaSource = HlsMediaSource.Factory(mDataSourceFactory).createMediaSource(Uri.parse(url))
+            val videoSource: MediaSource = HlsMediaSource.Factory(mDataSourceFactory).setAllowChunklessPreparation(true).createMediaSource(Uri.parse(url))
             mMediaPlayer.prepare(videoSource)
             mMediaPlayer.playWhenReady = true
 
@@ -503,7 +503,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         var upIndex = mCurrentChannelIndex - 1
         if (upIndex < 0) upIndex = mUpDownSwitchChannelNodes.size - 1
         val upUrl = mUpDownSwitchChannelNodes[upIndex].getAttributeValue("play_url")
-        val upVideoSource: MediaSource = HlsMediaSource.Factory(mDataSourceFactory).createMediaSource(Uri.parse(upUrl))
+        val upVideoSource: MediaSource = HlsMediaSource.Factory(mDataSourceFactory).setAllowChunklessPreparation(true).createMediaSource(Uri.parse(upUrl))
         mUpMediaPlayer = ExoPlayerFactory.newSimpleInstance(context, trackSelector)
         mUpMediaPlayer.prepare(upVideoSource)
         mUpMediaPlayer.playWhenReady = false
@@ -512,7 +512,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         var downIndex = mCurrentChannelIndex + 1
         if (downIndex == mUpDownSwitchChannelNodes.size) downIndex = 0
         val downUrl = mUpDownSwitchChannelNodes[downIndex].getAttributeValue("play_url")
-        val downVideoSource: MediaSource = HlsMediaSource.Factory(mDataSourceFactory).createMediaSource(Uri.parse(downUrl))
+        val downVideoSource: MediaSource = HlsMediaSource.Factory(mDataSourceFactory).setAllowChunklessPreparation(true).createMediaSource(Uri.parse(downUrl))
         mDownMediaPlayer = ExoPlayerFactory.newSimpleInstance(context, trackSelector)
         mDownMediaPlayer.prepare(downVideoSource)
         mDownMediaPlayer.playWhenReady = false
@@ -530,8 +530,8 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
 //        val testUrl = "http://7xjmzj.com1.z0.glb.clouddn.com/20171026175005_JObCxCE2.mp4"
 //        val testUrl = "http://9890.vod.myqcloud.com/9890_4e292f9a3dd011e6b4078980237cc3d3.f20.mp4"
 
-//        val videoSource: MediaSource = ProgressiveMediaSource.Factory(mDataSourceFactory).createMediaSource(Uri.parse(testUrl))
-        val videoSource: MediaSource = HlsMediaSource.Factory(mDataSourceFactory).createMediaSource(Uri.parse(playUrl))
+//        val videoSource: MediaSource = ProgressiveMediaSource.Factory(mDataSourceFactory).setAllowChunklessPreparation(true).createMediaSource(Uri.parse(testUrl))
+        val videoSource: MediaSource = HlsMediaSource.Factory(mDataSourceFactory).setAllowChunklessPreparation(true).createMediaSource(Uri.parse(playUrl))
         mMediaPlayer.prepare(videoSource)
         mMediaPlayer.playWhenReady = true
         initSeekBar()
