@@ -354,6 +354,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
 
             mChannelListWrapper.syncContentView()
 
+            var channelIndexInCurrentCategory = 0
             mChannelListWrapper.eachItem { idx, node ->
                 val v: XulView? = mChannelListWrapper.getItemView(idx)
                 val liveId: String = node.getAttributeValue("live_id")
@@ -361,7 +362,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                     v?.findItemById("playing_indicator")?.setAttr("img.0.visible", "true")
                     v?.findItemById("playing_indicator")?.resetRender()
                     mChannelListWrapper.asView?.findParentByType("layer")?.dynamicFocus = v
-                    mCurrentChannelIndex = idx
+                    channelIndexInCurrentCategory = idx
                 } else {
                     v?.findItemById("playing_indicator")?.setAttr("img.0.visible", "false")
                     v?.findItemById("playing_indicator")?.resetRender()
@@ -381,7 +382,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
             }
 
             if (mFirst) {
-                xulGetRenderContext().layout.requestFocus(mChannelListWrapper.getItemView(mCurrentChannelIndex))
+                xulGetRenderContext().layout.requestFocus(mChannelListWrapper.getItemView(channelIndexInCurrentCategory))
                 mUpDownSwitchChannelNodes.addAll(mUpDownTmpSwitchChannelNodes)
                 if (mCurrentChannelId == "") {
                     mCurrentChannelId = channelList.firstChild.getAttributeValue("live_id")
@@ -458,7 +459,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
     }
 
     private fun startToPlayLive(playUrl: String, upOrDown: Int) {
-        XulLog.i(NAME, "startToPlayLive, playUrl = $playUrl,  upOrDown=$upOrDown")
+        XulLog.i(NAME, "startToPlayLive, playUrl = $playUrl,  upOrDown=$upOrDown, mCurrentChannelIndex=$mCurrentChannelIndex")
         if (mUpDownSwitchChannelNodes.size <=0) {
             XulLog.e(NAME, "channel list error, mUpDownSwitchChannelNodes.size = ${mUpDownSwitchChannelNodes.size}")
             showPlayError()
@@ -499,13 +500,18 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
             mMediaPlayer.addListener(mPlayerListener)
             mMediaPlayer.playWhenReady = true
 
-            // fix me: preload, but current time is changed, return to live.
-            xulDoAction(null, "switchChannel", "usr_cmd", "{\"live_id\":\"$mCurrentChannelId\",\"category_id\":\"$mCurrentCategoryId\"}", null)
-        }
+            mCurrentChannelIndex += upOrDown
+            if (mCurrentChannelIndex < 0) mCurrentChannelIndex = mUpDownSwitchChannelNodes.size - 1
+            if (mCurrentChannelIndex == mUpDownSwitchChannelNodes.size) mCurrentChannelIndex = 0
 
-        mCurrentChannelIndex += upOrDown
-        if (mCurrentChannelIndex < 0) mCurrentChannelIndex = mUpDownSwitchChannelNodes.size - 1
-        if (mCurrentChannelIndex == mUpDownSwitchChannelNodes.size) mCurrentChannelIndex = 0
+            // fix me: preload, but current time is changed, return to live.
+            // 仅仅为了解决预加载时间小于当前时间, 重新播一下流可以到当前时间. 本应该直接seek到当前时间, 但是流的问题, seek会卡5秒, 特殊处理.
+//            mMediaPlayer.stop()
+//            val url = mUpDownSwitchChannelNodes[mCurrentChannelIndex].getAttributeValue("play_url")
+//            val videoSource: MediaSource = HlsMediaSource.Factory(mDataSourceFactory).setAllowChunklessPreparation(true).createMediaSource(Uri.parse(url))
+//            mMediaPlayer.prepare(videoSource)
+//            mMediaPlayer.playWhenReady = true
+        }
 
         // preload up channel
         var upIndex = mCurrentChannelIndex - 1
@@ -979,7 +985,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
     private var mIsPlaybackSeeking = false
     private var mIsLiveSeeking = false
     override fun xulOnDispatchKeyEvent(event: KeyEvent?): Boolean {
-        XulLog.i(NAME, "event = $event")
+//        XulLog.i(NAME, "event = $event")
         if (event?.action == KeyEvent.ACTION_DOWN) {
             KeyEventListener.listenKeyInput(event.keyCode)
         }
@@ -1200,7 +1206,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
     }
 
     override fun onProgressChanged(pos: Double) {
-//        XulLog.i(NAME, "onProgressChanged.  pos = $pos, duration = ${mMediaPlayer.duration} time = ${(mMediaPlayer.duration * pos).toInt()})")
+        XulLog.i(NAME, "onProgressChanged.  pos = $pos, duration = ${mMediaPlayer.duration} time = ${(mMediaPlayer.duration * pos).toInt()})")
         if (mIsLiveMode) {
             val currentTimeMillis = System.currentTimeMillis()
             timeshiftDate.time = currentTimeMillis - ((1.0f - mSeekBarRender.seekBarPos) * THREE_HOURS_IN_SECONDS * 1000).toLong()
