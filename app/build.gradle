@@ -10,9 +10,9 @@ android {
         applicationId "com.ccnks.cqlive"
         minSdkVersion 19
         targetSdkVersion 23
-        versionCode 115
+        versionCode 117
 //        versionName "CQLive-PENGUIN1SA4062-1.15"
-        versionName "test-1.15"
+        versionName "CQLive-PENGUIN1SA4062-1.17"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         ndk {
             abiFilters 'armeabi', 'x86'
