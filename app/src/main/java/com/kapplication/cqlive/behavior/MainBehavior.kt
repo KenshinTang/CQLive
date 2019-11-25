@@ -458,6 +458,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         return mCurrentChannelNode?.getAttributeValue("play_url")?:""
     }
 
+    private var mPreparedReadyTime: Long = 0
     private fun startToPlayLive(playUrl: String, upOrDown: Int) {
         XulLog.i(NAME, "startToPlayLive, playUrl = $playUrl,  upOrDown=$upOrDown, mCurrentChannelIndex=$mCurrentChannelIndex")
         if (mUpDownSwitchChannelNodes.size <=0) {
@@ -506,11 +507,14 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
 
             // fix me: preload, but current time is changed, return to live.
             // 仅仅为了解决预加载时间小于当前时间, 重新播一下流可以到当前时间. 本应该直接seek到当前时间, 但是流的问题, seek会卡5秒, 特殊处理.
-//            mMediaPlayer.stop()
-//            val url = mUpDownSwitchChannelNodes[mCurrentChannelIndex].getAttributeValue("play_url")
-//            val videoSource: MediaSource = HlsMediaSource.Factory(mDataSourceFactory).setAllowChunklessPreparation(true).createMediaSource(Uri.parse(url))
-//            mMediaPlayer.prepare(videoSource)
-//            mMediaPlayer.playWhenReady = true
+            // 如果预加载的时间和当前时间小于10秒, 忽略这个时间差(因为重新播, 预加载相当于没用了, 不如直接切台), 如果大于10秒, 重新播一下
+            if (System.currentTimeMillis() - mPreparedReadyTime > 10000) {
+                mMediaPlayer.stop()
+                val url = mUpDownSwitchChannelNodes[mCurrentChannelIndex].getAttributeValue("play_url")
+                val videoSource: MediaSource = HlsMediaSource.Factory(mDataSourceFactory).setAllowChunklessPreparation(true).createMediaSource(Uri.parse(url))
+                mMediaPlayer.prepare(videoSource)
+                mMediaPlayer.playWhenReady = true
+            }
         }
 
         // preload up channel
@@ -530,6 +534,8 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         mDownMediaPlayer = ExoPlayerFactory.newSimpleInstance(context, trackSelector)
         mDownMediaPlayer.prepare(downVideoSource)
         mDownMediaPlayer.playWhenReady = false
+
+        mPreparedReadyTime = System.currentTimeMillis()
 
         mCurrentChannelId = mUpDownSwitchChannelNodes[mCurrentChannelIndex].getAttributeValue("live_id")
         updateTitleArea(mCurrentChannelId!!, "")
