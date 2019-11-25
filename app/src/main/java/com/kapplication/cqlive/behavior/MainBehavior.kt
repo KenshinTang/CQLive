@@ -498,6 +498,9 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
             mMediaPlayer.setVideoSurfaceHolder(mPlayerView.holder)
             mMediaPlayer.addListener(mPlayerListener)
             mMediaPlayer.playWhenReady = true
+
+            // fix me: preload, but current time is changed, return to live.
+            xulDoAction(null, "switchChannel", "usr_cmd", "{\"live_id\":\"$mCurrentChannelId\",\"category_id\":\"$mCurrentCategoryId\"}", null)
         }
 
         mCurrentChannelIndex += upOrDown
