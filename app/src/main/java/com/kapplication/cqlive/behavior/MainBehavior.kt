@@ -459,6 +459,11 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
 
     private fun startToPlayLive(playUrl: String, upOrDown: Int) {
         XulLog.i(NAME, "startToPlayLive, playUrl = $playUrl,  upOrDown=$upOrDown")
+        if (mUpDownSwitchChannelNodes.size <=0) {
+            XulLog.e(NAME, "channel list error, mUpDownSwitchChannelNodes.size = ${mUpDownSwitchChannelNodes.size}")
+            showPlayError()
+            return
+        }
         //upOrDown -1 -> 按上键触发的播放
         //upOrDown =0 -> 非上下键触发的播放, 比如频道列表选择
         //upOrDown =1 -> 按下键触发的播放

@@ -20,7 +20,7 @@ class KApplication : XulApplication() {
     private val XUL_GLOBAL_DIALOGS = "xul_layouts/pages/xul_global_dialogs.xml"
 
     override fun onCreate() {
-        XulLog.i("CQLive", "KApplication onCreate.")
+        XulLog.i("CQLive", "KApplication(${Utils.getVersionName(this)}) onCreate.")
         XulDebugServer.startUp()
         CrashReport.initCrashReport(applicationContext, "d017744409", true)
         CrashReport.putUserData(applicationContext, "ip", Utils.getIpAddress(applicationContext))
