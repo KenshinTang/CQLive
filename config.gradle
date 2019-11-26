@@ -1,0 +1,27 @@
+ext {
+
+    app = [compileSdkVersion: 28,
+           buildToolsVersion: '28.0.3',
+           minSdkVersion    : 19,
+           targetSdkVersion : 23,
+           versionCode      : 118,
+           versionName      : "CQLive-PENGUIN1SA4062-1.18"]
+
+    xul = [
+            compileSdkVersion: 26,
+            buildToolsVersion: '28.0.3',
+            minSdkVersion    : 14,
+            targetSdkVersion : 26]
+
+    xulApp = [
+            compileSdkVersion: 26,
+            buildToolsVersion: '28.0.3',
+            minSdkVersion    : 14,
+            targetSdkVersion : 14]
+
+    java = [SC: JavaVersion.VERSION_1_8,
+            TC: JavaVersion.VERSION_1_8]
+
+    kotlin = [version: '1.3.50']
+
+}

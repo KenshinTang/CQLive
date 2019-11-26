@@ -1,12 +1,13 @@
 apply plugin: 'com.android.library'
+apply from: "../config.gradle"
 
 android {
-    compileSdkVersion 26
-    buildToolsVersion "28.0.3"
+    compileSdkVersion xulApp.compileSdkVersion
+    buildToolsVersion xulApp.buildToolsVersion
 
     defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion 14
+        minSdkVersion xulApp.minSdkVersion
+        targetSdkVersion xulApp.targetSdkVersion
     }
 
     buildTypes {
