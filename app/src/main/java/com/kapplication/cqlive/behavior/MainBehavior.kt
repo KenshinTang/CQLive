@@ -25,6 +25,7 @@ import com.kapplication.cqlive.message.CommonMessage
 import com.kapplication.cqlive.utils.KeyEventListener
 import com.kapplication.cqlive.utils.Utils
 import com.kapplication.cqlive.widget.PlayerSeekBarRender
+import com.starcor.xul.Prop.XulPropNameCache
 import com.starcor.xul.Wrapper.XulMassiveAreaWrapper
 import com.starcor.xul.Wrapper.XulSliderAreaWrapper
 import com.starcor.xul.XulArea
@@ -251,7 +252,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
             mSeekBarRender.seekBarPos = 1.0
         } else {
             mSeekBarRender.seekBarPos = 0.0
-            mMediaTimeStartView.setAttr("text", "00:00:00")
+            mMediaTimeStartView.setAttr(XulPropNameCache.TagId.TEXT, "00:00:00")
             mMediaTimeStartView.resetRender()
         }
     }
@@ -388,7 +389,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                     mCurrentChannelId = channelList.firstChild.getAttributeValue("live_id")
                 }
                 val url: String = requestPlayUrl(mCurrentChannelId)
-                startToPlayLive(url, 0)
+                startToPlayLive(url, UpOrDown.OTHER)
                 mFirst = false
             }
         } else {
@@ -442,7 +443,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
     private fun resetUI() {
         mSeekBarRender.seekBarPos = 1.0
         direction = 0
-        mTimeshiftLogoView.setStyle("display", "none")
+        mTimeshiftLogoView.setStyle(XulPropNameCache.TagId.DISPLAY, "none")
         mTimeshiftLogoView.resetRender()
     }
 
@@ -459,7 +460,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
     }
 
     private var mPreparedReadyTime: Long = 0
-    private fun startToPlayLive(playUrl: String, upOrDown: Int) {
+    private fun startToPlayLive(playUrl: String, upOrDown: UpOrDown) {
         XulLog.i(NAME, "startToPlayLive, playUrl = $playUrl,  upOrDown=$upOrDown, mCurrentChannelIndex=$mCurrentChannelIndex")
         if (mUpDownSwitchChannelNodes.size <=0) {
             XulLog.e(NAME, "channel list error, mUpDownSwitchChannelNodes.size = ${mUpDownSwitchChannelNodes.size}")
@@ -474,7 +475,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         resetUI()
 
         // play current channel
-        if (upOrDown == 0) {
+        if (upOrDown == UpOrDown.OTHER) {
             mMediaPlayer.stop()
             val url = mUpDownSwitchChannelNodes[mCurrentChannelIndex].getAttributeValue("play_url")
             val videoSource: MediaSource = HlsMediaSource.Factory(mDataSourceFactory).setAllowChunklessPreparation(true).createMediaSource(Uri.parse(url))
@@ -488,11 +489,13 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         } else {
             mMediaPlayer.stop()
             mMediaPlayer.release()
-            if (upOrDown == -1) {
+            if (upOrDown == UpOrDown.UP) {
+                mCurrentChannelIndex++
                 mMediaPlayer = mUpMediaPlayer
                 mDownMediaPlayer.stop()
                 mDownMediaPlayer.release()
             } else {
+                mCurrentChannelIndex--
                 mMediaPlayer = mDownMediaPlayer
                 mUpMediaPlayer.stop()
                 mUpMediaPlayer.release()
@@ -501,7 +504,6 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
             mMediaPlayer.addListener(mPlayerListener)
             mMediaPlayer.playWhenReady = true
 
-            mCurrentChannelIndex += upOrDown
             if (mCurrentChannelIndex < 0) mCurrentChannelIndex = mUpDownSwitchChannelNodes.size - 1
             if (mCurrentChannelIndex == mUpDownSwitchChannelNodes.size) mCurrentChannelIndex = 0
 
@@ -840,7 +842,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         if (mIsLiveMode) {
             val seekBarPos: Double = mSeekBarRender.seekBarPos
             if (seekBarPos < 1.0) {
-                startToPlayLive("", 0)
+                startToPlayLive("", UpOrDown.OTHER)
                 showControlFrame(true)
                 return true
             }
@@ -901,7 +903,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                 if (!mIsLiveSeeking) {
                     timeshiftDate.time = currentTimeMillis - ((1.0f - mSeekBarRender.seekBarPos) * THREE_HOURS_IN_SECONDS * 1000).toLong()
                     mSeekBarRender.setSeekBarTips(if (mSeekBarRender.seekBarPos == 1.0) "直播中" else dateFormat.format(timeshiftDate))
-                    showPlayerStateIndicator(0)
+                    showPlayerStateIndicator(PlayerIndicator.NORMAL)
                 }
             }
         } else {
@@ -949,7 +951,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                         break
                     }
                 }
-                startToPlayLive(url, 0)
+                startToPlayLive(url, UpOrDown.OTHER)
                 syncFocus()
             }
             "switchPlaybackProgram" -> {
@@ -1034,7 +1036,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                                 } else {
                                     direction -= step
                                 }
-                                showPlayerStateIndicator(-1)
+                                showPlayerStateIndicator(PlayerIndicator.REWIND)
                             } else {
                                 if (direction == 0) {
                                     return true
@@ -1044,7 +1046,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                                 } else {
                                     direction += step
                                 }
-                                showPlayerStateIndicator(1)
+                                showPlayerStateIndicator(PlayerIndicator.FAST_FORWARD)
                             }
                             mSeekBarRender.seekBarPos = (THREE_HOURS_IN_SECONDS + direction) / THREE_HOURS_IN_SECONDS.toDouble()
                         } else {
@@ -1054,13 +1056,13 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                             }
                             val step = 3000
                             if (event.keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
-                                showPlayerStateIndicator(-1)
+                                showPlayerStateIndicator(PlayerIndicator.REWIND)
                                 direction -= step
                                 if (direction < 0) {
                                     direction = 0
                                 }
                             } else {
-                                showPlayerStateIndicator(1)
+                                showPlayerStateIndicator(PlayerIndicator.FAST_FORWARD)
                                 direction += step
                                 if (direction > mMediaPlayer.duration) {
                                     direction = mMediaPlayer.duration.toInt()
@@ -1082,10 +1084,10 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                         if (!mIsLiveMode) {
                             if (mMediaPlayer.isPlaying) {
                                 mMediaPlayer.playWhenReady = false
-                                showPlayerStateIndicator(2)
+                                showPlayerStateIndicator(PlayerIndicator.PAUSE)
                             } else {
                                 mMediaPlayer.playWhenReady = true
-                                showPlayerStateIndicator(0)
+                                showPlayerStateIndicator(PlayerIndicator.NORMAL)
                             }
                         }
                         showControlFrame(true)
@@ -1124,7 +1126,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                     if (mIsControlFrameShow) {
                         if (mIsLiveMode) {
                             if (mIsLiveSeeking) {
-                                showPlayerStateIndicator(0)
+                                showPlayerStateIndicator(PlayerIndicator.NORMAL)
                                 val seekBarPos: Double = mSeekBarRender.seekBarPos
                                 val duration: Int = mMediaPlayer.duration.toInt()
                                 var seekPos: Long = (seekBarPos * duration).toLong()
@@ -1144,7 +1146,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                             }
                         } else {
                             if (mIsPlaybackSeeking) {
-                                showPlayerStateIndicator(0)
+                                showPlayerStateIndicator(PlayerIndicator.NORMAL)
                                 mMediaPlayer.seekTo(direction.toLong())
                             }
                         }
@@ -1191,8 +1193,8 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                     if (!mIsChannelListShow && mIsLiveMode) {
                         XulLog.i(NAME, "up pressed in live mode.")
                         showControlFrame(true)
-                        showPlayerStateIndicator(0)
-                        startToPlayLive("", -1)
+                        showPlayerStateIndicator(PlayerIndicator.NORMAL)
+                        startToPlayLive("", UpOrDown.UP)
                         return true
                     }
                 }
@@ -1200,8 +1202,8 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                     if (!mIsChannelListShow && mIsLiveMode) {
                         XulLog.i(NAME, "down pressed in live mode.")
                         showControlFrame(true)
-                        showPlayerStateIndicator(0)
-                        startToPlayLive("", 1)
+                        showPlayerStateIndicator(PlayerIndicator.NORMAL)
+                        startToPlayLive("", UpOrDown.DOWN)
                         return true
                     }
                 }
@@ -1277,31 +1279,28 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         mChannelArea.resetRender()
     }
 
-    private fun showPlayerStateIndicator(direction: Int) {
-        //-1 rewind, 1 fast forward, 2 pause
+    private fun showPlayerStateIndicator(direction: PlayerIndicator) {
         val playerState: XulView = xulGetRenderContext().findItemById("player-state")
         when (direction) {
-            -1 -> {
-                playerState.setAttr("img.3.visible", "true")
-                playerState.setAttr("img.2.visible", "false")
-                playerState.setAttr("img.1.visible", "false")
+            PlayerIndicator.REWIND -> {
+                changePlayerStates(playerState,"false","false","true")
             }
-            1 -> {
-                playerState.setAttr("img.2.visible", "true")
-                playerState.setAttr("img.1.visible", "false")
-                playerState.setAttr("img.3.visible", "false")
+            PlayerIndicator.FAST_FORWARD -> {
+                changePlayerStates(playerState,"false","true","false")
             }
-            2 -> {
-                playerState.setAttr("img.1.visible", "true")
-                playerState.setAttr("img.2.visible", "false")
-                playerState.setAttr("img.3.visible", "false")
+            PlayerIndicator.PAUSE -> {
+                changePlayerStates(playerState,"true","false","false")
             }
-            0 -> {
-                playerState.setAttr("img.1.visible", "false")
-                playerState.setAttr("img.2.visible", "false")
-                playerState.setAttr("img.3.visible", "false")
+            PlayerIndicator.NORMAL -> {
+                changePlayerStates(playerState,"false","false","false")
             }
         }
+    }
+
+    private fun changePlayerStates(playerState: XulView, img1: String,img2:String, img3:String) {
+        playerState.setAttr("img.1.visible", img1) // pause
+        playerState.setAttr("img.2.visible", img2) // forward
+        playerState.setAttr("img.3.visible", img3) // rewind
         playerState.resetRender()
     }
 
@@ -1325,5 +1324,14 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
 
             return@setOnKeyListener false
         }
+    }
+
+    enum class UpOrDown{
+        UP, DOWN,
+        OTHER // 非上下键触发的播放, 比如频道列表选择
+    }
+
+    enum class PlayerIndicator{
+        REWIND, FAST_FORWARD, PAUSE, NORMAL
     }
 }
