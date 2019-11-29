@@ -505,12 +505,17 @@ public class XulCacheCenter {
                                               _domainId, _domainFlags, _lifeTime);
 
             if (cacheDir.exists()) {
-                for (File file : cacheDir.listFiles()) {
-                    String fileName = file.getName();
-                    if (fileName.startsWith(_domainId + "-") && !fileName.equals(domainName)) {
-                        // 不允许创建id相同但flag或者lifetime不同的cache domain
-                        return null;
+                try{
+                    for (File file : cacheDir.listFiles()) {
+                        String fileName = file.getName();
+                        if (fileName.startsWith(_domainId + "-") && !fileName.equals(domainName)) {
+                            // 不允许创建id相同但flag或者lifetime不同的cache domain
+                            return null;
+                        }
                     }
+                }catch (NullPointerException e){
+                    //Catch get length of null array.
+                    e.printStackTrace();
                 }
             }
 
