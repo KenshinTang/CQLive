@@ -8,13 +8,17 @@ import android.text.TextUtils
 import android.view.*
 import android.widget.FrameLayout
 import android.widget.Toast
-import com.google.android.exoplayer2.*
+import com.google.android.exoplayer2.ExoPlaybackException
+import com.google.android.exoplayer2.ExoPlayerFactory
+import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.ui.DefaultTrackNameProvider
 import com.google.android.exoplayer2.ui.TrackNameProvider
-import com.google.android.exoplayer2.upstream.*
+import com.google.android.exoplayer2.upstream.DataSource
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import com.kapplication.cqlive.R
 import com.kapplication.cqlive.message.CommonMessage
@@ -73,8 +77,8 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
 
     private val trackSelector: DefaultTrackSelector = DefaultTrackSelector()
     private var mMediaPlayer: SimpleExoPlayer = ExoPlayerFactory.newSimpleInstance(context, trackSelector)
-    private var mUpMediaPlayer: SimpleExoPlayer = ExoPlayerFactory.newSimpleInstance(context, trackSelector)
-    private var mDownMediaPlayer: SimpleExoPlayer = ExoPlayerFactory.newSimpleInstance(context, trackSelector)
+//    private var mUpMediaPlayer: SimpleExoPlayer = ExoPlayerFactory.newSimpleInstance(context, trackSelector)
+//    private var mDownMediaPlayer: SimpleExoPlayer = ExoPlayerFactory.newSimpleInstance(context, trackSelector)
     private val mDataSourceFactory: DataSource.Factory = DefaultDataSourceFactory(context, Util.getUserAgent(context, "CQLive"))
     private lateinit var mPlayerListener: Player.EventListener
     private lateinit var mPlayerView: SurfaceView
@@ -455,7 +459,6 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         return mCurrentChannelNode?.getAttributeValue("play_url")?:""
     }
 
-    private var mPreparedReadyTime: Long = 0
     private fun startToPlayLive(playUrl: String, upOrDown: UpOrDown) {
         XulLog.i(NAME, "startToPlayLive, playUrl = $playUrl,  upOrDown=$upOrDown, mCurrentChannelIndex=$mCurrentChannelIndex")
         if (mUpDownSwitchChannelNodes.size <=0) {
@@ -463,77 +466,23 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
             showPlayError()
             return
         }
-        //upOrDown -1 -> 按上键触发的播放
-        //upOrDown =0 -> 非上下键触发的播放, 比如频道列表选择
-        //upOrDown =1 -> 按下键触发的播放
 
         mIsLiveMode = true
         resetUI()
 
-        // play current channel
-        if (upOrDown == UpOrDown.OTHER) {
-            mMediaPlayer.stop()
-            val url = mUpDownSwitchChannelNodes[mCurrentChannelIndex].getAttributeValue("play_url")
-            val videoSource: MediaSource = HlsMediaSource.Factory(mDataSourceFactory).setAllowChunklessPreparation(true).createMediaSource(Uri.parse(url))
-            mMediaPlayer.prepare(videoSource)
-            mMediaPlayer.playWhenReady = true
-
-            mUpMediaPlayer.stop()
-            mUpMediaPlayer.release()
-            mDownMediaPlayer.stop()
-            mDownMediaPlayer.release()
-        } else {
-            mMediaPlayer.stop()
-            mMediaPlayer.release()
-            if (upOrDown == UpOrDown.UP) {
-                mCurrentChannelIndex++
-                mMediaPlayer = mUpMediaPlayer
-                mDownMediaPlayer.stop()
-                mDownMediaPlayer.release()
-            } else {
-                mCurrentChannelIndex--
-                mMediaPlayer = mDownMediaPlayer
-                mUpMediaPlayer.stop()
-                mUpMediaPlayer.release()
-            }
-            mMediaPlayer.setVideoSurfaceHolder(mPlayerView.holder)
-            mMediaPlayer.addListener(mPlayerListener)
-            mMediaPlayer.playWhenReady = true
-
-            if (mCurrentChannelIndex < 0) mCurrentChannelIndex = mUpDownSwitchChannelNodes.size - 1
-            if (mCurrentChannelIndex == mUpDownSwitchChannelNodes.size) mCurrentChannelIndex = 0
-
-            // fix me: preload, but current time is changed, return to live.
-            // 仅仅为了解决预加载时间小于当前时间, 重新播一下流可以到当前时间. 本应该直接seek到当前时间, 但是流的问题, seek会卡5秒, 特殊处理.
-            // 如果预加载的时间和当前时间小于10秒, 忽略这个时间差(因为重新播, 预加载相当于没用了, 不如直接切台), 如果大于10秒, 重新播一下
-            if (System.currentTimeMillis() - mPreparedReadyTime > 10000) {
-                mMediaPlayer.stop()
-                val url = mUpDownSwitchChannelNodes[mCurrentChannelIndex].getAttributeValue("play_url")
-                val videoSource: MediaSource = HlsMediaSource.Factory(mDataSourceFactory).setAllowChunklessPreparation(true).createMediaSource(Uri.parse(url))
-                mMediaPlayer.prepare(videoSource)
-                mMediaPlayer.playWhenReady = true
-            }
+        if (upOrDown == UpOrDown.UP) {
+            mCurrentChannelIndex++
+        } else if (upOrDown == UpOrDown.DOWN){
+            mCurrentChannelIndex--
         }
+        if (mCurrentChannelIndex < 0) mCurrentChannelIndex = mUpDownSwitchChannelNodes.size - 1
+        if (mCurrentChannelIndex == mUpDownSwitchChannelNodes.size) mCurrentChannelIndex = 0
 
-        // preload up channel
-        var upIndex = mCurrentChannelIndex + 1
-        if (upIndex == mUpDownSwitchChannelNodes.size) upIndex = 0
-        val upUrl = mUpDownSwitchChannelNodes[upIndex].getAttributeValue("play_url")
-        val upVideoSource: MediaSource = HlsMediaSource.Factory(mDataSourceFactory).setAllowChunklessPreparation(true).createMediaSource(Uri.parse(upUrl))
-        mUpMediaPlayer = ExoPlayerFactory.newSimpleInstance(context, trackSelector)
-        mUpMediaPlayer.prepare(upVideoSource)
-        mUpMediaPlayer.playWhenReady = false
-
-        // preload down channel
-        var downIndex = mCurrentChannelIndex - 1
-        if (downIndex < 0) downIndex = mUpDownSwitchChannelNodes.size - 1
-        val downUrl = mUpDownSwitchChannelNodes[downIndex].getAttributeValue("play_url")
-        val downVideoSource: MediaSource = HlsMediaSource.Factory(mDataSourceFactory).setAllowChunklessPreparation(true).createMediaSource(Uri.parse(downUrl))
-        mDownMediaPlayer = ExoPlayerFactory.newSimpleInstance(context, trackSelector)
-        mDownMediaPlayer.prepare(downVideoSource)
-        mDownMediaPlayer.playWhenReady = false
-
-        mPreparedReadyTime = System.currentTimeMillis()
+        mMediaPlayer.stop()
+        val url: String = mUpDownSwitchChannelNodes[mCurrentChannelIndex].getAttributeValue("play_url")
+        val videoSource: MediaSource = HlsMediaSource.Factory(mDataSourceFactory).setAllowChunklessPreparation(true).createMediaSource(Uri.parse(url))
+        mMediaPlayer.prepare(videoSource)
+        mMediaPlayer.playWhenReady = true
 
         mCurrentChannelId = mUpDownSwitchChannelNodes[mCurrentChannelIndex].getAttributeValue("live_id")
         updateTitleArea(mCurrentChannelId!!, "")
