@@ -195,6 +195,7 @@
                             <attr name="height">840</attr>
                             <attr name="lock-focus">0.2008</attr>
                             <style name="clip-children">true</style>
+                            <attr name="animation">disabled</attr>
                             <area id="channel" type="massive" class="playbill-list-massive">
                                 <attr name="minimum-item">60</attr>
                                 <attr name="cache-pages">10</attr>
