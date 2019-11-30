@@ -14,7 +14,6 @@ android {
         minSdkVersion app.minSdkVersion
         targetSdkVersion app.targetSdkVersion
         versionCode app.versionCode
-//        versionName "CQLive-PENGUIN1SA4062-1.15"
         versionName app.versionName
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
