@@ -8,17 +8,13 @@ import android.text.TextUtils
 import android.view.*
 import android.widget.FrameLayout
 import android.widget.Toast
-import com.google.android.exoplayer2.ExoPlaybackException
-import com.google.android.exoplayer2.ExoPlayerFactory
-import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.ui.DefaultTrackNameProvider
 import com.google.android.exoplayer2.ui.TrackNameProvider
-import com.google.android.exoplayer2.upstream.DataSource
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import com.google.android.exoplayer2.upstream.*
 import com.google.android.exoplayer2.util.Util
 import com.kapplication.cqlive.R
 import com.kapplication.cqlive.message.CommonMessage
@@ -520,8 +516,8 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         }
 
         // preload up channel
-        var upIndex = mCurrentChannelIndex - 1
-        if (upIndex < 0) upIndex = mUpDownSwitchChannelNodes.size - 1
+        var upIndex = mCurrentChannelIndex + 1
+        if (upIndex == mUpDownSwitchChannelNodes.size) upIndex = 0
         val upUrl = mUpDownSwitchChannelNodes[upIndex].getAttributeValue("play_url")
         val upVideoSource: MediaSource = HlsMediaSource.Factory(mDataSourceFactory).setAllowChunklessPreparation(true).createMediaSource(Uri.parse(upUrl))
         mUpMediaPlayer = ExoPlayerFactory.newSimpleInstance(context, trackSelector)
@@ -529,8 +525,8 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         mUpMediaPlayer.playWhenReady = false
 
         // preload down channel
-        var downIndex = mCurrentChannelIndex + 1
-        if (downIndex == mUpDownSwitchChannelNodes.size) downIndex = 0
+        var downIndex = mCurrentChannelIndex - 1
+        if (downIndex < 0) downIndex = mUpDownSwitchChannelNodes.size - 1
         val downUrl = mUpDownSwitchChannelNodes[downIndex].getAttributeValue("play_url")
         val downVideoSource: MediaSource = HlsMediaSource.Factory(mDataSourceFactory).setAllowChunklessPreparation(true).createMediaSource(Uri.parse(downUrl))
         mDownMediaPlayer = ExoPlayerFactory.newSimpleInstance(context, trackSelector)
@@ -878,8 +874,9 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
     @XulSubscriber(tag = CommonMessage.EVENT_FIVE_SECOND)
     private fun onFiveSecondPassed(dummy: Any) {
         XulLog.i(NAME, "5 seconds passed, dismiss operate tips.")
-        xulGetRenderContext().findItemById("operate-tip").setStyle("display", "none")
-        xulGetRenderContext().findItemById("operate-tip").resetRender()
+        val tipsView = xulGetRenderContext().findItemById("operate-tip")
+        tipsView.setStyle("display", "none")
+        tipsView.resetRender()
     }
 
     private val dateFormat = SimpleDateFormat("HH:mm:ss")
