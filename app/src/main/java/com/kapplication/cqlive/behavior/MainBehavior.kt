@@ -8,13 +8,17 @@ import android.text.TextUtils
 import android.view.*
 import android.widget.FrameLayout
 import android.widget.Toast
-import com.google.android.exoplayer2.*
+import com.google.android.exoplayer2.ExoPlaybackException
+import com.google.android.exoplayer2.ExoPlayerFactory
+import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.ui.DefaultTrackNameProvider
 import com.google.android.exoplayer2.ui.TrackNameProvider
-import com.google.android.exoplayer2.upstream.*
+import com.google.android.exoplayer2.upstream.DataSource
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import com.kapplication.cqlive.R
 import com.kapplication.cqlive.message.CommonMessage
@@ -505,8 +509,8 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
 
             // fix me: preload, but current time is changed, return to live.
             // 仅仅为了解决预加载时间小于当前时间, 重新播一下流可以到当前时间. 本应该直接seek到当前时间, 但是流的问题, seek会卡5秒, 特殊处理.
-            // 如果预加载的时间和当前时间小于10秒, 忽略这个时间差(因为重新播, 预加载相当于没用了, 不如直接切台), 如果大于10秒, 重新播一下
-            if (System.currentTimeMillis() - mPreparedReadyTime > 10000) {
+            // 如果预加载的时间和当前时间小于60秒, 忽略这个时间差(因为重新播, 预加载相当于没用了, 不如直接切台), 如果大于10秒, 重新播一下
+            if (System.currentTimeMillis() - mPreparedReadyTime > (1000 * 60)) {
                 mMediaPlayer.stop()
                 val url = mUpDownSwitchChannelNodes[mCurrentChannelIndex].getAttributeValue("play_url")
                 val videoSource: MediaSource = HlsMediaSource.Factory(mDataSourceFactory).setAllowChunklessPreparation(true).createMediaSource(Uri.parse(url))
