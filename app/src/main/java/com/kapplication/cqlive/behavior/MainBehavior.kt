@@ -1,6 +1,7 @@
 package com.kapplication.cqlive.behavior
 
 import android.app.AlertDialog
+import android.app.Dialog
 import android.net.Uri
 import android.os.Build
 import android.os.Handler
@@ -154,7 +155,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         XulLog.i(NAME, "xulOnRenderIsReady")
         if (!Utils.getVersionName(context).contains(Build.MODEL) && !Utils.getVersionName(context).contains("test")) {
             XulLog.e("CQLive", "Device adaptation failed. This version(${Utils.getVersionName(context)}) is not for this device(${Build.MODEL}).")
-            android.os.Process.killProcess(android.os.Process.myPid())
+            showAdaptationError()
             return
         }
         mLiveCollectionCache = XulCacheCenter.buildCacheDomain(1)
@@ -1331,6 +1332,15 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
 
             return@setOnKeyListener false
         }
+    }
+
+    private fun showAdaptationError() {
+        val dialog = AlertDialog.Builder(context).setTitle("温馨提示").setMessage("当前版本未适配此设备,请安装对应适配版本.").setCancelable(false).create()
+        dialog.setButton(Dialog.BUTTON_NEGATIVE, "确定") { d, _ ->
+            d?.dismiss()
+            android.os.Process.killProcess(android.os.Process.myPid())
+        }
+        dialog.show()
     }
 
     enum class UpOrDown{
