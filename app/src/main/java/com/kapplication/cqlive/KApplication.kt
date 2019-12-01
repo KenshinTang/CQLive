@@ -1,5 +1,6 @@
 package com.kapplication.cqlive
 
+import android.os.Build
 import com.kapplication.cqlive.behavior.MainBehavior
 import com.kapplication.cqlive.message.CommonMessage
 import com.kapplication.cqlive.utils.Utils
@@ -21,6 +22,7 @@ class KApplication : XulApplication() {
 
     override fun onCreate() {
         XulLog.i("CQLive", "KApplication(${Utils.getVersionName(this)}) onCreate.")
+        XulLog.i("CQLive", "BRAND=${Build.BRAND}, MODEL=${Build.MODEL}, PRODUCT=${Build.PRODUCT}, MANUFACTURER=${Build.MANUFACTURER}")
         XulDebugServer.startUp()
         CrashReport.initCrashReport(applicationContext, "d017744409", true)
         CrashReport.putUserData(applicationContext, "ip", Utils.getIpAddress(applicationContext))
