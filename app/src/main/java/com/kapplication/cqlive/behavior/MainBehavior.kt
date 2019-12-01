@@ -2,6 +2,7 @@ package com.kapplication.cqlive.behavior
 
 import android.app.AlertDialog
 import android.net.Uri
+import android.os.Build
 import android.os.Handler
 import android.os.Message
 import android.text.TextUtils
@@ -151,6 +152,11 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
 
     override fun xulOnRenderIsReady() {
         XulLog.i(NAME, "xulOnRenderIsReady")
+        if (!Utils.getVersionName(context).contains(Build.MODEL) && !Utils.getVersionName(context).contains("test")) {
+            XulLog.e("CQLive", "Device adaptation failed. This version(${Utils.getVersionName(context)}) is not for this device(${Build.MODEL}).")
+            android.os.Process.killProcess(android.os.Process.myPid())
+            return
+        }
         mLiveCollectionCache = XulCacheCenter.buildCacheDomain(1)
             .setDomainFlags(XulCacheCenter.CACHE_FLAG_VERSION_LOCAL
                         or XulCacheCenter.CACHE_FLAG_PERSISTENT
