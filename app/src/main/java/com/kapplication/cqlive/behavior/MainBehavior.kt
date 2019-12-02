@@ -153,7 +153,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
 
     override fun xulOnRenderIsReady() {
         XulLog.i(NAME, "xulOnRenderIsReady")
-        if (!Utils.getVersionName(context).contains(Build.MODEL) && !Utils.getVersionName(context).contains("test")) {
+        if (!Utils.getVersionName(context).contains("TCL") && !Utils.getVersionName(context).contains("test")) {
             XulLog.e("CQLive", "Device adaptation failed. This version(${Utils.getVersionName(context)}) is not for this device(${Build.MODEL}).")
             showAdaptationError()
             return

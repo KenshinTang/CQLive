@@ -22,7 +22,8 @@ class KApplication : XulApplication() {
 
     override fun onCreate() {
         XulLog.i("CQLive", "KApplication(${Utils.getVersionName(this)}) onCreate.")
-        XulLog.i("CQLive", "BRAND=${Build.BRAND}, MODEL=${Build.MODEL}, PRODUCT=${Build.PRODUCT}, MANUFACTURER=${Build.MANUFACTURER}")
+        XulLog.i("CQLive", "BRAND=${Build.BRAND}, MODEL=${Build.MODEL}," +
+                " PRODUCT=${Build.PRODUCT}, MANUFACTURER=${Build.MANUFACTURER}, DEVICE=${Build.DEVICE}")
         XulDebugServer.startUp()
         CrashReport.initCrashReport(applicationContext, "d017744409", true)
         CrashReport.putUserData(applicationContext, "ip", Utils.getIpAddress(applicationContext))
