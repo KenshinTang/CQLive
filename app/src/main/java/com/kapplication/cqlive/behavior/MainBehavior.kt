@@ -14,6 +14,7 @@ import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.ExoPlayerFactory
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.analytics.AnalyticsListener
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
@@ -83,6 +84,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
     private var mDownMediaPlayer: SimpleExoPlayer = ExoPlayerFactory.newSimpleInstance(context, trackSelector)
     private val mDataSourceFactory: DataSource.Factory = DefaultDataSourceFactory(context, Util.getUserAgent(context, "CQLive"))
     private lateinit var mPlayerListener: Player.EventListener
+    private lateinit var mAnalyticsListener: AnalyticsListener
     private lateinit var mPlayerView: SurfaceView
 
     private lateinit var mCategoryListWrapper: XulMassiveAreaWrapper
@@ -240,7 +242,16 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                 mIsLiveSeeking = false
             }
         }
+
+        mAnalyticsListener = object :AnalyticsListener {
+            override fun onBandwidthEstimate(eventTime: AnalyticsListener.EventTime?, totalLoadTimeMs: Int, totalBytesLoaded: Long, bitrateEstimate: Long) {
+                xulGetRenderContext().findItemById("speed").setAttr("text", Utils.getBytesPerSecond(totalLoadTimeMs, totalBytesLoaded))
+                xulGetRenderContext().findItemById("speed").resetRender()
+            }
+        }
+
         mMediaPlayer.addListener(mPlayerListener)
+        mMediaPlayer.addAnalyticsListener(mAnalyticsListener)
 
         KeyEventListener.register(keys) {
             XulLog.d(NAME, "key pressed.")
@@ -509,6 +520,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
             }
             mMediaPlayer.setVideoSurfaceHolder(mPlayerView.holder)
             mMediaPlayer.addListener(mPlayerListener)
+            mMediaPlayer.addAnalyticsListener(mAnalyticsListener)
             mMediaPlayer.playWhenReady = true
 
             if (mCurrentChannelIndex < 0) mCurrentChannelIndex = mUpDownSwitchChannelNodes.size - 1

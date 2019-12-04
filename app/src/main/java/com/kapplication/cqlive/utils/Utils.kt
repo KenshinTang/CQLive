@@ -143,5 +143,14 @@ class Utils{
 
             return macString
         }
+
+        fun getBytesPerSecond(time: Int, totalBytes: Long): String {
+            val tempResult: Float = (totalBytes / time).toFloat() * 1000
+            return if (tempResult.toInt() > (1024 * 1024)) {
+                String.format("%.2f MB/s", ((tempResult / 1024 / 1024)))
+            } else {
+                "${(tempResult / 1024).toInt()} KB/s"
+            }
+        }
     }
 }
