@@ -531,6 +531,7 @@
                     <attr name="img.0.width">402</attr>
                     <attr name="img.0.height">396</attr>
                     <attr name="img.0.padding">0,1004,0,0</attr>
+                    <attr name="img.0.visible">false</attr>
                     <attr name="img.1">file:///.assets/images/img_live_tips.png</attr>
                     <attr name="img.1.mode">center</attr>
                     <attr name="img.1.align">0</attr>
