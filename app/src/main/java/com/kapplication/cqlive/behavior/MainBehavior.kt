@@ -153,11 +153,20 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
 
     override fun xulOnRenderIsReady() {
         XulLog.i(NAME, "xulOnRenderIsReady")
-        if (!Utils.getVersionName(context).contains("TCL") && !Utils.getVersionName(context).contains("test")) {
-            XulLog.e("CQLive", "Device adaptation failed. This version(${Utils.getVersionName(context)}) is not for this device(${Build.MODEL}).")
-            showAdaptationError()
-            return
+        if (!Utils.getVersionName(context).contains("test")) {
+            if (Build.MODEL.contains("TCL")) {
+                if (!Utils.getVersionName(context).contains("TCL")) {
+                    XulLog.e("CQLive", "Device adaptation failed. This version(${Utils.getVersionName(context)}) is not for this device(${Build.MODEL}).")
+                    showAdaptationError()
+                    return
+                }
+            } else {
+                XulLog.e("CQLive", "Device adaptation failed. This version(${Utils.getVersionName(context)}) is not for this device(${Build.MODEL}).")
+                showAdaptationError()
+                return
+            }
         }
+
         mLiveCollectionCache = XulCacheCenter.buildCacheDomain(1)
             .setDomainFlags(XulCacheCenter.CACHE_FLAG_VERSION_LOCAL
                         or XulCacheCenter.CACHE_FLAG_PERSISTENT
