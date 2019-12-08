@@ -1047,7 +1047,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                         return true
                     }
                 }
-                KeyEvent.KEYCODE_MENU -> {
+                KeyEvent.KEYCODE_MENU, KeyEvent.KEYCODE_A -> {
                     if (!mIsChannelListShow) {
                         showControlFrame(false)
                         showChannelList(true)
