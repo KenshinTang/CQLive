@@ -325,6 +325,35 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         })
     }
 
+    private fun refreshChannel() {
+        val urlBuilder = HttpUrl.parse(Utils.HOST)!!.newBuilder()
+            .addQueryParameter("m", "Live")
+            .addQueryParameter("c", "Live")
+            .addQueryParameter("a", "getLiveListIncludeCategory")
+
+        XulLog.i(NAME, "Request url: ${urlBuilder.build()}")
+
+        val request: Request = Request.Builder().cacheControl(cacheControl).url(urlBuilder.build()).build()
+        okHttpClient.newCall(request).enqueue(object : Callback {
+            override fun onResponse(call: Call?, response: Response?) {
+                response!!.body().use { responseBody ->
+                    if (!response.isSuccessful) {
+                        XulLog.e(NAME, "refreshChannel getLiveListIncludeCategory onResponse, but is not Successful")
+                        throw IOException("Unexpected code $response")
+                    }
+
+                    XulLog.i(NAME, "refreshChannel getLiveListIncludeCategory onResponse")
+
+                    val result : String = responseBody!!.string()
+                    mLiveDataNode = XulDataNode.buildFromJson(result)
+                }
+            }
+
+            override fun onFailure(call: Call?, e: IOException?) {
+            }
+        })
+    }
+
     private fun switchCategory(categoryId: String?, categoryName: String?) {
         if (categoryId.isNullOrEmpty()) {
             return
@@ -882,6 +911,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
 
     @XulSubscriber(tag = CommonMessage.EVENT_HALF_HOUR)
     private fun onHalfHourPassed(dummy: Any) {
+        refreshChannel()
     }
 
     override fun xulDoAction(view: XulView?, action: String?, type: String?, command: String?, userdata: Any?) {
