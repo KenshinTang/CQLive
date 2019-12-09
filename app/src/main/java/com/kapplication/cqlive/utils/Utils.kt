@@ -19,7 +19,8 @@ import java.net.SocketException
  */
 class Utils{
     companion object {
-        const val HOST = "http://dev.yusihuo.com/zhiboapi.php"
+//        const val HOST = "http://dev.yusihuo.com/zhiboapi.php"
+        const val HOST = "http://cqgd.yusihuo.com//zhiboapi.php"
 
         fun printXulDataNode(data: XulDataNode) {
             var xmlSerializer: XmlSerializer? = null
