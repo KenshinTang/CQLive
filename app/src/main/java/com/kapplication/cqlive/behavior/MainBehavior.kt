@@ -908,6 +908,26 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
     private val threeHoursAgoDate = Date()
     @XulSubscriber(tag = CommonMessage.EVENT_HALF_SECOND)
     private fun onHalfSecondPassed(dummy: Any) {
+        if (mIsDebugInfoShow) {
+            val trackNameProvider: TrackNameProvider = DefaultTrackNameProvider(context.resources)
+            val trackName = trackNameProvider.getTrackName(mMediaPlayer.videoFormat)
+            xulGetRenderContext().findItemById("bitrate").setAttr("text", trackName)
+            xulGetRenderContext().findItemById("bitrate").resetRender()
+
+            val clockLabel = xulGetRenderContext().findItemById("clock")
+            val currentTimeMillis = System.currentTimeMillis()
+            if (currentTimeMillis / 1000 != currentDate.time / 1000) {
+                currentDate.time = currentTimeMillis
+                dateFormat.timeZone = TimeZone.getTimeZone("Asia/Shanghai")
+                val curTimeStr = dateFormat.format(currentDate)
+                val clockTimeStr = clockLabel?.getAttrString(XulPropNameCache.TagId.TEXT)
+                if (clockTimeStr != curTimeStr) {
+                    clockLabel?.setAttr(XulPropNameCache.TagId.TEXT, curTimeStr)
+                    clockLabel?.resetRender()
+                }
+            }
+        }
+
         if (mIsLiveMode) {
             val currentTimeMillis = System.currentTimeMillis()
             if (currentTimeMillis / 1000 != currentDate.time / 1000) {
@@ -937,13 +957,6 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                 mMediaTimeEndView.setAttr("text", dateFormat.format(mMediaPlayer.duration - TimeZone.getDefault().rawOffset))
                 mMediaTimeEndView.resetRender()
             }
-        }
-
-        if (mIsDebugInfoShow) {
-            val trackNameProvider: TrackNameProvider = DefaultTrackNameProvider(context.resources)
-            val trackName = trackNameProvider.getTrackName(mMediaPlayer.videoFormat)
-            xulGetRenderContext().findItemById("bitrate").setAttr("text", trackName)
-            xulGetRenderContext().findItemById("bitrate").resetRender()
         }
     }
 

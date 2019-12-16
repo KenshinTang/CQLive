@@ -10,7 +10,7 @@
                 <attr name="x">1200</attr>
                 <attr name="y">50</attr>
                 <attr name="width">match_parent</attr>
-                <attr name="height">500</attr>
+                <attr name="height">800</attr>
                 <item id="bitrate" type="label">
                     <attr name="x">0</attr>
                     <attr name="y">0</attr>
@@ -30,6 +30,14 @@
                 <item id="speed" type="label">
                     <attr name="x">0</attr>
                     <attr name="y">90</attr>
+                    <attr name="width">match_parent</attr>
+                    <attr name="height">match_parent</attr>
+                    <style name="font-size">30</style>
+                    <style name="font-color">FFFFFFFF</style>
+                </item>
+                <item id="clock" type="label">
+                    <attr name="x">0</attr>
+                    <attr name="y">135</attr>
                     <attr name="width">match_parent</attr>
                     <attr name="height">match_parent</attr>
                     <style name="font-size">30</style>
