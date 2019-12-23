@@ -904,6 +904,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
 
     private val dateFormat = SimpleDateFormat("HH:mm:ss")
     private val currentDate = Date()
+    private val liveDate = Date()
     private val timeshiftDate = Date()
     private val threeHoursAgoDate = Date()
     @XulSubscriber(tag = CommonMessage.EVENT_HALF_SECOND)
@@ -930,10 +931,10 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
 
         if (mIsLiveMode) {
             val currentTimeMillis = System.currentTimeMillis()
-            if (currentTimeMillis / 1000 != currentDate.time / 1000) {
-                currentDate.time = currentTimeMillis
+            if (currentTimeMillis / 1000 != liveDate.time / 1000) {
+                liveDate.time = currentTimeMillis
                 dateFormat.timeZone = TimeZone.getTimeZone("Asia/Shanghai")
-                mMediaTimeEndView.setAttr("text", dateFormat.format(currentDate))
+                mMediaTimeEndView.setAttr("text", dateFormat.format(liveDate))
                 mMediaTimeEndView.resetRender()
 
                 threeHoursAgoDate.time = currentTimeMillis - THREE_HOURS_IN_SECONDS * 1000
