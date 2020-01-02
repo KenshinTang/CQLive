@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import com.kapplication.cqlive.R
+import com.kapplication.cqlive.UiManager
 import com.kapplication.cqlive.message.CommonMessage
 import com.kapplication.cqlive.utils.KeyEventListener
 import com.kapplication.cqlive.utils.Utils
@@ -258,6 +259,13 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
             xulGetRenderContext().findItemById("debug_info").setStyle("display", if (mIsDebugInfoShow) "none" else "block")
             xulGetRenderContext().findItemById("debug_info").resetRender()
             mIsDebugInfoShow = !mIsDebugInfoShow
+
+            if (mIsDebugInfoShow) {
+                val testButton = xulGetRenderContext().findItemById("test-button")
+                xulGetRenderContext().layout.requestFocus(testButton)
+                testButton.setStyle("background-color", "ffffb400")
+                testButton.resetRender()
+            }
         }
 
         xulGetRenderContext().findItemById("version").setAttr("text", "版本号: ${Utils.getVersionName(context)}")
@@ -890,8 +898,13 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         XulLog.i(NAME, "xulOnStop")
         mMediaPlayer.stop()
         mMediaPlayer.release()
-        android.os.Process.killProcess(android.os.Process.myPid())
         super.xulOnStop()
+    }
+
+    override fun xulOnDestroy() {
+        XulLog.i(NAME, "xulOnDestroy")
+        android.os.Process.killProcess(android.os.Process.myPid())
+        super.xulOnDestroy()
     }
 
     @XulSubscriber(tag = CommonMessage.EVENT_FIVE_SECOND)
@@ -1018,6 +1031,10 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                     }
                     mHandler.sendMessageDelayed(preloadMessage, 50)
                 }
+            }
+            "openMosaic" -> {
+                XulLog.i("kenshin", "openMosaic")
+                UiManager.openUiPage("MosaicPage")
             }
         }
         super.xulDoAction(view, action, type, command, userdata)

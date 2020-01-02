@@ -43,6 +43,22 @@
                     <style name="font-size">30</style>
                     <style name="font-color">FFFFFFFF</style>
                 </item>
+                <item id="test-button" type="label">
+                    <focus mode="focusable"/>
+                    <attr name="x">0</attr>
+                    <attr name="y">180</attr>
+                    <attr name="width">match_content</attr>
+                    <attr name="height">match_content</attr>
+                    <attr name="text">openMosaic</attr>
+                    <style name="font-size">30</style>
+                    <style name="font-color">FFFFFFFF</style>
+                    <style name="padding">8</style>
+                    <style name="border">0,b7ffffff,8,8</style>
+                    <style name="background-color">b7ffffff</style>
+                    <action event="click" type="script/javascript">
+                        this.dispatchEvent("openMosaic", "usr_cmd", "");
+                    </action>
+                </item>
             </area>
             <area id="s" desc="右上角时移回看标志">
                 <attr name="width">match_parent</attr>

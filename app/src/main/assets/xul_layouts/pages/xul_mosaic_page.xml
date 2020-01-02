@@ -1,0 +1,24 @@
+<?xml version="1.1" encoding="utf-8"?>
+<starcor.xul screen="1920x1080" xmlns="http://www.starcor.cn/XUL">
+    <script src="file:///.assets/plugin/player/player/media_player.js" type="script/javascript"/>
+    <page id="MosaicPage">
+        <layout>
+            <area id="debug_info" desc="码率">
+                <attr name="x">1200</attr>
+                <attr name="y">50</attr>
+                <attr name="width">match_parent</attr>
+                <attr name="height">800</attr>
+                <item id="version" type="label">
+                    <attr name="x">0</attr>
+                    <attr name="y">45</attr>
+                    <attr name="width">match_parent</attr>
+                    <attr name="height">match_parent</attr>
+                    <style name="font-size">30</style>
+                    <style name="font-color">FFFFFFFF</style>
+                </item>
+            </area>
+        </layout>
+        <selector>
+        </selector>
+    </page>
+</starcor.xul>

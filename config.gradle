@@ -5,7 +5,8 @@ ext {
            minSdkVersion    : 19,
            targetSdkVersion : 23,
            versionCode      : 125,
-           versionName      : "CQLive-PENGUIN1SA4062-1.25"]
+//           versionName      : "CQLive-PENGUIN1SA4062-1.25"]
+           versionName      : "test-2.0"]
     //     versionName "CQLive-PENGUIN1SA4062-1.15"
     //     versionName "CQLive-TCL55A261-1.19"
 
