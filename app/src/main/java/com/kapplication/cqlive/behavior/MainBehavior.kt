@@ -1210,16 +1210,16 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                     }
 
                     if (event.keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
-                        val channelView: XulView = xulGetFocus()
-                        val liveId: String = channelView.getDataString("live_id")
+                        val channelView: XulView? = xulGetFocus()
+                        val liveId: String? = channelView?.getDataString("live_id")
                         if (TextUtils.isEmpty(liveId)) {
                             XulLog.d(NAME, "left on not channel")
                             return true
                         }
                         XulLog.i(NAME, "left on channel, hide playback list.")
-                        channelView.removeClass("category_checked")
-                        channelView.resetRender()
-                        showPlaybackList(liveId, false)
+                        channelView?.removeClass("category_checked")
+                        channelView?.resetRender()
+                        showPlaybackList(liveId!!, false)
                         return true
                     }
                 }
