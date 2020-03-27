@@ -16,6 +16,7 @@ android {
         versionCode app.versionCode
         versionName app.versionName
 
+
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         ndk {
             abiFilters 'armeabi', 'x86'

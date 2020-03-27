@@ -4,9 +4,8 @@ ext {
            buildToolsVersion: '28.0.3',
            minSdkVersion    : 19,
            targetSdkVersion : 23,
-           versionCode      : 125,
-//           versionName      : "CQLive-PENGUIN1SA4062-1.25"]
-           versionName      : "test-2.0"]
+           versionCode      : 126,
+           versionName      : "CQLive-PENGUIN1SA4062-1.26"]
     //     versionName "CQLive-PENGUIN1SA4062-1.15"
     //     versionName "CQLive-TCL55A261-1.19"
 
@@ -17,6 +16,12 @@ ext {
             targetSdkVersion : 26]
 
     xulApp = [
+            compileSdkVersion: 26,
+            buildToolsVersion: '28.0.3',
+            minSdkVersion    : 14,
+            targetSdkVersion : 14]
+
+    CQLiveSDK = [
             compileSdkVersion: 26,
             buildToolsVersion: '28.0.3',
             minSdkVersion    : 14,

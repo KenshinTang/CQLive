@@ -167,7 +167,7 @@
                 </area>
                 <area id="channel-layer" type="layer" class="effect-layer" desc="频道列表">
                     <attr name="effect-type">channel</attr>
-                    <focus mode="dynamic,nearby"/>
+                    <focus mode="dynamic,nearby,priority"/>
                     <attr name="x">420</attr>
                     <attr name="y">0</attr>
                     <attr name="width">640</attr>
@@ -233,6 +233,7 @@
                                 <attr name="cache-pages">10</attr>
                                 <template id="@item-template">
                                     <area class="playbill-item">
+                                        <focus mode="focusable" priority="1"/>
                                         <action event="focus" type="script/javascript">
                                             this.dispatchEvent("preloadPlayRes", "usr_cmd", "");
                                         </action>
