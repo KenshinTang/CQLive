@@ -21,6 +21,12 @@ ext {
             minSdkVersion    : 14,
             targetSdkVersion : 14]
 
+    CQLiveSDK = [
+            compileSdkVersion: 26,
+            buildToolsVersion: '28.0.3',
+            minSdkVersion    : 14,
+            targetSdkVersion : 14]
+
     java = [SC: JavaVersion.VERSION_1_8,
             TC: JavaVersion.VERSION_1_8]
 
