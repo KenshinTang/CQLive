@@ -3,6 +3,7 @@ package com.kapplication.cqlive
 import android.content.Intent
 import android.os.Bundle
 import com.kapplication.cqlive.behavior.MainBehavior
+import com.kapplication.cqlive.behavior.MosaicBehavior
 import com.kapplication.cqlive.message.CommonMessage
 import com.starcor.xul.XulDataNode
 import com.starcor.xulapp.XulApplication
@@ -24,6 +25,7 @@ object UiManager {
     init {
 //        addUiPage("MainPage", "xul_layouts/pages/xul_main_page.xml", MainBehavior.NAME, MainActivity::class)
         addUiPage("MainPage", "xul_layouts/pages/xul_main_page.xml", MainBehavior.NAME, MainActivity::class)
+        addUiPage("MosaicPage", "xul_layouts/pages/xul_mosaic_page.xml", MosaicBehavior.NAME, MosaicActivity::class)
     }
 
     fun addUiPage(pageId: String, xulFile: String, behavior: String) {
