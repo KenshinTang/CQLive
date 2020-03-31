@@ -1,6 +1,7 @@
 package com.kapplication.cqlive
 
 import android.os.Build
+import com.ccnks.cqlivesdk.CQLiveSDK
 import com.kapplication.cqlive.behavior.MainBehavior
 import com.kapplication.cqlive.message.CommonMessage
 import com.kapplication.cqlive.utils.Utils
@@ -27,6 +28,8 @@ class KApplication : XulApplication() {
         CrashReport.initCrashReport(applicationContext, "d017744409", true)
         CrashReport.putUserData(applicationContext, "ip", Utils.getIpAddress(applicationContext))
         CrashReport.putUserData(applicationContext, "mac", Utils.getMac(applicationContext))
+
+        CQLiveSDK.init(this)
         super.onCreate()
         startCommonMessage()
     }

@@ -10,6 +10,10 @@ import android.text.TextUtils
 import android.view.*
 import android.widget.FrameLayout
 import android.widget.Toast
+import com.ccnks.cqlivesdk.CQLiveSDK
+import com.ccnks.cqlivesdk.LiveCallback
+import com.ccnks.cqlivesdk.model.CategoryList
+import com.ccnks.cqlivesdk.model.ProgramList
 import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.ExoPlayerFactory
 import com.google.android.exoplayer2.Player
@@ -167,7 +171,42 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                         or XulCacheCenter.CACHE_FLAG_PROPERTY).build()
         initView()
         requestChannel()
+//        sdkTest()
         super.xulOnRenderIsReady()
+    }
+
+    private fun sdkTest() {
+        CQLiveSDK.getCategoryList(object: LiveCallback {
+            override fun onSuccess(result: ArrayList<*>) {
+                for (c in result) {
+                    c as CategoryList.Category
+                    XulLog.e("kenshin", "category = $c")
+                    for (channel in c.channelList) {
+                        XulLog.e("kenshin", "channel = $channel")
+                    }
+                }
+            }
+
+            override fun onFailed(code: Int, reason: String) {
+                XulLog.e("kenshin", "code = $code, reason = $reason")
+            }
+        })
+
+        CQLiveSDK.getProgramList("515972557", object :LiveCallback{
+            override fun onSuccess(result: ArrayList<*>) {
+                for (p in result) {
+                    p as ProgramList.Program
+                    XulLog.e("kenshin", "program = $p")
+                    for (playbill in p.playbillList) {
+                        XulLog.e("kenshin", "playbill = $playbill")
+                    }
+                }
+            }
+
+            override fun onFailed(code: Int, reason: String) {
+                XulLog.e("kenshin", "code = $code, reason = $reason")
+            }
+        })
     }
 
     override fun initRenderContextView(renderContextView: View): View {
