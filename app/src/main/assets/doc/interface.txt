@@ -11,6 +11,12 @@ http://9890.vod.myqcloud.com/9890_4e292f9a3dd011e6b4078980237cc3d3.f20.mp4
 http://dev.yusihuo.com/zhiboapi.php?m=Live&c=Live&a=getLiveListIncludeCategory
 http://dev.yusihuo.com/zhiboapi.php?m=Live&c=LivePlayBill&a=getPlayBillList&live_id=515972557
 
+2期
+SDK混淆, 去掉日志打印
+
+
+
+1期
 //上下键切台
 //UI控制,自动隐藏
 //播放条
@@ -19,15 +25,15 @@ http://dev.yusihuo.com/zhiboapi.php?m=Live&c=LivePlayBill&a=getPlayBillList&live
 //时移
 //收藏
 //升级
-
+//回看
+//节目单
+//调试页面
+//加锁
 
 拖动预览
 升级对话框UI调整
 退出确认框
-加锁
 缓冲加载圈
 错误处理,异常弹窗
-回看
-节目单
-调试页面
+
 
