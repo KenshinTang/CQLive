@@ -14,6 +14,7 @@ import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.ExoPlayerFactory
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.analytics.AnalyticsListener
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
@@ -83,6 +84,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
 //    private var mDownMediaPlayer: SimpleExoPlayer = ExoPlayerFactory.newSimpleInstance(context, trackSelector)
     private val mDataSourceFactory: DataSource.Factory = DefaultDataSourceFactory(context, Util.getUserAgent(context, "CQLive"))
     private lateinit var mPlayerListener: Player.EventListener
+    private lateinit var mAnalyticsListener: AnalyticsListener
     private lateinit var mPlayerView: SurfaceView
 
     private lateinit var mCategoryListWrapper: XulMassiveAreaWrapper
@@ -240,7 +242,16 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                 mIsLiveSeeking = false
             }
         }
+
+        mAnalyticsListener = object :AnalyticsListener {
+            override fun onBandwidthEstimate(eventTime: AnalyticsListener.EventTime?, totalLoadTimeMs: Int, totalBytesLoaded: Long, bitrateEstimate: Long) {
+                xulGetRenderContext().findItemById("speed").setAttr("text", Utils.getBytesPerSecond(totalLoadTimeMs, totalBytesLoaded))
+                xulGetRenderContext().findItemById("speed").resetRender()
+            }
+        }
+
         mMediaPlayer.addListener(mPlayerListener)
+        mMediaPlayer.addAnalyticsListener(mAnalyticsListener)
 
         KeyEventListener.register(keys) {
             XulLog.d(NAME, "key pressed.")
@@ -837,16 +848,37 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
 
     private val dateFormat = SimpleDateFormat("HH:mm:ss")
     private val currentDate = Date()
+    private val liveDate = Date()
     private val timeshiftDate = Date()
     private val threeHoursAgoDate = Date()
     @XulSubscriber(tag = CommonMessage.EVENT_HALF_SECOND)
     private fun onHalfSecondPassed(dummy: Any) {
-        if (mIsLiveMode) {
+        if (mIsDebugInfoShow) {
+            val trackNameProvider: TrackNameProvider = DefaultTrackNameProvider(context.resources)
+            val trackName = trackNameProvider.getTrackName(mMediaPlayer.videoFormat)
+            xulGetRenderContext().findItemById("bitrate").setAttr("text", trackName)
+            xulGetRenderContext().findItemById("bitrate").resetRender()
+
+            val clockLabel = xulGetRenderContext().findItemById("clock")
             val currentTimeMillis = System.currentTimeMillis()
             if (currentTimeMillis / 1000 != currentDate.time / 1000) {
                 currentDate.time = currentTimeMillis
                 dateFormat.timeZone = TimeZone.getTimeZone("Asia/Shanghai")
-                mMediaTimeEndView.setAttr("text", dateFormat.format(currentDate))
+                val curTimeStr = dateFormat.format(currentDate)
+                val clockTimeStr = clockLabel?.getAttrString(XulPropNameCache.TagId.TEXT)
+                if (clockTimeStr != curTimeStr) {
+                    clockLabel?.setAttr(XulPropNameCache.TagId.TEXT, curTimeStr)
+                    clockLabel?.resetRender()
+                }
+            }
+        }
+
+        if (mIsLiveMode) {
+            val currentTimeMillis = System.currentTimeMillis()
+            if (currentTimeMillis / 1000 != liveDate.time / 1000) {
+                liveDate.time = currentTimeMillis
+                dateFormat.timeZone = TimeZone.getTimeZone("Asia/Shanghai")
+                mMediaTimeEndView.setAttr("text", dateFormat.format(liveDate))
                 mMediaTimeEndView.resetRender()
 
                 threeHoursAgoDate.time = currentTimeMillis - THREE_HOURS_IN_SECONDS * 1000
@@ -870,13 +902,6 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                 mMediaTimeEndView.setAttr("text", dateFormat.format(mMediaPlayer.duration - TimeZone.getDefault().rawOffset))
                 mMediaTimeEndView.resetRender()
             }
-        }
-
-        if (mIsDebugInfoShow) {
-            val trackNameProvider: TrackNameProvider = DefaultTrackNameProvider(context.resources)
-            val trackName = trackNameProvider.getTrackName(mMediaPlayer.videoFormat)
-            xulGetRenderContext().findItemById("bitrate").setAttr("text", trackName)
-            xulGetRenderContext().findItemById("bitrate").resetRender()
         }
     }
 
