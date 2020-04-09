@@ -124,10 +124,5 @@ class CQLiveSDK {
                 }
             })
         }
-
-        fun getPlayUrl(channelId: String, callback: LiveCallback) {
-            callback.onSuccess(result = ArrayList<String>())
-            callback.onFailed(0, "test")
-        }
     }
 }

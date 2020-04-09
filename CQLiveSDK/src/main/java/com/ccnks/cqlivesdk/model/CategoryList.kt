@@ -47,8 +47,11 @@ class CategoryList {
         @JSONField(name = "icon_img_url")
         var icon: String = ""
 
+        @JSONField(name = "play_url")
+        var playUrl: String = ""
+
         override fun toString(): String {
-            return "{id=$id, name=$name, number=$number, icon=$icon}"
+            return "{id=$id, name=$name, number=$number, icon=$icon, playUrl=$playUrl}"
         }
     }
 }

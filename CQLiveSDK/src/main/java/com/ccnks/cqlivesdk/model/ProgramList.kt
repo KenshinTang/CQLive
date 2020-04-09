@@ -47,8 +47,11 @@ class ProgramList {
         @JSONField(name = "play_status")
         var status: Int = 0
 
+        @JSONField(name = "play_url")
+        var playUrl: String = ""
+
         override fun toString(): String {
-            return "{id=$id, name=$name, beginTime=$beginTime, endTime=$endTime, status=$status}"
+            return "{id=$id, name=$name, beginTime=$beginTime, endTime=$endTime, status=$status, playUrl=$playUrl}"
         }
     }
 }
