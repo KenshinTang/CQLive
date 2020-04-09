@@ -520,7 +520,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         }
         XulLog.i(NAME, "requestPlayUrl, liveId = $channelId ")
         mCurrentChannelId = channelId
-        updateTitleArea(channelId!!, "")
+        updateTitleAndControlFrame(channelId!!, "")
         loadPreviewBitmaps()
 
         return mCurrentChannelNode?.getAttributeValue("play_url")?:""
@@ -608,7 +608,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         mPreparedReadyTime = System.currentTimeMillis()
 
         mCurrentChannelId = mUpDownSwitchChannelNodes[mCurrentChannelIndex].getAttributeValue("live_id")
-        updateTitleArea(mCurrentChannelId!!, "")
+        updateTitleAndControlFrame(mCurrentChannelId!!, "")
         loadPreviewBitmaps()
     }
 
@@ -729,7 +729,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         mLiveCollectionCache?.put("live_list", mCollectionNode)
     }
 
-    private fun updateTitleArea(channelId: String, playbackProgramName: String?) {
+    private fun updateTitleAndControlFrame(channelId: String, playbackProgramName: String?) {
         mCurrentChannelNode = mLiveDataNode?.getChildNode("data")?.firstChild?.getChildNode("live_list")?.firstChild
         while (mCurrentChannelNode != null) {
             val liveId: String? = mCurrentChannelNode?.getAttributeValue("live_id")
@@ -748,15 +748,15 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         xulGetRenderContext().findItemById("live_name")?.resetRender()
 
         if (mIsLiveMode) {
-            val urlBuilder = HttpUrl.parse(Utils.HOST)!!.newBuilder()
+            // 请求节目单显示当前节目和即将播放节目
+            var urlBuilder = HttpUrl.parse(Utils.HOST)!!.newBuilder()
                 .addQueryParameter("m", "Live")
                 .addQueryParameter("c", "LivePlayBill")
                 .addQueryParameter("a", "getPlayBillList")
                 .addQueryParameter("live_id", mCurrentChannelId)
-
             XulLog.i(NAME, "Request url: ${urlBuilder.build()}")
 
-            val request: Request = Request.Builder().cacheControl(cacheControl).url(urlBuilder.build()).build()
+            var request: Request = Request.Builder().cacheControl(cacheControl).url(urlBuilder.build()).build()
             okHttpClient.newCall(request).enqueue(object : Callback {
                 override fun onResponse(call: Call?, response: Response?) {
                     response!!.body().use { responseBody ->
@@ -807,6 +807,63 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
 
                 override fun onFailure(call: Call?, e: IOException?) {
                     XulLog.e(NAME, "getPlayBillList onFailure")
+                }
+            })
+
+            // 请求广告
+            urlBuilder = HttpUrl.parse(Utils.HOST)!!.newBuilder()
+                .addQueryParameter("m", "Ad")
+                .addQueryParameter("c", "AdPosition")
+                .addQueryParameter("a", "getAdPositionInfo")
+                .addQueryParameter("ad_position_id", "100")
+            XulLog.i(NAME, "Request url: ${urlBuilder.build()}")
+
+            request = Request.Builder().cacheControl(cacheControl).url(urlBuilder.build()).build()
+            okHttpClient.newCall(request).enqueue(object : Callback {
+                override fun onResponse(call: Call?, response: Response?) {
+                    response!!.body().use { responseBody ->
+                        if (!response.isSuccessful) {
+                            XulLog.e(NAME, "getAdPositionInfo onResponse, but is not Successful")
+                            throw IOException("Unexpected code $response")
+                        }
+                        XulLog.i(NAME, "getAdPositionInfo onResponse")
+
+                        val result: String = responseBody!!.string()
+                        val dataNode: XulDataNode? = XulDataNode.buildFromJson(result)
+
+                        val code: String? = dataNode?.getAttributeValue("ret")
+                        XulApplication.getAppInstance().postToMainLooper {
+                            if (code != "0") {
+                                XulLog.e(NAME, "getAdPositionInfo onFailure code=$code.")
+                                return@postToMainLooper
+                            } else {
+                                val imageAdUrl: String? = dataNode.getChildNode("data").getAttributeValue("img_url")
+//                                val imageAdUrl: String? = "https://img10.360buyimg.com/cms/jfs/t1/88200/19/5466/183449/5dee0cafE787845ab/af8332e3dcec42a9.jpg"
+                                xulGetRenderContext().findItemById("switch-channel-ad").setAttr("img.0", imageAdUrl)
+                                xulGetRenderContext().findItemById("switch-channel-ad").resetRender()
+
+                                // 印象上报
+                                urlBuilder = HttpUrl.parse(Utils.HOST)!!.newBuilder()
+                                    .addQueryParameter("m", "Ad")
+                                    .addQueryParameter("c", "AdPosition")
+                                    .addQueryParameter("a", "AdPositionReportForShow")
+                                    .addQueryParameter("ad_position_id", "100")
+                                XulLog.i(NAME, "Request url: ${urlBuilder.build()}")
+                                request = Request.Builder().cacheControl(cacheControl).url(urlBuilder.build()).build()
+                                okHttpClient.newCall(request).enqueue(object : Callback {
+                                    override fun onFailure(call: Call, e: IOException) {
+                                    }
+
+                                    override fun onResponse(call: Call, response: Response) {
+                                    }
+                                })
+                            }
+                        }
+                    }
+                }
+
+                override fun onFailure(call: Call?, e: IOException?) {
+                    XulLog.e(NAME, "getAdPositionInfo onFailure")
                 }
             })
         } else {
@@ -1101,7 +1158,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                 view?.findItemById("playing_indicator")?.setAttr("img.0.visible", "true")
                 view?.findItemById("playing_indicator")?.resetRender()
                 startToPlayPlayback(playbackUrl)
-                updateTitleArea(channelId, playbackName)
+                updateTitleAndControlFrame(channelId, playbackName)
             }
             "preloadPlayRes" -> {
                 if (mIsChannelListShow) {

@@ -556,6 +556,15 @@
                             <style name="font-color">FFFFFFFF</style>
                             <style name="font-size">38</style>
                         </item>
+                        <item id="switch-channel-ad" type="image">
+                            <attr name="x">1365</attr>
+                            <attr name="y">-230</attr>
+                            <attr name="width">370</attr>
+                            <attr name="height">200</attr>
+                            <attr name="img.0"/>
+                            <attr name="img.0.width">370</attr>
+                            <attr name="img.0.height">250</attr>
+                        </item>
                         <item id="player-time-begin" type="label" class="player-time-label" desc="左边时间/可时移时间">
                         </item>
                         <item id="player-pos" class="player-pos" type="seek_bar">
