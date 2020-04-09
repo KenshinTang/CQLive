@@ -344,6 +344,16 @@
                                         <action event="checked" type="script/javascript">
                                             this.dispatchEvent("switchPlaybackProgram", "usr_cmd", "");
                                         </action>
+                                        <item type="image" desc="回,今,预">
+                                            <focus mode="nofocus"/>
+                                            <attr name="x">15</attr>
+                                            <attr name="y">45</attr>
+                                            <attr name="width">35</attr>
+                                            <attr name="height">35</attr>
+                                            <attr name="img.0.width">35</attr>
+                                            <attr name="img.0.height">35</attr>
+                                            <attr name="img.0" binding="[=mark]"/>
+                                        </item>
                                         <item type="label" desc="星期">
                                             <focus mode="nofocus"/>
                                             <attr name="x">60</attr>

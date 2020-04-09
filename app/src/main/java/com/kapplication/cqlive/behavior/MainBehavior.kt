@@ -861,6 +861,9 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
 
                     mPlaybackDataNode = XulDataNode.buildFromJson(result)
                     val dataNode: XulDataNode? = mPlaybackDataNode
+                    val todayDate: String? = dataNode?.getAttributeValue("time")
+                    val todayMonth: String? = todayDate?.substring(5, 7)
+                    val todayDay: String? = todayDate?.substring(8, 10)
 
                     if (handleError(dataNode)) {
 //                        XulApplication.getAppInstance().postToMainLooper {
@@ -876,6 +879,12 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                                 XulSliderAreaWrapper.fromXulView(mDateListWrapper.asView)?.scrollTo(0, false)
                                 var programNode: XulDataNode? = dataNode?.getChildNode("data")?.firstChild
                                 while (programNode != null) {
+                                    // 添加回看列表上,日期的mar, 预, 回, 今
+                                    val date: String = programNode.getAttributeValue("date")
+                                    val month: String = date.substring(0, 2)
+                                    val day: String = date.substring(3, 5)
+                                    programNode.setAttribute("mark", getMark(todayMonth, month, todayDay, day))
+
                                     mDateListWrapper.addItem(programNode)
                                     programNode = programNode.next
                                 }
@@ -896,6 +905,23 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
 //                XulApplication.getAppInstance().postToMainLooper {
 //
 //                }
+            }
+
+            private fun getMark(todayMonth: String?, month: String, todayDay: String?, day: String): String {
+                val r = "file:///.assets/images/icon_lock.png"  // 预:
+                val b = "file:///.assets/images/icon_star.png"  // 回:
+                val n = "file:///.assets/images/icon_right_arrow.png"  // 今:
+                return when {
+                    month.toInt() > todayMonth!!.toInt() -> { r }
+                    month.toInt() < todayMonth.toInt() -> { b }
+                    else -> {
+                        when {
+                            day.toInt() > todayDay!!.toInt() -> { r }
+                            day.toInt() < todayDay.toInt() -> { b }
+                            else -> { n }
+                        }
+                    }
+                }
             }
         })
     }
