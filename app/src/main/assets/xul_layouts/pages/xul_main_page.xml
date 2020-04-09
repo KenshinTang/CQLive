@@ -544,8 +544,15 @@
                         <attr name="width">match_parent</attr>
                         <item id="current-program" type="label">
                             <attr name="x">0</attr>
-                            <attr name="y">-50</attr>
+                            <attr name="y">-100</attr>
                             <attr name="text">正在播放: </attr>
+                            <style name="font-color">FFFFFFFF</style>
+                            <style name="font-size">38</style>
+                        </item>
+                        <item id="next-program" type="label">
+                            <attr name="x">0</attr>
+                            <attr name="y">-50</attr>
+                            <attr name="text">即将播放: </attr>
                             <style name="font-color">FFFFFFFF</style>
                             <style name="font-size">38</style>
                         </item>

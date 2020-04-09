@@ -108,6 +108,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
     private lateinit var mProgramLayer: XulView
     private lateinit var mSeekBarRender: PlayerSeekBarRender
     private lateinit var mCurrentProgramView: XulView
+    private lateinit var mNextProgramView: XulView
 
     private var mIsChannelListShow: Boolean = false
     private var mIsControlFrameShow: Boolean = false
@@ -250,6 +251,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         mDateLayer = xulGetRenderContext().findItemById("date-layer")
         mProgramLayer = xulGetRenderContext().findItemById("program-layer")
         mCurrentProgramView = xulGetRenderContext().findItemById("current-program")
+        mNextProgramView = xulGetRenderContext().findItemById("next-program")
 
         mTimeshiftLogoView = xulGetRenderContext().findItemById("timeshift_logo")
         mMediaTimeStartView = xulGetRenderContext().findItemById("player-time-begin")
@@ -773,8 +775,13 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                         XulApplication.getAppInstance().postToMainLooper {
                             if (code != "0") {
                                 mCurrentProgramView.setStyle("display", "block")
+                                mCurrentProgramView.setAttr("y", "-100")
                                 mCurrentProgramView.setAttr("text", "正在播放: ")
                                 mCurrentProgramView.resetRender()
+                                mNextProgramView.setStyle("display", "block")
+                                mNextProgramView.setAttr("y", "-50")
+                                mNextProgramView.setAttr("text", "即将播放: ")
+                                mNextProgramView.resetRender()
                                 return@postToMainLooper
                             }
 
@@ -782,8 +789,14 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                             while (programNode != null) {
                                 if (programNode.getAttributeValue("play_status") == "2") {
                                     mCurrentProgramView.setStyle("display", "block")
+                                    mCurrentProgramView.setAttr("y", "-100")
                                     mCurrentProgramView.setAttr("text", "正在播放: ${programNode.getAttributeValue("name")}")
                                     mCurrentProgramView.resetRender()
+
+                                    mNextProgramView.setStyle("display", "block")
+                                    mNextProgramView.setAttr("y", "-50")
+                                    mNextProgramView.setAttr("text", "即将播放: ${programNode.next.getAttributeValue("name")} ")
+                                    mNextProgramView.resetRender()
                                     break
                                 }
                                 programNode = programNode.next
@@ -798,8 +811,11 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
             })
         } else {
             mCurrentProgramView.setStyle("display", "block")
+            mCurrentProgramView.setAttr("y", "-50")
             mCurrentProgramView.setAttr("text", "正在播放: $playbackProgramName")
             mCurrentProgramView.resetRender()
+            mNextProgramView.setStyle("display", "none")
+            mNextProgramView.resetRender()
         }
     }
 
