@@ -967,9 +967,9 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
             }
 
             private fun getMark(todayMonth: String?, month: String, todayDay: String?, day: String): String {
-                val r = "file:///.assets/images/icon_lock.png"  // 预:
-                val b = "file:///.assets/images/icon_star.png"  // 回:
-                val n = "file:///.assets/images/icon_right_arrow.png"  // 今:
+                val r = "file:///.assets/images/mark_reservation.png"  // 预:
+                val b = "file:///.assets/images/mark_playback.png"  // 回:
+                val n = "file:///.assets/images/mark_live.png"  // 今:
                 return when {
                     month.toInt() > todayMonth!!.toInt() -> { r }
                     month.toInt() < todayMonth.toInt() -> { b }
