@@ -1,4 +1,4 @@
-package com.ccnks.cqlivesdk.util
+package com.kapplication.cqlivesdk.util
 
 import android.content.Context
 import android.net.ConnectivityManager

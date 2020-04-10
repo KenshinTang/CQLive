@@ -10,10 +10,6 @@ import android.text.TextUtils
 import android.view.*
 import android.widget.FrameLayout
 import android.widget.Toast
-import com.ccnks.cqlivesdk.CQLiveSDK
-import com.ccnks.cqlivesdk.LiveCallback
-import com.ccnks.cqlivesdk.model.CategoryList
-import com.ccnks.cqlivesdk.model.ProgramList
 import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.ExoPlayerFactory
 import com.google.android.exoplayer2.Player
@@ -33,6 +29,10 @@ import com.kapplication.cqlive.message.CommonMessage
 import com.kapplication.cqlive.utils.KeyEventListener
 import com.kapplication.cqlive.utils.Utils
 import com.kapplication.cqlive.widget.PlayerSeekBarRender
+import com.kapplication.cqlivesdk.CQLiveSDK
+import com.kapplication.cqlivesdk.LiveCallback
+import com.kapplication.cqlivesdk.model.CategoryList
+import com.kapplication.cqlivesdk.model.ProgramList
 import com.starcor.xul.Prop.XulPropNameCache
 import com.starcor.xul.Wrapper.XulMassiveAreaWrapper
 import com.starcor.xul.Wrapper.XulSliderAreaWrapper

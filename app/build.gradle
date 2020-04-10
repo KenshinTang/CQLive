@@ -48,13 +48,13 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation project(":CQLiveSDK")
+    implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
     implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin.version"
     implementation 'com.squareup.okhttp3:okhttp:3.10.0'
 
     implementation 'com.google.android.exoplayer:exoplayer:2.10.6'
     implementation 'com.tencent.bugly:crashreport:latest.release'
+    implementation 'com.alibaba:fastjson:1.2.68'
 
     implementation project(path: ':xul')
     implementation project(path: ':xulApp')

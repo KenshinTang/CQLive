@@ -1,4 +1,4 @@
-package com.ccnks.cqlivesdk.model
+package com.kapplication.cqlivesdk.model
 
 import com.alibaba.fastjson.annotation.JSONField
 

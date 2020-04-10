@@ -1,11 +1,11 @@
-package com.ccnks.cqlivesdk
+package com.kapplication.cqlivesdk
 
 import android.content.Context
 import android.util.Log
 import com.alibaba.fastjson.JSON
-import com.ccnks.cqlivesdk.model.CategoryList
-import com.ccnks.cqlivesdk.model.ProgramList
-import com.ccnks.cqlivesdk.util.Utils
+import com.kapplication.cqlivesdk.model.CategoryList
+import com.kapplication.cqlivesdk.model.ProgramList
+import com.kapplication.cqlivesdk.util.Utils
 import okhttp3.*
 import java.io.IOException
 import java.util.concurrent.TimeUnit
@@ -25,6 +25,7 @@ class CQLiveSDK {
         private var packageName = "null"
         private var versionName = "null"
 
+        @JvmStatic
         fun init(context: Context) {
             if (!hasInitialized) {
                 applicationContext = context.applicationContext
@@ -52,13 +53,12 @@ class CQLiveSDK {
             }
         }
 
+        @JvmStatic
         fun getCategoryList(callback: LiveCallback) {
             val urlBuilder = HttpUrl.parse(HOST)!!.newBuilder()
                 .addQueryParameter("m", "Live")
                 .addQueryParameter("c", "Live")
                 .addQueryParameter("a", "getLiveListIncludeCategory")
-
-            Log.i(TAG, "Request url: ${urlBuilder.build()}")
 
             val request: Request = Request.Builder().cacheControl(cacheControl).url(urlBuilder.build()).build()
             okHttpClient.newCall(request).enqueue(object : Callback {
@@ -83,20 +83,19 @@ class CQLiveSDK {
                 }
 
                 override fun onFailure(call: Call?, e: IOException?) {
-                    Log.e(TAG, "getAssetCategoryList onFailure")
+                    Log.e(TAG, "getAssetCategoryList onFailure $e")
                     callback.onFailed(-1, e?.toString() ?: "unknown")
                 }
             })
         }
 
+        @JvmStatic
         fun getProgramList(channelId: String, callback: LiveCallback) {
             val urlBuilder = HttpUrl.parse(HOST)!!.newBuilder()
                 .addQueryParameter("m", "Live")
                 .addQueryParameter("c", "LivePlayBill")
                 .addQueryParameter("a", "getPlayBillList")
                 .addQueryParameter("live_id", channelId)
-
-            Log.i(TAG, "Request url: ${urlBuilder.build()}")
 
             val request: Request = Request.Builder().cacheControl(cacheControl).url(urlBuilder.build()).build()
             okHttpClient.newCall(request).enqueue(object : Callback{
