@@ -22,27 +22,59 @@ import com.starcor.xulapp.utils.XulLog
 import okhttp3.Cache
 import okhttp3.CacheControl
 import okhttp3.OkHttpClient
+import java.security.cert.X509Certificate
 import java.util.concurrent.TimeUnit
+import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManager
+import javax.net.ssl.X509TrustManager
 
 abstract class BaseBehavior(xulPresenter: XulPresenter) : XulUiBehavior(xulPresenter) {
-    protected val okHttpClient: OkHttpClient = OkHttpClient.Builder()
-            .addNetworkInterceptor {
-                val response = it.proceed(it.request())
-                val onlineCacheTime = 5*60
-                return@addNetworkInterceptor response.newBuilder()
-                    .removeHeader("Pragma")
-                    .header("Cache-Control", "public, max-age=$onlineCacheTime")
-                    .build()
-            }
-            .cache(Cache(XulApplication.getAppContext().getDir("okhttpCache", Context.MODE_PRIVATE), 5*1024*1024))
-            .build()
-    protected val cacheControl: CacheControl = CacheControl.Builder()
-            .maxAge(5, TimeUnit.MINUTES)
-            .build()
+
 
     companion object {
         const val NAME = "BaseBehavior"
+
+        val okHttpClient: OkHttpClient = getUnsafeOkHttpClient()
+
+        val cacheControl: CacheControl = CacheControl.Builder()
+            .maxAge(5, TimeUnit.MINUTES)
+            .build()
+
+        private fun getUnsafeOkHttpClient(): OkHttpClient {
+            // Create a trust manager that does not validate certificate chains
+            val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
+                override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {
+                }
+
+                override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) {
+                }
+
+                override fun getAcceptedIssuers() = arrayOf<X509Certificate>()
+            })
+
+            // Install the all-trusting trust manager
+            val sslContext = SSLContext.getInstance("SSL")
+            sslContext.init(null, trustAllCerts, java.security.SecureRandom())
+            // Create an ssl socket factory with our all-trusting manager
+            val sslSocketFactory = sslContext.socketFactory
+
+            return OkHttpClient.Builder()
+                .sslSocketFactory(sslSocketFactory, trustAllCerts[0] as X509TrustManager)
+                .hostnameVerifier { _, _ -> true }
+                .addNetworkInterceptor {
+                    val response = it.proceed(it.request())
+                    val onlineCacheTime = 5 * 60
+                    return@addNetworkInterceptor response.newBuilder()
+                        .removeHeader("Pragma")
+                        .header("Cache-Control", "public, max-age=$onlineCacheTime")
+                        .build()
+                }
+                .cache(Cache(XulApplication.getAppContext().getDir("okhttpCache", Context.MODE_PRIVATE),5 * 1024 * 1024))
+                .build()
+        }
     }
+
+
 
     override fun xulOnRenderIsReady() {
 //        hideNavButtons()

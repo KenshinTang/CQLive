@@ -377,7 +377,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
             }
 
             override fun onFailure(call: Call?, e: IOException?) {
-                XulLog.e(NAME, "getAssetCategoryList onFailure")
+                XulLog.e(NAME, "getAssetCategoryList onFailure $e")
                 XulApplication.getAppInstance().postToMainLooper {
                     showEmptyTips(true)
                 }
@@ -815,7 +815,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                 .addQueryParameter("m", "Ad")
                 .addQueryParameter("c", "AdPosition")
                 .addQueryParameter("a", "getAdPositionInfo")
-                .addQueryParameter("ad_position_id", "100")
+                .addQueryParameter("ad_position_id", "live_cut")
             XulLog.i(NAME, "Request url: ${urlBuilder.build()}")
 
             request = Request.Builder().cacheControl(cacheControl).url(urlBuilder.build()).build()
@@ -842,21 +842,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                                 xulGetRenderContext().findItemById("switch-channel-ad").setAttr("img.0", imageAdUrl)
                                 xulGetRenderContext().findItemById("switch-channel-ad").resetRender()
 
-                                // 印象上报
-                                urlBuilder = HttpUrl.parse(Utils.HOST)!!.newBuilder()
-                                    .addQueryParameter("m", "Ad")
-                                    .addQueryParameter("c", "AdPosition")
-                                    .addQueryParameter("a", "AdPositionReportForShow")
-                                    .addQueryParameter("ad_position_id", "100")
-                                XulLog.i(NAME, "Request url: ${urlBuilder.build()}")
-                                request = Request.Builder().cacheControl(cacheControl).url(urlBuilder.build()).build()
-                                okHttpClient.newCall(request).enqueue(object : Callback {
-                                    override fun onFailure(call: Call, e: IOException) {
-                                    }
 
-                                    override fun onResponse(call: Call, response: Response) {
-                                    }
-                                })
                             }
                         }
                     }
@@ -1446,6 +1432,22 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                     mTimeshiftLogoView.setStyle("display", "none")
                     mTimeshiftLogoView.resetRender()
                 }
+
+                // 印象上报
+                val urlBuilder = HttpUrl.parse(Utils.HOST)!!.newBuilder()
+                    .addQueryParameter("m", "Ad")
+                    .addQueryParameter("c", "AdPosition")
+                    .addQueryParameter("a", "AdPositionReportForShow")
+                    .addQueryParameter("ad_position_id", "live_cut")
+                XulLog.i(NAME, "Request url: ${urlBuilder.build()}")
+                val request = Request.Builder().cacheControl(cacheControl).url(urlBuilder.build()).build()
+                okHttpClient.newCall(request).enqueue(object : Callback {
+                    override fun onFailure(call: Call, e: IOException) {
+                    }
+
+                    override fun onResponse(call: Call, response: Response) {
+                    }
+                })
 
                 mHandler.sendEmptyMessageDelayed(CommonMessage.EVENT_AUTO_HIDE_UI, 8 * 1000)
             } else {
