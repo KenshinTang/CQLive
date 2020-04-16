@@ -489,7 +489,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
             val programTime: String = "$beginTime - $endTime"
             program.setAttribute("program_time", programTime)
             program.setAttribute("live_id", liveId)
-            program.setAttribute("play_url", buildPlaybackUrl(date, beginTime, endTime))
+            program.setAttribute("play_url", buildPlaybackUrl(liveId, date, beginTime, endTime))
             mProgramListWrapper.addItem(program)
             program = program.next
         }
@@ -538,8 +538,15 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         return mCurrentChannelNode?.getAttributeValue("play_url")?:""
     }
 
-    private fun buildPlaybackUrl(date: String, beginTime: String, endTime: String): String {
-        val liveUrl = mCurrentChannelNode?.getAttributeValue("play_url")?:""
+    private fun buildPlaybackUrl(liveId: String?, date: String, beginTime: String, endTime: String): String {
+        var channelNode = mLiveDataNode?.getChildNode("data")?.firstChild?.getChildNode("live_list")?.firstChild
+        while (channelNode != null) {
+            if (channelNode.getAttributeValue("live_id") == liveId) {
+                break
+            }
+            channelNode = channelNode.next
+        }
+        val liveUrl = channelNode?.getAttributeValue("play_url")?:""
         if (TextUtils.isEmpty(liveUrl)) {
             return ""
         }
