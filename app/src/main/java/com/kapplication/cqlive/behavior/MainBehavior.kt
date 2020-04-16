@@ -29,10 +29,10 @@ import com.kapplication.cqlive.message.CommonMessage
 import com.kapplication.cqlive.utils.KeyEventListener
 import com.kapplication.cqlive.utils.Utils
 import com.kapplication.cqlive.widget.PlayerSeekBarRender
-import com.kapplication.cqlivesdk.CQLiveSDK
-import com.kapplication.cqlivesdk.LiveCallback
-import com.kapplication.cqlivesdk.model.CategoryList
-import com.kapplication.cqlivesdk.model.ProgramList
+//import com.kapplication.cqlivesdk.CQLiveSDK
+//import com.kapplication.cqlivesdk.LiveCallback
+//import com.kapplication.cqlivesdk.model.CategoryList
+//import com.kapplication.cqlivesdk.model.ProgramList
 import com.starcor.xul.Prop.XulPropNameCache
 import com.starcor.xul.Wrapper.XulMassiveAreaWrapper
 import com.starcor.xul.Wrapper.XulSliderAreaWrapper
@@ -129,6 +129,10 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
 
     private var mLiveCollectionCache: XulCacheDomain? = null
 
+    private var todayYear: String? = ""
+    private var todayMonth: String? = ""
+    private var todayDay: String? = ""
+
     private val mMainBehavior = WeakReference<MainBehavior>(this)
     private val mHandler = HideUIHandler(mMainBehavior)
 
@@ -172,42 +176,42 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                         or XulCacheCenter.CACHE_FLAG_PROPERTY).build()
         initView()
         requestChannel()
-//        sdkTest()
+        sdkTest()
         super.xulOnRenderIsReady()
     }
 
     private fun sdkTest() {
-        CQLiveSDK.getCategoryList(object: LiveCallback {
-            override fun onSuccess(result: ArrayList<*>) {
-                for (c in result) {
-                    c as CategoryList.Category
-                    XulLog.e("kenshin", "category = $c")
-                    for (channel in c.channelList) {
-                        XulLog.e("kenshin", "channel = $channel")
-                    }
-                }
-            }
-
-            override fun onFailed(code: Int, reason: String) {
-                XulLog.e("kenshin", "code = $code, reason = $reason")
-            }
-        })
-
-        CQLiveSDK.getProgramList("515972557", object :LiveCallback{
-            override fun onSuccess(result: ArrayList<*>) {
-                for (p in result) {
-                    p as ProgramList.Program
-                    XulLog.e("kenshin", "program = $p")
-                    for (playbill in p.playbillList) {
-                        XulLog.e("kenshin", "playbill = $playbill")
-                    }
-                }
-            }
-
-            override fun onFailed(code: Int, reason: String) {
-                XulLog.e("kenshin", "code = $code, reason = $reason")
-            }
-        })
+//        CQLiveSDK.getCategoryList(object: LiveCallback {
+//            override fun onSuccess(result: ArrayList<*>) {
+//                for (c in result) {
+//                    c as CategoryList.Category
+//                    XulLog.e("kenshin", "category = $c")
+//                    for (channel in c.channelList) {
+//                        XulLog.e("kenshin", "channel = $channel")
+//                    }
+//                }
+//            }
+//
+//            override fun onFailed(code: Int, reason: String) {
+//                XulLog.e("kenshin", "code = $code, reason = $reason")
+//            }
+//        })
+//
+//        CQLiveSDK.getProgramList("515972557", object :LiveCallback{
+//            override fun onSuccess(result: ArrayList<*>) {
+//                for (p in result) {
+//                    p as ProgramList.Program
+//                    XulLog.e("kenshin", "program = $p")
+//                    for (playbill in p.playbillList) {
+//                        XulLog.e("kenshin", "playbill = $playbill")
+//                    }
+//                }
+//            }
+//
+//            override fun onFailed(code: Int, reason: String) {
+//                XulLog.e("kenshin", "code = $code, reason = $reason")
+//            }
+//        })
     }
 
     override fun initRenderContextView(renderContextView: View): View {
@@ -348,6 +352,10 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
 
                     mLiveDataNode = XulDataNode.buildFromJson(result)
                     val dataNode: XulDataNode? = mLiveDataNode
+                    val todayDate = dataNode?.getAttributeValue("time")
+                    todayYear = todayDate?.substring(0, 4)
+                    todayMonth = todayDate?.substring(5, 7)
+                    todayDay = todayDate?.substring(8, 10)
 
                     if (handleError(dataNode)) {
                         XulApplication.getAppInstance().postToMainLooper {
@@ -473,11 +481,15 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         mProgramListWrapper.clear()
         mProgramListWrapper.asView?.findParentByType("layer")?.dynamicFocus = null
         XulSliderAreaWrapper.fromXulView(mProgramListWrapper.asView.parent)?.scrollTo(0, false)
+        val date = programData.getAttributeValue("date")
         var program = programData.getChildNode("playbill_list").firstChild
         while (program != null) {
-            val programTime: String = program.getAttributeValue("begin_time") + " - " + program.getAttributeValue("end_time")
+            val beginTime = program.getAttributeValue("begin_time")
+            val endTime = program.getAttributeValue("end_time")
+            val programTime: String = "$beginTime - $endTime"
             program.setAttribute("program_time", programTime)
             program.setAttribute("live_id", liveId)
+            program.setAttribute("play_url", buildPlaybackUrl(date, beginTime, endTime))
             mProgramListWrapper.addItem(program)
             program = program.next
         }
@@ -524,6 +536,18 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         loadPreviewBitmaps()
 
         return mCurrentChannelNode?.getAttributeValue("play_url")?:""
+    }
+
+    private fun buildPlaybackUrl(date: String, beginTime: String, endTime: String): String {
+        val liveUrl = mCurrentChannelNode?.getAttributeValue("play_url")?:""
+        if (TextUtils.isEmpty(liveUrl)) {
+            return ""
+        }
+        val month: String = date.substring(0, 2)
+        val day: String = date.substring(3, 5)
+        val startTime = Utils.convertStringToDate("${todayYear}年${month}月${day}日 $beginTime")
+        val stopTime = Utils.convertStringToDate("${todayYear}年${month}月${day}日 $endTime")
+        return "$liveUrl?startTime=$startTime&stopTime=$stopTime"
     }
 
     private var mPreparedReadyTime: Long = 0
@@ -616,7 +640,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
         mIsLiveMode = false
         showControlFrame(true)
         mMediaPlayer.stop()
-        XulLog.i(NAME, "play Playback!!!")
+        XulLog.i(NAME, "play Playback!!! $playUrl")
 //        val testUrl = "http://7xjmzj.com1.z0.glb.clouddn.com/20171026175005_JObCxCE2.mp4"
 //        val testUrl = "http://9890.vod.myqcloud.com/9890_4e292f9a3dd011e6b4078980237cc3d3.f20.mp4"
 
@@ -920,9 +944,6 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
 
                     mPlaybackDataNode = XulDataNode.buildFromJson(result)
                     val dataNode: XulDataNode? = mPlaybackDataNode
-                    val todayDate: String? = dataNode?.getAttributeValue("time")
-                    val todayMonth: String? = todayDate?.substring(5, 7)
-                    val todayDay: String? = todayDate?.substring(8, 10)
 
                     if (handleError(dataNode)) {
 //                        XulApplication.getAppInstance().postToMainLooper {
@@ -1408,7 +1429,7 @@ class MainBehavior(xulPresenter: XulPresenter) : BaseBehavior(xulPresenter), Pla
                 }
             }
             syncFocus()
-            mHandler.sendEmptyMessageDelayed(CommonMessage.EVENT_AUTO_HIDE_UI, 8 * 1000)
+//            mHandler.sendEmptyMessageDelayed(CommonMessage.EVENT_AUTO_HIDE_UI, 8 * 1000)
         }
         mChannelArea.setAttr("x", if(show) "0" else "-1870")
         mChannelArea.resetRender()

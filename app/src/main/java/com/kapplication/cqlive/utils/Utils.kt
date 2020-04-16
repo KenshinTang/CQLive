@@ -13,6 +13,7 @@ import java.net.Inet4Address
 import java.net.InetAddress
 import java.net.NetworkInterface
 import java.net.SocketException
+import java.text.SimpleDateFormat
 
 /**
  * Created by Kenshin on 2018/7/19.
@@ -155,6 +156,11 @@ class Utils{
             } else {
                 "${(tempResult / 1024).toInt()} Kb/s"
             }
+        }
+
+        fun convertStringToDate(dateString: String): Long {
+            val dateFormat = SimpleDateFormat("yyyy年MM月dd日 HH:mm")
+            return dateFormat.parse(dateString).time / 1000
         }
     }
 }

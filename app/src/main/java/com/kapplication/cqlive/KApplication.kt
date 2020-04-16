@@ -5,7 +5,7 @@ import com.kapplication.cqlive.behavior.MainBehavior
 import com.kapplication.cqlive.message.CommonMessage
 import com.kapplication.cqlive.utils.Utils
 import com.kapplication.cqlive.widget.PlayerSeekBarRender
-import com.kapplication.cqlivesdk.CQLiveSDK
+//import com.kapplication.cqlivesdk.CQLiveSDK
 import com.starcor.xulapp.XulApplication
 import com.starcor.xulapp.debug.XulDebugServer
 import com.starcor.xulapp.message.XulMessageCenter
@@ -29,7 +29,7 @@ class KApplication : XulApplication() {
         CrashReport.putUserData(applicationContext, "ip", Utils.getIpAddress(applicationContext))
         CrashReport.putUserData(applicationContext, "mac", Utils.getMac(applicationContext))
 
-        CQLiveSDK.init(this)
+//        CQLiveSDK.init(this)
         super.onCreate()
         startCommonMessage()
     }
